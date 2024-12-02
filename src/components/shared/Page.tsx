@@ -13,7 +13,7 @@ const Header = (props: { children?: React.ReactNode }) => <div className='col-12
 Page.Header = Header;
 
 const Aside = (props: { children?: React.ReactNode; collapsed?: boolean }) => {
-	const className = props.collapsed ? 'd-none' : 'col-4';
+	const className = props.collapsed ? 'd-none' : 'col-2';
 	return <div className={className}>{props.children}</div>;
 };
 Page.Aside = Aside;

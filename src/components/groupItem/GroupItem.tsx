@@ -3,6 +3,7 @@ import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { GroupItemProps } from '../../infrastructure/dtos/GroupItemProps';
 
+
 const GroupItem: React.FC<GroupItemProps> = ({ label, checked, onChange }) => {
   return (
     <div>

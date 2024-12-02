@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from 'react';
-import { setSelectedProjects } from '../../infrastructure/store/slices/File/Projects-Slice';
+import { setSelectedProjects, addSelectedProject } from '../../infrastructure/store/slices/File/Projects-Slice';
 import { MockDataGetAll } from '../../infrastructure/MockData/MockDataGetAll';
 
 type HandleCheckboxChange = (
@@ -11,15 +11,20 @@ type HandleCheckboxChange = (
 ) => void;
 
 export const handleCheckboxChange: HandleCheckboxChange = (groupName, checked, checkedStates, setCheckedStates, dispatch) => {
-  setCheckedStates((prev) => ({
-    ...prev,
-    [groupName]: checked,
-  }));
-
-  if (checked) {
-    const projects = MockDataGetAll.jobs.filter((job) => job.name.startsWith(groupName));
-    dispatch(setSelectedProjects(projects));
-  } else {
-    dispatch(setSelectedProjects([]));
-  }
-};
+    const updatedCheckedStates = {
+      ...checkedStates,
+      [groupName]: checked,
+    };
+    const selectedGroups = Object.keys(updatedCheckedStates).filter(group => updatedCheckedStates[group]);
+  
+    const selectedProjects = MockDataGetAll.jobs.filter((job) => {
+      const currentGroup = job.name.split('_')[0];
+      return selectedGroups.includes(currentGroup);
+    });
+  
+    dispatch(setSelectedProjects(selectedProjects));
+  
+    setCheckedStates(updatedCheckedStates);
+  
+    console.log(selectedProjects);
+  };

@@ -5,36 +5,29 @@ import JobItem from '../jobItem/JobItem';
 import { JobDto } from '../../infrastructure/dtos/JobDto';
 
 const HomePageMain = () => {
-    const selectedProjects: Project[] = useAppSelector((state) => state.getProjectName.selectedProjects);
-
+    const selectedProjects: JobDto[] = useAppSelector((state) => state.getProjectName.selectedProjects);
+  
+    const groupedProjects = selectedProjects.reduce((groups, job) => {
+      const group = job.name.split('_')[0];
+      if (!groups[group]) {
+        groups[group] = [];
+      }
+      groups[group].push(job);
+      return groups;
+    }, {} as Record<string, JobDto[]>);
+  
     return (
-        <Container>
-            {selectedProjects.length > 0 ? (
-                <List>
-                    {selectedProjects.map((project) => (
-                        <React.Fragment key={project.name}>
-                            <ListItem divider>
-                                <ListItemText primary={project.name} />
-                            </ListItem>
-                            {project.jobs && project.jobs.length > 0 && (
-                                <List>
-                                    {project.jobs.map((job: JobDto) => (
-                                        <ListItem key={job.name}>
-                                            <JobItem job={job} />
-                                        </ListItem>
-                                    ))}
-                                </List>
-                            )}
-                        </React.Fragment>
-                    ))}
-                </List>
-            ) : (
-                <Typography variant="h6" color="textSecondary">
-                    Seçili grup için proje bulunamadı.
-                </Typography>
-            )}
-        </Container>
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        {Object.entries(groupedProjects).map(([groupName, jobs]) => (
+          <div key={groupName} style={{ margin: '0 10px' }}>
+            <h3>{groupName}</h3>
+            {jobs.map((job) => (
+              <JobItem key={job.name} job={job} />
+            ))}
+          </div>
+        ))}
+      </div>
     );
-};
-
-export default HomePageMain;
+  };
+  
+  export default HomePageMain;

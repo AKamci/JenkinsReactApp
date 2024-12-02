@@ -22,8 +22,6 @@ const HomePageLeftNav = () => {
 	);
 
 
-
-
 	return (
 		<div>
 			{Object.keys(checkedStates).map((groupName) => (

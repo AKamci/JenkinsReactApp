@@ -19,7 +19,7 @@ const Aside = (props: { children?: React.ReactNode; collapsed?: boolean }) => {
 Page.Aside = Aside;
 
 const Main = (props: { children?: React.ReactNode; fullPage?: boolean }) => {
-	const grid = props.fullPage ? '12' : '8';
+	const grid = props.fullPage ? '12' : '10';
 	return <div className={'col-' + grid}>{props.children}</div>;
 };
 Page.Main = Main;

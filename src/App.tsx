@@ -4,17 +4,21 @@ import 'primereact/resources/primereact.min.css';
 import './assets/app.css';
 import React from 'react';
 import { ToastContainer } from 'react-toastify';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
 import 'react-toastify/dist/ReactToastify.css';
 
 
+import { HotKeys } from 'react-hotkeys';
+import KeyMap from './shortcuts/KeyMap';
+import  {Handlers}  from './shortcuts/Handlers';
+
 const App = () => {
 	return (
-		<>
-			<Routers />
-			<ToastContainer />
-		</>
+		<HotKeys keyMap={KeyMap} handlers={Handlers}>
+			<>
+				<Routers />
+				<ToastContainer />
+			</>
+		</HotKeys>
 	);
 };
 

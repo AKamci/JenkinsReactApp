@@ -3,6 +3,8 @@ import Navbar from '../shared/Navbar';
 import React, { useState } from 'react';
 import HomePageLeftNav from '../left-nav/HomePageLeftNav';
 import HomePageMain from '../main/HomePageMain';
+import { Button } from 'primereact/button';
+
 
 const HomePage = () => {
 	console.log('Homepage is rendered.');
@@ -16,8 +18,8 @@ const HomePage = () => {
 		<Page>
 			<Page.Header>
 				<Navbar />
-				<button onClick={toggleSidebar} aria-expanded={!isCollapsed} aria-label="Toggle Sidebar">
-					{isCollapsed ? '→' : '←'}
+				<button id="sidebarToggle" className="sidebar-button" onClick={toggleSidebar} aria-expanded={!isCollapsed} aria-label="Toggle Sidebar">
+    			{isCollapsed ? '→' : '←'}
 				</button>
 			</Page.Header>
 			<Page.Aside collapsed={isCollapsed}>

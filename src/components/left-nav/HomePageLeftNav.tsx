@@ -1,39 +1,38 @@
 import React, { useEffect, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '../../infrastructure/store/store';
 import { JobDto } from '../../infrastructure/dtos/JobDto';
-import { getAllJob } from '../../infrastructure/store/slices/Job/GetAllJob-Slice';
 import { MockDataGetAll } from '../../infrastructure/MockData/MockDataGetAll';
 
 import axios from 'axios';
 import GroupItem from '../groupItem/GroupItem';
 import { setSelectedProjects } from '../../infrastructure/store/slices/File/Projects-Slice';
-import { handleCheckboxChange } from '../func/handleCheckBoxChance';
+import { handleCheckbox } from '../func/handleCheckBoxChance';
+import { getAllJob } from '../../infrastructure/store/slices/Job/GetAllJob-Slice';
 
-const HomePageLeftNav = () => {
-  const dispatch = useAppDispatch();
-	const getAllJobData = useAppSelector((state) => state.getAllJob.data);
-
-	const [checkedStates, setCheckedStates] = useState<{ [key: string]: boolean }>(
-		MockDataGetAll.jobs.reduce((acc, job) => {
-			const groupName = job.name.split('_')[0];
-			acc[groupName] = false;
-			return acc;
-		}, {} as { [key: string]: boolean }),
-	);
-
-
+const HomePageLeftNav: React.FC = () => {
+	const dispatch = useAppDispatch();
+	const allJobWithName = useAppSelector((state) => state.getAllJob.data);
+	const [checkedJobs, setCheckedJobs] = useState<Record<string, boolean>>({});
+  
+	useEffect(() => {
+	  const fetchData = async () => {
+		await dispatch(getAllJob());
+	  };
+	  fetchData();
+	}, [dispatch]);
+  
 	return (
-		<div>
-			{Object.keys(checkedStates).map((groupName) => (
-				<GroupItem
-					key={groupName}
-					label={groupName}
-					checked={checkedStates[groupName]}
-					onChange={(checked) => handleCheckboxChange(groupName, checked, checkedStates, setCheckedStates, dispatch)}
-				/>
-			))}
-		</div>
+	  <div>
+		{allJobWithName && allJobWithName.jobs && allJobWithName.jobs.map((job: JobDto) => (
+		  <GroupItem
+			key={job.name}
+			label={job.name}
+			checked={!!checkedJobs[job.name]}
+			onChange={(isChecked) => handleCheckbox(job, isChecked, setCheckedJobs, dispatch)}
+		  />
+		))}
+	  </div>
 	);
-};
-
-export default HomePageLeftNav;
+  };
+  
+  export default HomePageLeftNav;

@@ -4,23 +4,19 @@ import GroupCard from '../groupItem/GroupCard';
 import { JobDto } from '../../infrastructure/dtos/JobDto';
 
 const HomePageMain = () => {
+
+    //İlgili Dosyaların tüm repositorylerini çek.
+
     const selectedProjects: JobDto[] = useAppSelector((state) => state.getProjectName.selectedProjects);
-  
-    const groupedProjects = selectedProjects.reduce((groups, job) => {
-        const group = job.name.split('_')[0];
-        if (!groups[group]) {
-            groups[group] = [];
-        }
-        groups[group].push(job);
-        return groups;
-    }, {} as Record<string, JobDto[]>);
+    console.log(selectedProjects, "selectedProjects")
+
 
     return (
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            {Object.entries(groupedProjects).map(([groupName, jobs]) => (
-                <GroupCard key={groupName} groupName={groupName} jobs={jobs} />
-            ))}
-        </div>
+        {selectedProjects.map((job) => (
+            <GroupCard key={job.name} groupName={job.name} jobs={[job]} />
+        ))}
+    </div>
     );
 };
 

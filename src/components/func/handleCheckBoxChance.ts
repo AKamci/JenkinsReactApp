@@ -1,6 +1,7 @@
 import { Dispatch, SetStateAction } from 'react';
-import { setSelectedProjects, addSelectedProject } from '../../infrastructure/store/slices/File/Projects-Slice';
+import { setSelectedProjects, addSelectedProject, removeSelectedProject } from '../../infrastructure/store/slices/File/Projects-Slice';
 import { MockDataGetAll } from '../../infrastructure/MockData/MockDataGetAll';
+import { JobDto } from '../../infrastructure/dtos/JobDto';
 
 type HandleCheckboxChange = (
   groupName: string,
@@ -10,21 +11,29 @@ type HandleCheckboxChange = (
   dispatch: any 
 ) => void;
 
-export const handleCheckboxChange: HandleCheckboxChange = (groupName, checked, checkedStates, setCheckedStates, dispatch) => {
-    const updatedCheckedStates = {
-      ...checkedStates,
-      [groupName]: checked,
+export const handleCheckbox = (
+  job: JobDto,
+  isChecked: boolean,
+  setCheckedJobs: React.Dispatch<React.SetStateAction<Record<string, boolean>>>,
+  dispatch: Dispatch<any>
+) => {
+  setCheckedJobs((prevState) => {
+    const newState = {
+      ...prevState,
+      [job.name]: isChecked,
     };
-    const selectedGroups = Object.keys(updatedCheckedStates).filter(group => updatedCheckedStates[group]);
-  
-    const selectedProjects = MockDataGetAll.jobs.filter((job) => {
-      const currentGroup = job.name.split('_')[0];
-      return selectedGroups.includes(currentGroup);
-    });
-  
-    dispatch(setSelectedProjects(selectedProjects));
-  
-    setCheckedStates(updatedCheckedStates);
-  
-    console.log(selectedProjects);
-  };
+
+    // Konsola yazdırma işlemi
+    console.log(`Checkbox değişti: ${job.name} - ${isChecked ? 'Seçildi' : 'Seçilmedi'}`);
+    console.log('Güncellenmiş kontrol durumu:', newState);
+
+    // Projeye göre ekleme ya da çıkarma işlemi
+    if (isChecked) {
+      dispatch(addSelectedProject(job));
+    } else {
+      dispatch(removeSelectedProject(job.name));
+    }
+
+    return newState;
+  });
+};

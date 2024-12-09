@@ -1,30 +1,38 @@
 import React, { useEffect } from 'react';
 import { Container, Typography, Box, Button } from '@mui/material';
-import JobItem from '../jobItem/JobItem'; 
-import { JobDto } from '../../infrastructure/dtos/JobDto';
+import RepositoryItem from './RepositoryItem'; 
 import { useDispatch } from 'react-redux';
 import { removeSelectedProject } from '../../infrastructure/store/slices/File/Projects-Slice';
-import { AppDispatch, useAppDispatch, useAppSelector } from '../../infrastructure/store/store';
+import { AppDispatch, useAppSelector } from '../../infrastructure/store/store';
 import { GetRepositoryJob } from '../../infrastructure/store/slices/Job/GetRepositoryJob-Slice';
 
 interface GroupCardProps {
   groupName: string;
-  jobs: JobDto[];
 }
 
-
-const GroupCard: React.FC<GroupCardProps> = ({ groupName, jobs }) => {
+const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
   const dispatch = useDispatch<AppDispatch>();
-	const getRepositoryJobData = useAppSelector((state) => state.getRepositoryJob.data);
-  console.log(groupName,jobs, "groupName,jobs")
-
+  const getRepositoryJobData = useAppSelector(
+    (state) => state.getRepositoryJob[groupName]?.jobs
+  );
+  const apiSettings = useAppSelector((state) => state.getApiSettings.selectedApiSettings);
 
   useEffect(() => {
-    dispatch(GetRepositoryJob({jobName: groupName})); 
-}, [dispatch, groupName]);
+    const fetchJobData = () => {
+      dispatch(GetRepositoryJob({ jobName: groupName, groupName, apiSettings }));
+      console.log(getRepositoryJobData, "getRepositoryJobData");
+    };
+
+    fetchJobData(); 
+    const intervalId = setInterval(fetchJobData, 10000);
+
+    return () => clearInterval(intervalId); 
+
+  }, [dispatch, groupName, apiSettings]); 
 
   const handleRemoveGroup = () => {
     dispatch(removeSelectedProject(groupName));
+    console.log(getRepositoryJobData, "getRepositoryJobData");
   };
 
   return (
@@ -48,11 +56,11 @@ const GroupCard: React.FC<GroupCardProps> = ({ groupName, jobs }) => {
           <Button onClick={handleRemoveGroup}>{groupName}</Button>
         </Typography>
         {getRepositoryJobData?.jobs?.map((job) => (
-          <JobItem key={job.name} job={job} />
+          <RepositoryItem key={job.name} job={job} parent={groupName}/>
         ))}
       </Box>
     </Container>
   );
 };
 
-export default GroupCard;
+export default GroupBoxItem;

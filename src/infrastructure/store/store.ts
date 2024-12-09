@@ -5,15 +5,19 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import GetJobSlice from './slices/Job/GetJob-Slice';
 import GetAllJob  from './slices/Job/GetAllJob-Slice';
 import Projects  from './slices/File/Projects-Slice';
+import ApiSettings  from './slices/File/ApiSettings-Slice';
 import  GetRepositoryJob  from './slices/Job/GetRepositoryJob-Slice';
+import  GetBranchJob  from './slices/Job/GetBranchJob-Slice';
 
 
 const store = configureStore({
 	reducer: {
 		getJob: GetJobSlice,
 		getRepositoryJob: GetRepositoryJob,
+		getBranchJob: GetBranchJob,
 		getAllJob: GetAllJob,
 		getProjectName: Projects,
+		getApiSettings: ApiSettings,
 
 	},
 	middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(thunk),

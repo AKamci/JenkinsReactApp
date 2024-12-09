@@ -1,35 +1,32 @@
 import axios from 'axios';
-import { AsyncThunk, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { AsyncThunk, createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import ApiState from "../../../Enums/ApiState";
 import Endpoints from '../../../Helpers/Api-Endpoints';
 import { JobDto } from '../../../dtos/JobDto';
 import { BaseDto } from '../../../dtos/BaseDto';
 
-
-export interface BaseState {
-    data: BaseDto;
+export interface JobState {
+    jobs: BaseDto;
     state: ApiState;
-    activeRequest: number | null;
-    responseStatus: number | null; 
-    errorMessage: string | null;   
+    responseStatus: number | null;
+    errorMessage: string | null;
 }
 
-const initialState = { 
-    state: ApiState.Idle, 
-    activeRequest: null, 
-    data: {} as BaseDto, 
-    responseStatus: null, 
-    errorMessage: null    
-} as BaseState;
+export interface GroupedJobState {
+    [groupName: string]: JobState;
+}
 
-export const GetRepositoryJob = createAsyncThunk<BaseDto, { jobName: string }, { state: BaseState }>(
-    'getJob',
-    async ({ jobName }, { rejectWithValue }) => {
-        console.log("jobName : ")
-        console.log(jobName)
-        
+const initialState: GroupedJobState = {};
+
+export const GetRepositoryJob = createAsyncThunk<
+    { groupName: string; jobs: BaseDto }, 
+    { jobName: string; groupName: string, apiSettings:string[] },
+    { state: GroupedJobState }
+>(
+    'getRepositoryJob',
+    async ({ jobName, groupName, apiSettings }, { rejectWithValue }) => {
         try {
-            const response = await axios.get<BaseDto>(Endpoints.Job.GetRepository_Name_Url(jobName), {
+            const response = await axios.get<BaseDto>(Endpoints.Job.GetRepository_Name_Url(jobName, apiSettings), {
                 auth: {
                     username: "admin",
                     password: "110ab84a7c0f09acbbd4aa6affd5c13c3c",
@@ -38,58 +35,70 @@ export const GetRepositoryJob = createAsyncThunk<BaseDto, { jobName: string }, {
                     'Content-Type': 'application/json',
                 },
             });
-            console.log("Status:", response.status);
-            return response.data;
+            console.log(Endpoints.Job.GetRepository_Name_Url(jobName, apiSettings),"Endpoints.Job.GetRepository_Name_Url(jobName, apiSettings)")
+            return { groupName, jobs: response.data };
         } catch (error: any) {
-            
-            const status = error.response ? error.response.status : 500; 
+            const status = error.response ? error.response.status : 500;
             const message = error.response?.data?.message || "An error occurred";
-            console.error("Error status:", status, "Message:", message);
-            return rejectWithValue({ status, message });
+            return rejectWithValue({ groupName, status, message });
         }
     }
 );
 
-const GetJobSlice = createSlice({
+const GetRepositoryJobSlice = createSlice({
     name: 'getRepositoryJob',
     initialState,
+    reducers: {
+        resetJobState: (state, action: PayloadAction<string>) => {
+            const groupName = action.payload;
+            if (state[groupName]) {
+                state[groupName] = {
+                    jobs: {} as BaseDto,
+                    state: ApiState.Idle,
+                    responseStatus: null,
+                    errorMessage: null,
+                };
+            }
+        },
+    },
     extraReducers: (builder) => {
         builder.addCase(GetRepositoryJob.pending, (state, action) => {
-            state.state = ApiState.Pending;
-            state.responseStatus = null; 
-            state.errorMessage = null;   
+            const groupName = action.meta.arg.groupName;
+            if (!state[groupName]) {
+                state[groupName] = {
+                    jobs: {} as BaseDto,
+                    state: ApiState.Idle,
+                    responseStatus: null,
+                    errorMessage: null,
+                };
+            }
+            state[groupName].state = ApiState.Pending;
+            state[groupName].responseStatus = null;
+            state[groupName].errorMessage = null;
         });
         builder.addCase(GetRepositoryJob.fulfilled, (state, action) => {
-            console.log("Müşteri verisi Redux'a geldi:", action.payload);
-            state.data = action.payload;
-            state.state = ApiState.Fulfilled;
-            state.responseStatus = 200;  
-            state.errorMessage = null;   
+            const { groupName, jobs } = action.payload;
+            state[groupName].jobs = jobs;
+            state[groupName].state = ApiState.Fulfilled;
+            state[groupName].responseStatus = 200;
+            state[groupName].errorMessage = null;
         });
         builder.addCase(GetRepositoryJob.rejected, (state, action) => {
-            state.state = ApiState.Rejected;
-            if (action.payload) {
-                state.responseStatus = (action.payload as any).status;  
-                state.errorMessage = (action.payload as any).message;   
-            } else {
-                state.responseStatus = null; 
-                state.errorMessage = "Unknown error occurred"; 
+            const groupName = action.meta.arg.groupName;
+            if (state[groupName]) {
+                state[groupName].state = ApiState.Rejected;
+                if (action.payload) {
+                    state[groupName].responseStatus = (action.payload as any).status;
+                    state[groupName].errorMessage = (action.payload as any).message;
+                } else {
+                    state[groupName].responseStatus = null;
+                    state[groupName].errorMessage = "Unknown error occurred";
+                }
             }
         });
     },
-    reducers: {
-        setActiveRequest: (state, action) => {
-            state.activeRequest = action.payload;
-        },
-        resetJobState: (state) => {
-            state.data = {} as BaseDto; 
-            state.state = ApiState.Idle;
-            state.responseStatus = null;
-            state.errorMessage = null;
-        },
-    },
 });
 
-export const { setActiveRequest, resetJobState } = GetJobSlice.actions;
+export const { resetJobState } = GetRepositoryJobSlice.actions;
 
-export default GetJobSlice.reducer;
+export default GetRepositoryJobSlice.reducer;

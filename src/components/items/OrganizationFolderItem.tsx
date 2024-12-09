@@ -4,7 +4,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import { GroupItemProps } from '../../infrastructure/dtos/GroupItemProps';
 
 
-const GroupItem: React.FC<GroupItemProps> = ({ label, checked, onChange }) => {
+const OrganizationFolderItem: React.FC<GroupItemProps> = ({ label, checked, onChange }) => {
   return (
     <div>
       <FormControlLabel
@@ -20,4 +20,4 @@ const GroupItem: React.FC<GroupItemProps> = ({ label, checked, onChange }) => {
   );
 };
 
-export default GroupItem;
+export default OrganizationFolderItem;

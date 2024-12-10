@@ -1,6 +1,6 @@
 import { JobDto } from '../../infrastructure/dtos/JobDto';
 import * as React from 'react';
-import { Box, Card, CardContent, IconButton, Typography, Collapse, Fade, Chip } from '@mui/material';
+import { Box, Card, CardContent, IconButton, Typography, Collapse, Fade, Chip, Grid } from '@mui/material';
 import { ExpandMore, AccountTree, AccountTreeOutlined, LinkOutlined, CheckCircle, Cancel } from '@mui/icons-material';
 import BranchItem from './BranchItem';
 import { useDispatch } from 'react-redux';
@@ -172,9 +172,13 @@ const RepositoryItem: React.FC<{ job: JobDto; parent: string }> = ({ job, parent
               borderBottomLeftRadius: '12px',
               borderBottomRightRadius: '12px'
             }}>
-              {BranchJobData[job.name]?.jobs?.map((branchJob, index) => (
-                <BranchItem key={index} job={branchJob} />
-              ))}
+              <Grid container spacing={2}>
+                {BranchJobData[job.name]?.jobs?.map((branchJob, index) => (
+                  <Grid item xs={6} key={index}>
+                    <BranchItem job={branchJob} />
+                  </Grid>
+                ))}
+              </Grid>
             </Box>
           </Collapse>
         </StyledCard>

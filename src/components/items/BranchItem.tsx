@@ -5,27 +5,27 @@ import { CodeRounded, TimerOutlined, LinkOutlined } from '@mui/icons-material';
 import { red, grey, blue, green } from '@mui/material/colors';
 
 const StyledCard = styled(Card)(({ theme }) => ({
-  margin: '2px 0',
+  margin: '1px 0',
   transition: 'all 0.2s ease',
   background: 'linear-gradient(145deg, #ffffff, #fafafa)',
   '&:hover': {
-    transform: 'translateX(2px)',
+    transform: 'translateX(1px)',
     boxShadow: theme.shadows[1]
   }
 }));
 
 const StyledCardContent = styled(CardContent)({
-  padding: '6px !important',
+  padding: '4px !important',
   '&:last-child': {
-    paddingBottom: '6px !important'
+    paddingBottom: '4px !important'
   }
 });
 
 const StyledChip = styled(Chip)({
-  height: '20px',
+  height: '16px',
   '& .MuiChip-label': {
-    fontSize: '0.65rem',
-    padding: '0 4px'
+    fontSize: '0.6rem',
+    padding: '0 3px'
   }
 });
 
@@ -45,61 +45,55 @@ type BranchJobItemProps = {
 const BranchItem: React.FC<BranchJobItemProps> = ({ job }) => {
   const colorScheme = getColorScheme(job.color);
 
+  const handleLinkClick = () => {
+    window.open(`${job.url}`, '_blank');
+  };
+
   return (
     <StyledCard variant="outlined" sx={{ 
       borderColor: colorScheme.text,
-      borderWidth: '1.5px',
-      borderRadius: '8px'
+      borderWidth: '1px',
+      borderRadius: '4px'
     }}>
       <StyledCardContent>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          <Box sx={{ 
-            borderRadius: '50%',
-            padding: '3px',
-            backgroundColor: colorScheme.bg,
-            display: 'flex',
-            alignItems: 'center'
-          }}>
-            <CodeRounded sx={{ fontSize: 14, color: colorScheme.text }} />
-          </Box>
-          <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.25 }}>
-              <Typography 
-                variant="body2" 
-                sx={{ 
-                  fontWeight: 500,
-                  color: colorScheme.text,
-                  fontSize: '0.8rem',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                {job.name}
-              </Typography>
-              <IconButton 
-                size="small" 
-                sx={{ 
-                  color: colorScheme.text,
-                  padding: '1px',
-                  '&:hover': { color: grey[900] }
-                }}
-              >
-                <LinkOutlined sx={{ fontSize: 12 }} />
-              </IconButton>
-            </Box>
-            <StyledChip
-              icon={<TimerOutlined sx={{ fontSize: 10 }} />}
-              label={job.lastBuild?.timestamp ? new Date(job.lastBuild.timestamp).toLocaleString() : 'Henüz build yok'}
-              size="small" 
-              variant="outlined"
-              sx={{
-                borderColor: colorScheme.border,
-                color: colorScheme.text,
-                backgroundColor: colorScheme.bg,
-              }}
-            />
-          </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1 }}>
+          <CodeRounded sx={{ fontSize: 14, color: colorScheme.text }} />
+          <Typography 
+            variant="body2" 
+            sx={{ 
+              fontWeight: 500,
+              color: colorScheme.text,
+              fontSize: '0.75rem',
+              flexGrow: 1
+            }}
+          >
+            {job.name}
+          </Typography>
+          <IconButton 
+            size="small" 
+            onClick={handleLinkClick}
+            sx={{ 
+              color: colorScheme.text,
+              padding: 0,
+              '&:hover': { color: grey[900] }
+            }}
+          >
+            <LinkOutlined sx={{ fontSize: 12 }}  />
+          </IconButton>
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <StyledChip
+            icon={<TimerOutlined sx={{ fontSize: 4 }} />}
+            label={job.lastBuild?.timestamp ? new Date(job.lastBuild.timestamp).toLocaleString() : 'Henüz build yok'}
+            size="small" 
+            variant="outlined"
+            sx={{
+              borderColor: colorScheme.border,
+              color: colorScheme.text,
+              backgroundColor: colorScheme.bg,
+              width: '100%'
+            }}
+          />
         </Box>
       </StyledCardContent>
     </StyledCard>

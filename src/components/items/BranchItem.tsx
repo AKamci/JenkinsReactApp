@@ -63,7 +63,7 @@ const BranchItem: React.FC<BranchJobItemProps> = ({ job }) => {
             sx={{ 
               fontWeight: 500,
               color: colorScheme.text,
-              fontSize: '0.75rem',
+              fontSize: '0.65rem',
               flexGrow: 1
             }}
           >

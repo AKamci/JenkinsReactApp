@@ -32,7 +32,7 @@ const StyledChip = styled(Chip)(({ theme }) => ({
   transition: 'all 0.2s ease',
   height: '24px',
   '& .MuiChip-label': {
-    fontSize: '0.75rem',
+    fontSize: '0.6rem',
     padding: '0 6px'
   },
   '&.red': {
@@ -105,7 +105,7 @@ const RepositoryItem: React.FC<{ job: JobDto; parent: string }> = ({ job, parent
           <StyledCardContent>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               {expanded ? <AccountTree sx={{fontSize: '1.1rem'}} color="primary" /> : <AccountTreeOutlined sx={{fontSize: '1.1rem'}} color="primary" />}
-              <Typography variant="subtitle1" sx={{fontSize: '0.9rem', fontWeight: 500}}>
+              <Typography variant="subtitle1" sx={{fontSize: '0.7rem', fontWeight: 500}}>
                 {job.name}
               </Typography>
               {hasData && (

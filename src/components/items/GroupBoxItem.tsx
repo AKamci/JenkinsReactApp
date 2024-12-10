@@ -15,6 +15,7 @@ const StyledContainer = styled(Container)(({ theme }) => ({
   borderRadius: '8px',
   marginRight: '0px',
   maxWidth: '350px',
+  minWidth: '300px',
   border: '3px solid #e0e0e0',
   transition: 'all 0.3s ease',
   alignSelf: 'flex-start',
@@ -28,15 +29,24 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: '12px',
   margin: '0px',
   background: 'linear-gradient(145deg, #ffffff, #f0f0f0)',
-  boxShadow: theme.shadows[3]
+  boxShadow: theme.shadows[3],
+  overflow: 'hidden',
+  '& .MuiBox-root': {
+    minWidth: 0
+  }
 }));
 
 const StyledIconButton = styled(IconButton)(({ theme }) => ({
   color: theme.palette.primary.dark,
-  padding: '3px',
+  padding: '2px',
+  minWidth: '20px',
+  minHeight: '20px',
   '&:hover': {
     backgroundColor: theme.palette.primary.light,
     color: theme.palette.primary.contrastText
+  },
+  '& .MuiSvgIcon-root': {
+    fontSize: '0.8rem'
   }
 }));
 
@@ -77,21 +87,60 @@ const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            fontSize: '0.9rem'
+            fontSize: '0.85rem',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
           }}
         >
-          <span>{groupName}</span>
-          <Box sx={{ display: 'flex', gap: 0.3 }}>
-            <StyledIconButton onClick={() => window.open(`http://localhost:8080/job/${groupName}`, '_blank')}>
-              <LinkIcon fontSize="small" />
+          <span style={{ 
+            overflow: 'hidden', 
+            textOverflow: 'ellipsis',
+            flexGrow: 1,
+            flexShrink: 1,
+            minWidth: 0
+          }}>
+            {groupName}
+          </span>
+          <Box sx={{ 
+            display: 'flex', 
+            gap: 0.2, 
+            flexShrink: 0,
+            marginLeft: '6px'
+          }}>
+            <StyledIconButton 
+              onClick={() => window.open(`http://localhost:8080/job/${groupName}`, '_blank')}
+              sx={{
+                '&:hover': {
+                  backgroundColor: 'rgba(25, 118, 210, 0.08)'
+                }
+              }}
+            >
+              <LinkIcon />
             </StyledIconButton>
-            <StyledIconButton onClick={handleRemoveGroup}>
-              <DeleteIcon fontSize="small" />
+            <StyledIconButton 
+              onClick={handleRemoveGroup}
+              sx={{
+                '&:hover': {
+                  backgroundColor: 'rgba(211, 47, 47, 0.08)',
+                  color: '#d32f2f'
+                }
+              }}
+            >
+              <DeleteIcon />
             </StyledIconButton>
           </Box>
         </Typography>
 
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: 0,
+          overflow: 'hidden',
+          '& > *': {
+            minWidth: 0
+          }
+        }}>
           {getRepositoryJobData?.jobs?.map((job) => (
             <RepositoryItem key={job.name} job={job} parent={groupName} />
           ))}

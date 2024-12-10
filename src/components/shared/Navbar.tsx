@@ -1,25 +1,33 @@
 import React, { useState } from 'react';
-import { AppBar, Toolbar, IconButton, InputBase, Button, Box } from '@mui/material';
+import {
+  AppBar,
+  Toolbar,
+  IconButton,
+  InputBase,
+  Box,
+  Badge,
+} from '@mui/material';
 import { styled, alpha } from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import SettingsIcon from '@mui/icons-material/Settings';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 import SidebarComponent from '../settings/SettingsSideBar';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
+  borderRadius: theme.shape.borderRadius * 3,
+  backgroundColor: alpha(theme.palette.common.white, 0.08),
   '&:hover': {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
+    backgroundColor: alpha(theme.palette.common.white, 0.12),
   },
   marginRight: theme.spacing(2),
-  marginLeft: 0,
+  marginLeft: theme.spacing(2),
   width: '100%',
-  [theme.breakpoints.up('sm')]: {
-    marginLeft: theme.spacing(3),
-    width: 'auto',
-  },
+  maxWidth: 400,
+  display: 'flex',
+  alignItems: 'center',
+  transition: 'all 0.3s ease',
 }));
 
 const SearchIconWrapper = styled('div')(({ theme }) => ({
@@ -30,61 +38,82 @@ const SearchIconWrapper = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
+  color: alpha(theme.palette.common.white, 0.7),
 }));
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: 'inherit',
+  width: '100%',
+  paddingLeft: theme.spacing(6),
+  paddingRight: theme.spacing(2),
+  transition: theme.transitions.create('width'),
   '& .MuiInputBase-input': {
+    fontSize: '0.9rem',
     padding: theme.spacing(1),
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create('width'),
-    width: '100%',
-    [theme.breakpoints.up('sm')]: {
-      width: '20ch',
+    '&::placeholder': {
+      color: alpha(theme.palette.common.white, 0.5),
+      opacity: 1,
     },
   },
 }));
 
-const Navbar: React.FC = () => {
+const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
   const [visibleSidebar, setVisibleSidebar] = useState<boolean>(false);
+
+  const toggleSettingsSidebar = () => {
+    setVisibleSidebar(!visibleSidebar);
+  };
 
   return (
     <div>
-      <AppBar position="static" sx={{ boxShadow: 2, backgroundColor: '#1F1F1F' }}>
-        <Toolbar sx={{ justifyContent: 'space-between' }}>
-          {/* Left Side - Menu Icon */}
-          <IconButton
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            onClick={() => setVisibleSidebar(true)}
-            sx={{ display: { xs: 'block', sm: 'none' } }}
-          >
-            <MenuIcon />
-          </IconButton>
-
-          {/* Center - Search Box */}
-          <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
-            <Search>
-              <SearchIconWrapper>
-                <SearchIcon />
-              </SearchIconWrapper>
-              <StyledInputBase
-                placeholder="Search…"
-                inputProps={{ 'aria-label': 'search' }}
-              />
-            </Search>
+      <AppBar
+        position="fixed"
+        sx={{
+          backgroundColor: '#1a237e',
+          backdropFilter: 'blur(8px)',
+          boxShadow: 'none',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+        }}
+      >
+        <Toolbar sx={{ justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 1rem' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              onClick={toggleSidebar}
+              sx={{ 
+                '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.08)' }
+              }}
+            >
+              <MenuIcon />
+            </IconButton>
           </Box>
 
-          <IconButton
-            color="inherit"
-            onClick={() => setVisibleSidebar(true)}
-            sx={{ display: { xs: 'none', sm: 'block' } }}
-          >
-            <SettingsIcon />
-          </IconButton>
+          <Search>
+            <SearchIconWrapper>
+              <SearchIcon />
+            </SearchIconWrapper>
+            <StyledInputBase
+              placeholder="Ara..."
+              inputProps={{ 'aria-label': 'search' }}
+            />
+          </Search>
+
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}> 
+            <IconButton
+              color="inherit"
+              onClick={toggleSettingsSidebar} 
+              sx={{ 
+                '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.08)' }
+              }}
+            >
+              <SettingsIcon />
+            </IconButton>
+          </Box>
         </Toolbar>
       </AppBar>
+      <Toolbar />
       <SidebarComponent visible={visibleSidebar} onHide={() => setVisibleSidebar(false)} />
     </div>
   );

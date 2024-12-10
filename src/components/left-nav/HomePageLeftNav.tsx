@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '../../infrastructure/store/store';
 import { JobDto } from '../../infrastructure/dtos/JobDto';
-import { MockDataGetAll } from '../../infrastructure/MockData/MockDataGetAll';
-
-import axios from 'axios';
-import GroupItem from '../items/OrganizationFolderItem';
-import { setSelectedProjects } from '../../infrastructure/store/slices/File/Projects-Slice';
 import { handleCheckbox } from '../func/handleCheckBoxChance';
 import { getAllJob } from '../../infrastructure/store/slices/Job/GetAllJob-Slice';
 import OrganizationFolderItem from '../items/OrganizationFolderItem';
@@ -23,7 +18,7 @@ const HomePageLeftNav: React.FC = () => {
 	}, [dispatch]);
   
 	return (
-	  <div>
+		<div style={{paddingLeft: 0}}>
 		{allJobWithName && allJobWithName.jobs && allJobWithName.jobs.map((job: JobDto) => (
 		  <OrganizationFolderItem
 			key={job.name}

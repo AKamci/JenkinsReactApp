@@ -18,7 +18,7 @@ const StyledFormControlLabel = styled(FormControlLabel)({
 
 const StyledCheckbox = styled(Checkbox)({
   '&.Mui-checked': {
-    color: '#1976d2',
+    color: '#1976d5',
   },
 });
 

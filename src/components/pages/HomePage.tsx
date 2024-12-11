@@ -6,17 +6,23 @@ import HomePageMain from '../main/HomePageMain';
 
 const HomePage = () => {
   console.log('Homepage is rendered.');
+  const [isNavbarVisible, setIsNavbarVisible] = useState(true);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
   };
 
+  
+const toggleNavbarVisibility = () => {
+  setIsNavbarVisible(!isNavbarVisible);
+};
+
   return (
     <Page>
-      <Page.Header>
-        <Navbar toggleSidebar={toggleSidebar} />
-      </Page.Header>
+    <Page.Header>
+      {isNavbarVisible && <Navbar toggleSidebar={toggleSidebar} />}
+    </Page.Header>
       <Page.Aside collapsed={isCollapsed}>
         <HomePageLeftNav />
       </Page.Aside>

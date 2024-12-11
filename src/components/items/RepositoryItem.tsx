@@ -1,7 +1,7 @@
 import { JobDto } from '../../infrastructure/dtos/JobDto';
 import * as React from 'react';
-import { Box, Card, CardContent, IconButton, Typography, Collapse, Fade, Chip, Grid } from '@mui/material';
-import { ExpandMore, AccountTree, AccountTreeOutlined, LinkOutlined, CheckCircle, Cancel } from '@mui/icons-material';
+import { Box, Card, CardContent, IconButton, Typography, Collapse, Fade, Grid } from '@mui/material';
+import { ExpandMore, AccountTree, AccountTreeOutlined, LinkOutlined } from '@mui/icons-material';
 import BranchItem from './BranchItem';
 import { useDispatch } from 'react-redux';
 import { AppDispatch, useAppSelector } from '../../infrastructure/store/store';
@@ -27,24 +27,25 @@ const StyledCardContent = styled(CardContent)(({ theme }) => ({
   borderRadius: '4px'
 }));
 
-const StyledChip = styled(Chip)(({ theme }) => ({
-  margin: '0 2px',
-  transition: 'all 0.2s ease',
-  height: '24px',
-  '& .MuiChip-label': {
-    fontSize: '0.6rem',
-    padding: '0 6px'
-  },
-  '&.red': {
-    backgroundColor: red[50],
-    color: red[700],
-    borderColor: red[200]
-  },
-  '&.blue': {
-    backgroundColor: blue[50],
-    color: blue[700],
-    borderColor: blue[200]
-  }
+const StatusDot = styled('span')<{ status: 'success' | 'error' }>(({ status }) => ({
+  width: '8px',
+  height: '8px',
+  borderRadius: '50%',
+  backgroundColor: status === 'success' ? blue[500] : red[500],
+  marginRight: '4px'
+}));
+
+const StatusBadge = styled('div')<{ status: 'success' | 'error' }>(({ status }) => ({
+  display: 'inline-flex',
+  alignItems: 'center',
+  padding: '3px 8px',
+  borderRadius: '12px',
+  fontSize: '0.65rem',
+  backgroundColor: status === 'success' ? blue[50] : red[50],
+  color: status === 'success' ? blue[700] : red[700],
+  margin: '0 3px',
+  minWidth: '24px',
+  justifyContent: 'center'
 }));
 
 const RepositoryItem: React.FC<{ job: JobDto; parent: string }> = ({ job, parent }) => {
@@ -54,7 +55,7 @@ const RepositoryItem: React.FC<{ job: JobDto; parent: string }> = ({ job, parent
   const apiSettings = useAppSelector((state) => state.getApiSettings.selectedApiSettings);
 
   useEffect(() => {
-    let intervalId: NodeJS.Timeout;
+    let intervalId: ReturnType<typeof setInterval>;
 
     const fetchJobData = () => {
       dispatch(GetBranchJob({
@@ -110,20 +111,18 @@ const RepositoryItem: React.FC<{ job: JobDto; parent: string }> = ({ job, parent
               </Typography>
               {hasData && (
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <StyledChip
-                    icon={<CheckCircle sx={{fontSize: '0.9rem'}} />}
-                    label={blueCount}
-                    size="small"
-                    variant="outlined"
-                    className="blue"
-                  />
-                  <StyledChip
-                    icon={<Cancel sx={{fontSize: '0.9rem'}} />}
-                    label={redCount}
-                    size="small"
-                    variant="outlined"
-                    className="red"
-                  />
+                  {blueCount > 0 && (
+                    <StatusBadge status="success">
+                      <StatusDot status="success" />
+                      {blueCount}
+                    </StatusBadge>
+                  )}
+                  {redCount > 0 && (
+                    <StatusBadge status="error">
+                      <StatusDot status="error" />
+                      {redCount}
+                    </StatusBadge>
+                  )}
                 </Box>
               )}
               <IconButton onClick={handleLinkClick} size="small" sx={{padding: '2px'}}>

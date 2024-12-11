@@ -8,6 +8,7 @@ import { AppDispatch, useAppSelector } from '../../infrastructure/store/store';
 import { GetRepositoryJob } from '../../infrastructure/store/slices/Job/GetRepositoryJob-Slice';
 import DeleteIcon from '@mui/icons-material/Delete';
 import LinkIcon from '@mui/icons-material/Link';
+import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 
 const StyledContainer = styled(Container)(({ theme }) => ({
   margin: '5px auto',
@@ -16,7 +17,7 @@ const StyledContainer = styled(Container)(({ theme }) => ({
   marginRight: '0px',
   maxWidth: '350px',
   minWidth: '300px',
-  border: '3px solid #e0e0e0',
+  //border: '3px solid #e0e0e0',
   transition: 'all 0.3s ease',
   alignSelf: 'flex-start',
   '&:hover': {
@@ -31,6 +32,7 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   background: 'linear-gradient(145deg, #ffffff, #f0f0f0)',
   boxShadow: theme.shadows[3],
   overflow: 'hidden',
+  alignSelf: 'flex-start',
   '& .MuiBox-root': {
     minWidth: 0
   }
@@ -93,15 +95,18 @@ const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
             textOverflow: 'ellipsis'
           }}
         >
-          <span style={{ 
-            overflow: 'hidden', 
-            textOverflow: 'ellipsis',
-            flexGrow: 1,
-            flexShrink: 1,
-            minWidth: 0
-          }}>
-            {groupName}
-          </span>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <FolderOpenIcon sx={{ fontSize: '1rem', color: 'primary.main' }} />
+            <span style={{ 
+              overflow: 'hidden', 
+              textOverflow: 'ellipsis',
+              flexGrow: 1,
+              flexShrink: 1,
+              minWidth: 0
+            }}>
+              {groupName}
+            </span>
+          </Box>
           <Box sx={{ 
             display: 'flex', 
             gap: 0.2, 

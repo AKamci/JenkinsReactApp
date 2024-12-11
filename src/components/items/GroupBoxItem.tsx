@@ -12,22 +12,26 @@ import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 
 const StyledContainer = styled(Container)(({ theme }) => ({
   margin: '5px auto',
-  padding: '10px',
+  padding: '3px',
   borderRadius: '8px',
   marginRight: '0px',
   maxWidth: '350px',
   minWidth: '300px',
-  //border: '3px solid #e0e0e0',
+ // border: '3px solid #e0e0e0',
   transition: 'all 0.3s ease',
   alignSelf: 'flex-start',
   '&:hover': {
     transform: 'translateY(-1px)',
+  },
+  '& .MuiContainer-root': {
+    paddingLeft: '4px',
+    paddingRight: '4px'
   }
 }));
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   borderRadius: '8px',
-  padding: '12px',
+  padding: '6px',
   margin: '0px',
   background: 'linear-gradient(145deg, #ffffff, #f0f0f0)',
   boxShadow: theme.shadows[3],
@@ -79,7 +83,7 @@ const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
   };
 
   return (
-    <StyledContainer>
+    <StyledContainer disableGutters>
       <StyledPaper elevation={1}>
         <Typography
           variant="h6"

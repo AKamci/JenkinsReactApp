@@ -1,28 +1,41 @@
+import React, { useState, useEffect } from 'react';
 import Page from '../shared/Page';
 import Navbar from '../shared/Navbar';
-import React, { useState } from 'react';
 import HomePageLeftNav from '../left-nav/HomePageLeftNav';
 import HomePageMain from '../main/HomePageMain';
+import { Handlers } from '../../shortcuts/Handlers';
 
 const HomePage = () => {
-  console.log('Homepage is rendered.');
-  const [isNavbarVisible, setIsNavbarVisible] = useState(true);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isHeaderHidden, setIsHeaderHidden] = useState(false);
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
   };
 
-  
-const toggleNavbarVisibility = () => {
-  setIsNavbarVisible(!isNavbarVisible);
-};
+  const toggleHeaderVisibility = () => {
+    setIsHeaderHidden(!isHeaderHidden);
+    setIsCollapsed(!isHeaderHidden); 
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.shiftKey && event.key.toLowerCase() === 't') {
+        Handlers.TEST(event, toggleHeaderVisibility);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [toggleHeaderVisibility]); 
 
   return (
     <Page>
-    <Page.Header>
-      {isNavbarVisible && <Navbar toggleSidebar={toggleSidebar} />}
-    </Page.Header>
+      <Page.Header hidden={isHeaderHidden}>
+        <Navbar toggleSidebar={toggleSidebar} />
+      </Page.Header>
       <Page.Aside collapsed={isCollapsed}>
         <HomePageLeftNav />
       </Page.Aside>

@@ -9,7 +9,16 @@ const Page = (props: { children?: React.ReactNode; fluid?: boolean }) => {
 	);
 };
 
-const Header = (props: { children?: React.ReactNode }) => <div className='col-12'>{props.children}</div>;
+const Header = (props: { children?: React.ReactNode; hidden?: boolean }) => {
+	const style = props.hidden
+		? { display: 'none' } 
+		: {};
+	return (
+		<div className='col-12' style={style}>
+			{props.children}
+		</div>
+	);
+};
 Page.Header = Header;
 
 const Aside = (props: { children?: React.ReactNode; collapsed?: boolean }) => {

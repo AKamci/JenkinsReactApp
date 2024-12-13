@@ -1,36 +1,43 @@
 import React from 'react';
+import Grid from '@mui/material/Grid2';
+import { AsideProps, HeaderProps, MainProps, PageProps } from '../../infrastructure/dtos/PageTypes';
 
-const Page = (props: { children?: React.ReactNode; fluid?: boolean }) => {
-	const container = props.fluid ? 'container-fluid' : 'container';
-	return (
-		<div className={container} style={{ position: 'relative' }}>
-			<div className='row'>{props.children}</div>
-		</div>
-	);
+const Page: React.FC<PageProps> & {
+    Header: React.FC<HeaderProps>;
+    Aside: React.FC<AsideProps>;
+    Main: React.FC<MainProps>;
+} = ({ children }) => {
+    return <Grid container>{children}</Grid>;
 };
 
-const Header = (props: { children?: React.ReactNode; hidden?: boolean }) => {
-	const style = props.hidden
-		? { display: 'none' } 
-		: {};
-	return (
-		<div className='col-12' style={style}>
-			{props.children}
-		</div>
-	);
+const Header: React.FC<HeaderProps> = ({ children, hidden }) => {
+    if (hidden) return null;
+    return (
+        <Grid size={12}>
+            <header>{children}</header>
+        </Grid>
+    );
 };
+
+const Aside: React.FC<AsideProps> = ({ children, collapsed }) => {
+    if (collapsed) return null;
+    return (
+        <Grid size={2}>
+            <aside>{children}</aside>
+        </Grid>
+    );
+};
+
+const Main: React.FC<MainProps> = ({ children, fullPage }) => {
+    return (
+        <Grid size={fullPage ? 12 : 10}>
+            <main>{children}</main>
+        </Grid>
+    );
+};
+
 Page.Header = Header;
-
-const Aside = (props: { children?: React.ReactNode; collapsed?: boolean }) => {
-	const className = props.collapsed ? 'd-none' : 'col-2';
-	return <div className={className} style={{ position: 'fixed', left: 0, top: '64px', bottom: 0, overflowY: 'auto' }}>{props.children}</div>;
-};
 Page.Aside = Aside;
-
-const Main = (props: { children?: React.ReactNode; fullPage?: boolean }) => {
-	const grid = props.fullPage ? '12' : '10';
-	return <div className={'col-' + grid} style={{ marginLeft: props.fullPage ? '0' : '16.666667%' }}>{props.children}</div>;
-};
 Page.Main = Main;
 
 export default Page;

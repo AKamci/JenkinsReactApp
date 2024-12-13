@@ -1,30 +1,20 @@
-import React from 'react';
 import { useAppSelector } from '../../infrastructure/store/store';
 import GroupBoxItem from '../items/GroupBoxItem';
 import { JobDto } from '../../infrastructure/dtos/JobDto';
-import { Box } from '@mui/material';
+import Grid from '@mui/material/Grid2';
+
 
 const HomePageMain = () => {
     const selectedProjects: JobDto[] = useAppSelector((state) => state.getProjectName.selectedProjects);
-    console.log(selectedProjects, "selectedProjects")
 
     return (
-        <Box sx={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: '1px',
-            '& > *': {
-                width: '100%',
-                transition: 'width 0.3s ease',
-                '&:hover': {
-                    width: '100%'
-                }
-            }
-        }}>
+        <Grid container spacing={0} justifyContent="flex-start">
             {selectedProjects.map((job) => (
-                <GroupBoxItem key={job.name} groupName={job.name}/>
+                <Grid size={{ xs: 12, sm: 6, md: 3, lg: 3 }} key={job.name}>
+                    <GroupBoxItem groupName={job.name} />
+                </Grid>
             ))}
-        </Box>
+        </Grid>
     );
 };
 

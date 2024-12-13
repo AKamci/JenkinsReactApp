@@ -1,102 +1,116 @@
-import { JobDto } from '../../infrastructure/dtos/JobDto';
 import * as React from 'react';
-import { Card, CardContent, Typography, Box, Chip, styled } from '@mui/material';
-import { 
-  CodeRounded,
-  DeveloperMode, // dev için
-  CheckCircle, // stable için  
-  Science, // stage için
-  Rocket, // prod için
-  BugReport // feature için
-} from '@mui/icons-material';
-import { red, grey, blue, green } from '@mui/material/colors';
+import { Card, CardContent, styled, Tooltip, Zoom } from '@mui/material';
+import { DeveloperMode, CheckCircle, Science, Rocket, BugReport } from '@mui/icons-material';
+import { JobDto } from '../../infrastructure/dtos/JobDto';
 
 const StyledCard = styled(Card)(({ theme }) => ({
   margin: '2px 0',
-  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-  background: 'linear-gradient(135deg, rgba(255,255,255,0.95), rgba(250,250,250,0.9))',
+  transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
+  background: 'rgba(255,255,255,0.95)',
   backdropFilter: 'blur(8px)',
+  cursor: 'pointer',
+  position: 'relative',
+  overflow: 'hidden',
+  '&:before': {
+    content: '""',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '1.5px',
+    background: 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%)',
+    transition: 'transform 0.3s ease',
+    transform: 'translateX(-100%)'
+  },
   '&:hover': {
-    transform: 'translateX(2px) translateY(-1px)',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+    transform: 'translateY(-2px) scale(1.02)',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04)',
+    '&:before': {
+      transform: 'translateX(100%)'
+    }
   }
 }));
 
 const StyledCardContent = styled(CardContent)({
-  padding: '4px 8px !important',
-  '&:last-child': {
-    paddingBottom: '4px !important'
-  }
+  padding: '4px 10px !important',
+  '&:last-child': { paddingBottom: '4px !important' }
 });
 
-const getColorScheme = (color: string) => {
-  switch (color) {
-    case 'red':
-      return { border: red[100], text: red[700], bg: `rgba(${red[500]}, 0.08)` };
-    case 'blue':
-      return { border: blue[100], text: blue[700], bg: `rgba(${blue[500]}, 0.08)` };
-    case 'green':
-      return { border: green[100], text: green[700], bg: `rgba(${green[500]}, 0.08)` };
-    default:
-      return { border: grey[100], text: grey[700], bg: `rgba(${grey[500]}, 0.08)` };
+const colorSchemes = {
+  red: { 
+    color: '#ff4d6d',
+    shadow: '#ffe0e6',
+    gradient: '#fff5f7'
+  },
+  blue: {
+    color: '#0496ff',
+    shadow: '#e6f4ff',
+    gradient: '#f0f9ff'
+  },
+  green: {
+    color: '#02c39a',
+    shadow: '#e6fff7',
+    gradient: '#f0fff9'
+  },
+  default: {
+    color: '#6c757d',
+    shadow: '#f8f9fa',
+    gradient: '#fdfdfd'
   }
 };
 
-const getBranchIcon = (branchName: string) => {
-  const name = branchName.toLowerCase();
-  if (name === 'dev') return <DeveloperMode />;
-  if (name === 'stable') return <CheckCircle />;
-  if (name === 'stage') return <Science />;
-  if (name === 'prod') return <Rocket />;
-  if (name.startsWith('feature')) return <BugReport />;
-  return null;
+const branchIcons = {
+  dev: { icon: <DeveloperMode />, label: 'dev' },
+  stable: { icon: <CheckCircle />, label: 'stable' },
+  stage: { icon: <Science />, label: 'stage' },
+  prod: { icon: <Rocket />, label: 'prod' },
+  main: { icon: <Rocket />, label: 'main' },
+  feature: { icon: <BugReport />, label: 'feature' }
 };
 
-type BranchJobItemProps = {
-  job: JobDto;
-};
+const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
+  const colorScheme = colorSchemes[job.color as keyof typeof colorSchemes] || colorSchemes.default;
+  const name = job.name.toLowerCase();
+  const branchType = Object.keys(branchIcons).find(key => name.includes(key));
+  const branchInfo = branchType ? branchIcons[branchType as keyof typeof branchIcons] : null;
 
-const BranchItem: React.FC<BranchJobItemProps> = ({ job }) => {
-  const colorScheme = getColorScheme(job.color);
-  const branchIcon = getBranchIcon(job.name);
-
-  if (!branchIcon) return null;
+  if (!branchInfo) return null;
 
   return (
-    <StyledCard
-      variant="outlined"
-      sx={{
-        borderColor: colorScheme.border,
-        borderWidth: '1px',
-        borderRadius: '6px',
-        position: 'relative',
-        overflow: 'hidden',
-        width: 'fit-content',
-        minWidth: 36,
-        display: 'flex',
-        alignItems: 'center',
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '3px',
-          height: '100%',
-          background: colorScheme.text,
-          opacity: 0.8
-        }
-      }}
+    <Tooltip 
+      title={branchInfo.label}
+      placement="top"
+      TransitionComponent={Zoom}
+      arrow
     >
-      <StyledCardContent sx={{ display: 'flex', alignItems: 'center', padding: '2px 6px' }}>
-        {React.cloneElement(branchIcon, { 
-          sx: { 
-            fontSize: 16, 
-            color: colorScheme.text, 
-            filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.1))' 
-          } 
-        })}
-      </StyledCardContent>
-    </StyledCard>
+      <StyledCard
+        variant="outlined"
+        onClick={() => job.url && window.open(job.url, '_blank')}
+        sx={{
+          borderRadius: '8px',
+          width: 'fit-content',
+          minWidth: 36,
+          border: `1px solid ${colorScheme.shadow}`,
+          background: `linear-gradient(135deg, ${colorScheme.gradient}40, rgba(255,255,255,0.95))`,
+          boxShadow: `0 2px 8px ${colorScheme.shadow}80, inset 0 1px 2px rgba(255,255,255,0.9)`
+        }}
+      >
+        <StyledCardContent sx={{ display: 'flex', alignItems: 'center', padding: '3px 8px' }}>
+          {React.cloneElement(branchInfo.icon, { 
+            sx: { 
+              fontSize: 16,
+              color: colorScheme.color,
+              filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.08))',
+              transition: 'all 0.2s ease',
+              '&:hover': { 
+                transform: 'scale(1.1) rotate(3deg)',
+                filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.12))'
+              }
+            } 
+          })}
+        </StyledCardContent>
+      </StyledCard>
+    </Tooltip>
   );
 };
 

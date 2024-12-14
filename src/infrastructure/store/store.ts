@@ -8,7 +8,7 @@ import Projects  from './slices/File/Projects-Slice';
 import ApiSettings  from './slices/File/ApiSettings-Slice';
 import  GetRepositoryJob  from './slices/Job/GetRepositoryJob-Slice';
 import  GetBranchJob  from './slices/Job/GetBranchJob-Slice';
-
+import SelectedBranchList from './slices/File/SelectedBranchList-Slice';
 
 const store = configureStore({
 	reducer: {
@@ -18,6 +18,7 @@ const store = configureStore({
 		getAllJob: GetAllJob,
 		getProjectName: Projects,
 		getApiSettings: ApiSettings,
+		getSelectedBranchList: SelectedBranchList,
 
 	},
 	middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(thunk),

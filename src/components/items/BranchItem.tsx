@@ -1,7 +1,29 @@
 import * as React from 'react';
-import { Card, CardContent, styled, Tooltip, Zoom } from '@mui/material';
+import { Card, CardContent, styled, Tooltip, Zoom, keyframes } from '@mui/material';
 import { DeveloperMode, CheckCircle, Science, Rocket, BugReport } from '@mui/icons-material';
 import { JobDto } from '../../infrastructure/dtos/JobDto';
+import { useAppSelector } from '../../infrastructure/store/store';
+
+const pulse = keyframes`
+  0% {
+    box-shadow: 0 0 0 0 rgba(4, 150, 255, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(4, 150, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(4, 150, 255, 0);
+  }
+`;
+
+const rotate = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`;
 
 const StyledCard = styled(Card)(({ theme }) => ({
   margin: '2px 0',
@@ -28,6 +50,10 @@ const StyledCard = styled(Card)(({ theme }) => ({
     '&:before': {
       transform: 'translateX(100%)'
     }
+  },
+  '&.building': {
+    animation: `${pulse} 2s infinite`,
+    background: 'rgba(255,244,222,0.95)' 
   }
 }));
 
@@ -46,6 +72,11 @@ const colorSchemes = {
     color: '#0496ff',
     shadow: '#e6f4ff',
     gradient: '#f0f9ff'
+  },
+  blue_anime: {
+    color: '#ffa726', 
+    shadow: '#fff4e5',
+    gradient: '#fff8e1'
   },
   green: {
     color: '#02c39a',
@@ -69,16 +100,18 @@ const branchIcons = {
 };
 
 const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
+  const selectedBranchList = useAppSelector((state) => state.getSelectedBranchList.selectedBranch);
   const colorScheme = colorSchemes[job.color as keyof typeof colorSchemes] || colorSchemes.default;
   const name = job.name.toLowerCase();
   const branchType = Object.keys(branchIcons).find(key => name.includes(key));
   const branchInfo = branchType ? branchIcons[branchType as keyof typeof branchIcons] : null;
+  const isBuilding = job.color === 'blue_anime';
 
-  if (!branchInfo) return null;
+  if (!branchInfo || !selectedBranchList.includes(branchType!)) return null;
 
   return (
     <Tooltip 
-      title={branchInfo.label}
+      title={isBuilding ? 'Build Ediliyor...' : branchInfo.label}
       placement="top"
       TransitionComponent={Zoom}
       arrow
@@ -86,6 +119,7 @@ const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
       <StyledCard
         variant="outlined"
         onClick={() => job.url && window.open(job.url, '_blank')}
+        className={isBuilding ? 'building' : ''}
         sx={{
           borderRadius: '8px',
           width: 'fit-content',
@@ -102,8 +136,9 @@ const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
               color: colorScheme.color,
               filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.08))',
               transition: 'all 0.2s ease',
+              animation: isBuilding ? `${rotate} 2s linear infinite` : 'none',
               '&:hover': { 
-                transform: 'scale(1.1) rotate(3deg)',
+                transform: isBuilding ? 'scale(1.1)' : 'scale(1.1) rotate(3deg)',
                 filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.12))'
               }
             } 

@@ -5,21 +5,20 @@ import {
   IconButton,
   InputBase,
   Box,
-  Badge,
+  Typography,
 } from '@mui/material';
 import { styled, alpha } from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import SettingsIcon from '@mui/icons-material/Settings';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import SidebarComponent from '../settings/SettingsSideBar';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
-  borderRadius: theme.shape.borderRadius * 3,
-  backgroundColor: alpha(theme.palette.common.white, 0.08),
+  borderRadius: theme.shape.borderRadius * 4,
+  backgroundColor: alpha(theme.palette.common.white, 0.06),
   '&:hover': {
-    backgroundColor: alpha(theme.palette.common.white, 0.12),
+    backgroundColor: alpha(theme.palette.common.white, 0.1),
   },
   marginRight: theme.spacing(2),
   marginLeft: theme.spacing(2),
@@ -28,6 +27,8 @@ const Search = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   transition: 'all 0.3s ease',
+  border: '1px solid rgba(255, 255, 255, 0.1)',
+  backdropFilter: 'blur(8px)',
 }));
 
 const SearchIconWrapper = styled('div')(({ theme }) => ({
@@ -38,7 +39,7 @@ const SearchIconWrapper = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  color: alpha(theme.palette.common.white, 0.7),
+  color: alpha(theme.palette.common.white, 0.6),
 }));
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
@@ -46,14 +47,26 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   width: '100%',
   paddingLeft: theme.spacing(6),
   paddingRight: theme.spacing(2),
-  transition: theme.transitions.create('width'),
+  transition: theme.transitions.create(['width', 'background-color']),
   '& .MuiInputBase-input': {
-    fontSize: '0.9rem',
-    padding: theme.spacing(1),
+    fontSize: '0.95rem',
+    padding: theme.spacing(1.2),
     '&::placeholder': {
-      color: alpha(theme.palette.common.white, 0.5),
+      color: alpha(theme.palette.common.white, 0.6),
       opacity: 1,
+      letterSpacing: '0.5px',
     },
+  },
+}));
+
+const StyledIconButton = styled(IconButton)(({ theme }) => ({
+  color: 'inherit',
+  padding: '8px',
+  borderRadius: '12px',
+  transition: 'all 0.2s ease',
+  '&:hover': {
+    backgroundColor: alpha(theme.palette.common.white, 0.1),
+    transform: 'translateY(-1px)',
   },
 }));
 
@@ -69,25 +82,21 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
       <AppBar
         position="fixed"
         sx={{
-          backgroundColor: '#1a237e',
-          backdropFilter: 'blur(8px)',
-          boxShadow: 'none',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+          background: 'linear-gradient(135deg, #1a237e 0%, #283593 100%)',
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 2px 12px rgba(0,0,0,0.1)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
         }}
       >
-        <Toolbar sx={{ justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 1rem' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <IconButton
+        <Toolbar sx={{ justifyContent: 'space-between', alignItems: 'center', padding: '0.7rem 1.5rem' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <StyledIconButton
               edge="start"
-              color="inherit"
               aria-label="menu"
               onClick={toggleSidebar}
-              sx={{ 
-                '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.08)' }
-              }}
             >
               <MenuIcon />
-            </IconButton>
+            </StyledIconButton>
           </Box>
 
           <Search>
@@ -95,21 +104,17 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
               <SearchIcon />
             </SearchIconWrapper>
             <StyledInputBase
-              placeholder="Ara..."
+              placeholder="Projelerde ara..."
               inputProps={{ 'aria-label': 'search' }}
             />
           </Search>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}> 
-            <IconButton
-              color="inherit"
-              onClick={toggleSettingsSidebar} 
-              sx={{ 
-                '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.08)' }
-              }}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}> 
+            <StyledIconButton
+              onClick={toggleSettingsSidebar}
             >
               <SettingsIcon />
-            </IconButton>
+            </StyledIconButton>
           </Box>
         </Toolbar>
       </AppBar>

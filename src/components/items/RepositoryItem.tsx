@@ -60,7 +60,7 @@ const RepositoryItem: React.FC<{ job: JobDto; parent: string }> = ({ job, parent
     <Fade in={true} timeout={300}>
       <StyledCard>
         <StyledCardContent>
-          <AccountTree sx={{fontSize: '1rem', color: job.color || 'primary.main', opacity: 0.7}} />
+          <AccountTree sx={{fontSize: '1rem', color: job.color || '#9c27b0', opacity: 0.7}} />
           <Typography sx={{fontSize: '0.85rem', fontWeight: 500}}>{job.name}</Typography>
         </StyledCardContent>
         

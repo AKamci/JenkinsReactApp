@@ -5,6 +5,6 @@ export interface JobDto{
     url:string;
     name: string;
     color: string;
-    lastBuild: BuildInfo;
+    builds: BuildInfo[];
     jobs:JobDto[];
 }

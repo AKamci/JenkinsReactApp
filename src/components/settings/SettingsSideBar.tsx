@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Drawer, Typography, IconButton, Accordion, AccordionSummary, AccordionDetails, Paper, Tooltip, ToggleButton, ToggleButtonGroup, Chip } from '@mui/material';
-import { styled, alpha } from '@mui/material/styles';
+import { Box, Drawer, Typography, IconButton, Accordion, AccordionSummary, AccordionDetails, Paper, Tooltip, ToggleButton, ToggleButtonGroup, Chip, TextField } from '@mui/material';
+import { styled, alpha, useTheme } from '@mui/material/styles';
 import { Settings, DarkMode, ColorLens, Speed, Close, ExpandMore, Tune, Security, AccountTree, Check } from '@mui/icons-material';
 import Cookies from 'js-cookie';
 import { useDispatch } from 'react-redux';
@@ -82,6 +82,7 @@ interface SidebarComponentProps {
 }
 
 const SidebarComponent: React.FC<SidebarComponentProps> = ({ visible, onHide }) => {
+  const theme = useTheme();
   const dispatch = useDispatch<AppDispatch>();
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     const savedMode = Cookies.get('darkMode');
@@ -94,6 +95,10 @@ const SidebarComponent: React.FC<SidebarComponentProps> = ({ visible, onHide }) 
   const [selectedBranches, setSelectedBranches] = useState<string[]>(() => {
     const savedBranches = Cookies.get('selectedBranches');
     return savedBranches ? JSON.parse(savedBranches) : [];
+  });
+  const [featureCount, setFeatureCount] = useState<number>(() => {
+    const savedCount = Cookies.get('featureCount');
+    return savedCount ? parseInt(savedCount) : 2;
   });
 
   useEffect(() => {
@@ -118,6 +123,10 @@ const SidebarComponent: React.FC<SidebarComponentProps> = ({ visible, onHide }) 
     Cookies.set('selectedBranches', JSON.stringify(selectedBranches), { expires: 30 });
   }, [selectedBranches]);
 
+  useEffect(() => {
+    Cookies.set('featureCount', String(featureCount), { expires: 30 });
+  }, [featureCount]);
+
   const handleSettingChange = (settingKey: string, checked: boolean) => {
     const newSelectedSettings = checked
       ? [...selectedSettings, settingKey]
@@ -134,6 +143,15 @@ const SidebarComponent: React.FC<SidebarComponentProps> = ({ visible, onHide }) 
     
     setSelectedBranches(newSelectedBranches);
     dispatch(checked ? addBranchList(branchKey) : removeBranchList(branchKey));
+
+    if (branchKey === 'feature') {
+      const buildSettings = `builds[number,url,status,timestamp,result,duration]{,${featureCount}}`;
+      if (checked) {
+        handleSettingChange(buildSettings, true);
+      } else {
+        handleSettingChange(buildSettings, false);
+      }
+    }
   };
 
   return (
@@ -268,7 +286,7 @@ const SidebarComponent: React.FC<SidebarComponentProps> = ({ visible, onHide }) 
         </AccordionSummary>
         <AccordionDetails>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-            {['dev', 'stable', 'stage', 'prod', 'feature'].map((branch) => (
+            {['dev', 'stable', 'stage', 'prod'].map((branch) => (
               <Chip
                 key={branch}
                 size="small"
@@ -288,6 +306,67 @@ const SidebarComponent: React.FC<SidebarComponentProps> = ({ visible, onHide }) 
                 }}
               />
             ))}
+            <Chip
+              size="small"
+              icon={<AccountTree sx={{ fontSize: 16 }} />}
+              onClick={() => handleBranchChange('feature', !selectedBranches.includes('feature'))}
+              color={selectedBranches.includes('feature') ? 'primary' : 'default'}
+              variant={selectedBranches.includes('feature') ? 'filled' : 'outlined'}
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  feature
+                  {selectedBranches.includes('feature') && (
+                    <TextField
+                      size="small"
+                      type="number"
+                      value={featureCount}
+                      onChange={(e) => {
+                        const newCount = Math.max(1, parseInt(e.target.value) || 1);
+                        setFeatureCount(newCount);
+                        if (selectedBranches.includes('feature')) {
+                          const oldBuildSettings = `builds[number,url,status,timestamp,result,duration]{,${featureCount}}`;
+                          const newBuildSettings = `builds[number,url,status,timestamp,result,duration]{,${newCount}}`;
+                          handleSettingChange(oldBuildSettings, false);
+                          handleSettingChange(newBuildSettings, true);
+                        }
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                      inputProps={{ 
+                        min: 1,
+                        max: 99,
+                        style: { 
+                          padding: '0',
+                          width: '24px',
+                          height: '16px',
+                          fontSize: '12px',
+                          textAlign: 'center'
+                        }
+                      }}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          backgroundColor: alpha(theme.palette.common.white, 0.1),
+                          '& fieldset': {
+                            border: 'none'
+                          }
+                        },
+                        '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
+                          display: 'none'
+                        }
+                      }}
+                    />
+                  )}
+                </Box>
+              }
+              sx={{ 
+                textTransform: 'capitalize',
+                cursor: 'pointer',
+                '&:hover': {
+                  backgroundColor: selectedBranches.includes('feature') 
+                    ? alpha('#1976d2', 0.85)
+                    : alpha('#1976d2', 0.1)
+                }
+              }}
+            />
           </Box>
         </AccordionDetails>
       </StyledAccordion>

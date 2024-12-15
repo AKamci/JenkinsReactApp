@@ -86,7 +86,7 @@ const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
       }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <FolderIcon sx={{ 
-            color: '#3498db',
+            color: '#27ae60',
             opacity: 0.9,
             fontSize: '1.2rem'
           }} />

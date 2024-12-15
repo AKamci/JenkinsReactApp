@@ -7,6 +7,9 @@ const HomePage: React.FC = () => {
         isCollapsed: false,
         isHeaderHidden: false
     });
+    
+    // Checked jobs state'ini buraya taşıyoruz
+    const [checkedJobs, setCheckedJobs] = useState<Record<string, boolean>>({});
 
     const toggleSidebar = useCallback(() => {
         setLayout(prev => ({
@@ -28,6 +31,8 @@ const HomePage: React.FC = () => {
         <HomePageLayout
             layout={layout}
             onToggleSidebar={toggleSidebar}
+            checkedJobs={checkedJobs}
+            setCheckedJobs={setCheckedJobs}
         />
     );
 };

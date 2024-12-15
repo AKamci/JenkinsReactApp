@@ -87,13 +87,36 @@ const SidebarComponent: React.FC<SidebarComponentProps> = ({ visible, onHide }) 
     const savedMode = Cookies.get('darkMode');
     return savedMode === 'true';
   });
-  const [selectedSettings, setSelectedSettings] = useState<string[]>([]);
-  const [selectedBranches, setSelectedBranches] = useState<string[]>([]);
+  const [selectedSettings, setSelectedSettings] = useState<string[]>(() => {
+    const savedSettings = Cookies.get('selectedSettings');
+    return savedSettings ? JSON.parse(savedSettings) : [];
+  });
+  const [selectedBranches, setSelectedBranches] = useState<string[]>(() => {
+    const savedBranches = Cookies.get('selectedBranches');
+    return savedBranches ? JSON.parse(savedBranches) : [];
+  });
+
+  useEffect(() => {
+    selectedSettings.forEach(setting => {
+      dispatch(addSelectedProject(setting));
+    });
+    selectedBranches.forEach(branch => {
+      dispatch(addBranchList(branch));
+    });
+  }, []);
 
   useEffect(() => {
     Cookies.set('darkMode', String(isDarkMode), { expires: 30 });
     document.body.classList.toggle('dark-mode', isDarkMode);
   }, [isDarkMode]);
+
+  useEffect(() => {
+    Cookies.set('selectedSettings', JSON.stringify(selectedSettings), { expires: 30 });
+  }, [selectedSettings]);
+
+  useEffect(() => {
+    Cookies.set('selectedBranches', JSON.stringify(selectedBranches), { expires: 30 });
+  }, [selectedBranches]);
 
   const handleSettingChange = (settingKey: string, checked: boolean) => {
     const newSelectedSettings = checked

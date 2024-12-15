@@ -5,10 +5,14 @@ import { handleCheckbox } from '../func/handleCheckBoxChance';
 import { getAllJob } from '../../infrastructure/store/slices/Job/GetAllJob-Slice';
 import OrganizationFolderItem from '../items/OrganizationFolderItem';
 
-const HomePageLeftNav: React.FC = () => {
+interface HomePageLeftNavProps {
+    checkedJobs: Record<string, boolean>;
+    setCheckedJobs: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
+}
+
+const HomePageLeftNav: React.FC<HomePageLeftNavProps> = ({ checkedJobs, setCheckedJobs }) => {
     const dispatch = useAppDispatch();
     const allJobWithName = useAppSelector((state) => state.getAllJob.data);
-    const [checkedJobs, setCheckedJobs] = useState<Record<string, boolean>>({});
   
     useEffect(() => {
         dispatch(getAllJob());

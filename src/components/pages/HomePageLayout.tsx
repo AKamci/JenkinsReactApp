@@ -10,18 +10,25 @@ interface LayoutProps {
         isHeaderHidden: boolean;
     };
     onToggleSidebar: () => void;
+    checkedJobs: Record<string, boolean>;
+    setCheckedJobs: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
 }
 
 export const HomePageLayout: React.FC<LayoutProps> = ({
     layout,
-    onToggleSidebar
+    onToggleSidebar,
+    checkedJobs,
+    setCheckedJobs
 }) => (
     <Page>
         <Page.Header hidden={layout.isHeaderHidden}>
             <Navbar toggleSidebar={onToggleSidebar} />
         </Page.Header>
         <Page.Aside collapsed={layout.isCollapsed}>
-            <HomePageLeftNav />
+            <HomePageLeftNav 
+                checkedJobs={checkedJobs}
+                setCheckedJobs={setCheckedJobs}
+            />
         </Page.Aside>
         <Page.Main fullPage={layout.isCollapsed}>
             <HomePageMain />

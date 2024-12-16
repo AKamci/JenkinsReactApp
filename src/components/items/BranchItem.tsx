@@ -91,12 +91,12 @@ const colorSchemes = {
 };
 
 const branchIcons = {
-  dev: { icon: <DeveloperMode />, label: 'dev' },
-  stable: { icon: <CheckCircle />, label: 'stable' },
-  stage: { icon: <Science />, label: 'stage' },
-  prod: { icon: <Rocket />, label: 'prod' },
-  main: { icon: <Rocket />, label: 'main' },
-  feature: { icon: <BugReport />, label: 'feature' }
+  dev: { icon: <DeveloperMode />, label: 'dev', order: 1 },
+  stable: { icon: <CheckCircle />, label: 'stable', order: 2 },
+  stage: { icon: <Science />, label: 'stage', order: 3 },
+  prod: { icon: <Rocket />, label: 'prod', order: 4 },
+  main: { icon: <Rocket />, label: 'main', order: 4 },
+  feature: { icon: <BugReport />, label: 'feature', order: 5 }
 };
 
 const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
@@ -126,7 +126,8 @@ const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
           minWidth: 36,
           border: `1px solid ${colorScheme.shadow}`,
           background: `linear-gradient(135deg, ${colorScheme.gradient}40, rgba(255,255,255,0.95))`,
-          boxShadow: `0 2px 8px ${colorScheme.shadow}80, inset 0 1px 2px rgba(255,255,255,0.9)`
+          boxShadow: `0 2px 8px ${colorScheme.shadow}80, inset 0 1px 2px rgba(255,255,255,0.9)`,
+          order: branchInfo.order
         }}
       >
         <StyledCardContent sx={{ display: 'flex', alignItems: 'center', padding: '3px 8px' }}>

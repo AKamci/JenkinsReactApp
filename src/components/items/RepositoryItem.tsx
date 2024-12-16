@@ -16,7 +16,7 @@ const StyledCard = styled(Card)({
   transition: 'all 0.2s ease',
   border: '1px solid rgba(0,0,0,0.04)',
   '&:hover': {
-    transform: 'translateY(-1px)',
+   // transform: 'translateY(-1px)',
     boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
   },
 });

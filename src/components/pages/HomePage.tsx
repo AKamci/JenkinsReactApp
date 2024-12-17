@@ -9,7 +9,6 @@ const HomePage: React.FC = () => {
         isHeaderHidden: false
     });
     
-    // Checked jobs state'ini buraya taşıyoruz
     const [checkedJobs, setCheckedJobs] = useState<Record<string, boolean>>({});
 
     const toggleSidebar = useCallback(() => {

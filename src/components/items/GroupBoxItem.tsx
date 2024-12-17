@@ -19,7 +19,7 @@ const StyledCard = styled(Paper)(({ theme }) => ({
   background: '#ffffff',
   boxShadow: '0 2px 12px rgba(0, 0, 0, 0.03)',
   transition: 'all 0.2s ease',
-  maxWidth: '440px',
+  maxWidth: '840px',
   minWidth: '300px',
   border: '1px solid #f0f0f0',
   '&:hover': {

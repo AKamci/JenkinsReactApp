@@ -10,7 +10,15 @@ const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
   const selectedBranchList = useAppSelector((state) => state.getSelectedBranchList.selectedBranch);
   const colorScheme = colorSchemes[job.color as keyof typeof colorSchemes] || colorSchemes.default;
   const name = job.name.toLowerCase();
-  const branchType = Object.keys(branchIcons).find(key => name.includes(key));
+  
+  let branchType = Object.keys(branchIcons).find(key => {
+    const icon = branchIcons[key as keyof typeof branchIcons];
+    if ('matcher' in icon && typeof icon.matcher === 'function') {
+      return icon.matcher(name);
+    }
+    return name.includes(key);
+  });
+
   const branchInfo = branchType ? branchIcons[branchType as keyof typeof branchIcons] : null;
   const isBuilding = job.color === 'blue_anime';
 
@@ -46,14 +54,14 @@ const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
   
   return (
     <Tooltip 
-      title={isBuilding ? 'Build Ediliyor...' : branchInfo.label}
+      title={isBuilding ? 'Build Ediliyor...' : (name.startsWith('feature') ? job.name : branchInfo.label)}
       placement="top"
       TransitionComponent={Zoom}
       arrow
     >
       <StyledCard
         {...commonCardProps}
-        onClick={() => job.lastBuild.url && window.open(job.lastBuild.url, '_blank')}
+        onClick={() => job.url && window.open(job.url, '_blank')}
       >
         <StyledCardContent sx={{ display: 'flex', alignItems: 'center', padding: '2px 6px' }}>
           <branchInfo.icon {...commonIconProps} />

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { AsyncThunk, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import ApiState from "../../../Enums/ApiState";
-import Endpoints from '../../../Helpers/Api-Endpoints';
+import ApiEndpoints from '../../../helpers/api-endpoints';
 import { JobDto } from '../../../dtos/JobDto';
 import { BaseDto } from '../../../dtos/BaseDto';
 
@@ -30,7 +30,7 @@ export const getAllJob = createAsyncThunk<BaseDto, void, { state: BaseState }>(
         console.log("Fetching all jobs");
         
         try {
-            const response = await axios.get<BaseDto>(Endpoints.Job.GetAll_Name, {
+            const response = await axios.get<BaseDto>(ApiEndpoints.Job.GetAll_Name, {
                 auth: {
                     username: import.meta.env.VITE_JENKINS_USERNAME,
                     password: import.meta.env.VITE_JENKINS_TOKEN,

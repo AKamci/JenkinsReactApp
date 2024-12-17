@@ -27,7 +27,7 @@ export const StyledCard = styled(Card)(({ theme }) => ({
   cursor: 'pointer',
   overflow: 'hidden',
   background: 'rgba(255,255,255,0.95)',
-  backdropFilter: 'blur(8px)',
+  backdropFilter: 'blur(2px)',
   transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
 
   '&:before': {

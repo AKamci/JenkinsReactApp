@@ -32,9 +32,9 @@ const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
 
   const commonIconProps = {
     sx: {
-      fontSize: 18,
+      fontSize: 20,
       color: colorScheme.color,
-      filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.08))',
+      filter: 'drop-shadow(0 2px 1px rgba(0,0,0,0.08))',
       transition: 'all 0.2s ease',
       animation: isBuilding ? `${rotate} 2s linear infinite` : 'none',
       '&:hover': {
@@ -43,53 +43,23 @@ const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
       }
     }
   };
-
+  
   return (
-    <>
-      {branchType === 'feature' && job.builds && job.builds.length > 0 ? (
-        job.builds.map((build) => (
-          <Tooltip 
-            key={build.number}
-            title={`Build #${build.number}`}
-            placement="top"
-            TransitionComponent={Zoom}
-            arrow
-          >
-            <StyledCard
-              {...commonCardProps}
-              onClick={() => build.url && window.open(build.url, '_blank')}
-            >
-              <StyledCardContent sx={{ display: 'flex', alignItems: 'center', gap: '2px', padding: '2px 6px' }}>
-                <branchInfo.icon {...commonIconProps} />
-                <span style={{ 
-                  fontSize: '12px',
-                  color: colorScheme.color,
-                  fontWeight: 'bold'
-                }}>
-                  #{build.number}
-                </span>
-              </StyledCardContent>
-            </StyledCard>
-          </Tooltip>
-        ))
-      ) : (
-        <Tooltip 
-          title={isBuilding ? 'Build Ediliyor...' : branchInfo.label}
-          placement="top"
-          TransitionComponent={Zoom}
-          arrow
-        >
-          <StyledCard
-            {...commonCardProps}
-            onClick={() => job.url && window.open(job.url, '_blank')}
-          >
-            <StyledCardContent sx={{ display: 'flex', alignItems: 'center', padding: '2px 6px' }}>
-              <branchInfo.icon {...commonIconProps} />
-            </StyledCardContent>
-          </StyledCard>
-        </Tooltip>
-      )}
-    </>
+    <Tooltip 
+      title={isBuilding ? 'Build Ediliyor...' : branchInfo.label}
+      placement="top"
+      TransitionComponent={Zoom}
+      arrow
+    >
+      <StyledCard
+        {...commonCardProps}
+        onClick={() => job.lastBuild.url && window.open(job.lastBuild.url, '_blank')}
+      >
+        <StyledCardContent sx={{ display: 'flex', alignItems: 'center', padding: '2px 6px' }}>
+          <branchInfo.icon {...commonIconProps} />
+        </StyledCardContent>
+      </StyledCard>
+    </Tooltip>
   );
 };
 

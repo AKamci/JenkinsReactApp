@@ -22,6 +22,8 @@ const initialState = {
     errorMessage: null    
 } as BaseState;
 
+
+
 export const getAllJob = createAsyncThunk<BaseDto, void, { state: BaseState }>(
     'getAllJob',
     async (_, { rejectWithValue }) => {
@@ -30,8 +32,8 @@ export const getAllJob = createAsyncThunk<BaseDto, void, { state: BaseState }>(
         try {
             const response = await axios.get<BaseDto>(Endpoints.Job.GetAll_Name, {
                 auth: {
-                    username: "admin",
-                    password: "110ab84a7c0f09acbbd4aa6affd5c13c3c",
+                    username: import.meta.env.VITE_JENKINS_USERNAME,
+                    password: import.meta.env.VITE_JENKINS_TOKEN,
                 },
                 headers: {
                     'Content-Type': 'application/json',

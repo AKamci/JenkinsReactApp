@@ -28,8 +28,8 @@ export const GetRepositoryJob = createAsyncThunk<
         try {
             const response = await axios.get<BaseDto>(Endpoints.Job.GetRepository_Name_Url(jobName, apiSettings), {
                 auth: {
-                    username: "admin",
-                    password: "110ab84a7c0f09acbbd4aa6affd5c13c3c",
+                    username: import.meta.env.VITE_JENKINS_USERNAME,
+                    password: import.meta.env.VITE_JENKINS_TOKEN,
                 },
                 headers: {
                     'Content-Type': 'application/json',

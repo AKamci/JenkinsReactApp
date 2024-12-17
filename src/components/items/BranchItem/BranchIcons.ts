@@ -7,4 +7,5 @@ export const branchIcons = {
   prod: { icon: Rocket, label: 'prod', order: 4 },
   main: { icon: Rocket, label: 'main', order: 4 },
   feature: { icon: BugReport, label: 'feature', order: 5 }
+  
 };

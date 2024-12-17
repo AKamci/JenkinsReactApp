@@ -24,5 +24,4 @@ export const colorSchemes = {
     shadow: '#f8f9fa',
     gradient: '#fdfdfd'
   }
-  
 };

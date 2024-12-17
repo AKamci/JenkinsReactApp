@@ -28,8 +28,8 @@ const StyledCard = styled(Paper)(({ theme }) => ({
 }));
 
 const StyledIconButton = styled(IconButton)({
-  padding: '6px',
-  borderRadius: '8px',
+  padding: '2px',
+  borderRadius: '0px',
   transition: 'all 0.2s ease',
   '&:hover': {
     background: 'rgba(0, 0, 0, 0.03)'
@@ -41,7 +41,7 @@ const StyledIconButton = styled(IconButton)({
 
 const GroupTitle = styled(Typography)({
   fontWeight: 500,
-  fontSize: '0.95rem',
+  fontSize: '1rem',
   color: '#2c3e50',
   maxWidth: '200px',
   whiteSpace: 'nowrap',

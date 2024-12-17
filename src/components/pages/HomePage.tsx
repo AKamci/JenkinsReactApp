@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useKeyboardShortcut } from '../../shortcuts/useKeyboardShortcut';
-import { HomePageLayout } from './HomePageLayout';
+import { HomePageLayout } from './PagesLayout/HomePageLayout';
+import { ThemeProvider } from '@mui/material';
 
 const HomePage: React.FC = () => {
     const [layout, setLayout] = useState({

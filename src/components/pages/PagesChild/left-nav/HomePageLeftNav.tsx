@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { useAppDispatch, useAppSelector } from '../../infrastructure/store/store';
-import { JobDto } from '../../infrastructure/dtos/JobDto';
-import { handleCheckbox } from '../func/handleCheckBoxChance';
-import { getAllJob } from '../../infrastructure/store/slices/Job/GetAllJob-Slice';
-import OrganizationFolderItem from '../items/OrganizationFolderItem';
+import { useAppDispatch, useAppSelector } from '../../../../infrastructure/store/store';
+import { JobDto } from '../../../../infrastructure/dtos/JobDto';
+import { handleCheckbox } from '../../../func/handleCheckBoxChance';
+import { getAllJob } from '../../../../infrastructure/store/slices/Job/GetAllJob-Slice';
+import OrganizationFolderItem from '../../../items/OrganizationFolderItem';
 
 interface HomePageLeftNavProps {
     checkedJobs: Record<string, boolean>;

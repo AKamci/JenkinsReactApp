@@ -1,8 +1,8 @@
 import React from 'react';
-import Page from '../shared/Page';
-import Navbar from '../shared/Navbar';
-import HomePageLeftNav from '../left-nav/HomePageLeftNav';
-import HomePageMain from '../main/HomePageMain';
+import Page from '../../shared/Page';
+import Navbar from '../PagesChild/header/Navbar';
+import HomePageLeftNav from '../PagesChild/left-nav/HomePageLeftNav';
+import HomePageMain from '../PagesChild/main/HomePageMain';
 
 interface LayoutProps {
     layout: {

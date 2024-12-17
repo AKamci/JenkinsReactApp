@@ -9,6 +9,7 @@ import ApiSettings  from './slices/File/ApiSettings-Slice';
 import  GetRepositoryJob  from './slices/Job/GetRepositoryJob-Slice';
 import  GetBranchJob  from './slices/Job/GetBranchJob-Slice';
 import SelectedBranchList from './slices/File/SelectedBranchList-Slice';
+import GetLastBuildsForNotification from './slices/Job/GetLastBuildsForNotification-Slice';
 
 const store = configureStore({
 	reducer: {
@@ -19,6 +20,7 @@ const store = configureStore({
 		getProjectName: Projects,
 		getApiSettings: ApiSettings,
 		getSelectedBranchList: SelectedBranchList,
+		getLastBuildsForNotification: GetLastBuildsForNotification,
 
 	},
 	middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(thunk),

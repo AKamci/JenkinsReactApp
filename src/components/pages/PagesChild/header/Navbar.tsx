@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -6,12 +6,15 @@ import {
   InputBase,
   Box,
   Typography,
+  Badge,
 } from '@mui/material';
 import { styled, alpha } from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import SettingsIcon from '@mui/icons-material/Settings';
-import SidebarComponent from '../settings/SettingsSideBar';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import SidebarComponent from '../../../settings/SettingsSideBar';
+import NotificationPopper from '../../../settings/NotificationPopper'; 
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -72,9 +75,21 @@ const StyledIconButton = styled(IconButton)(({ theme }) => ({
 
 const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
   const [visibleSidebar, setVisibleSidebar] = useState<boolean>(false);
+  const [notificationCount, setNotificationCount] = useState<number>(5);
+  const [popperOpen, setPopperOpen] = useState<boolean>(false);
+  const anchorRef = useRef<HTMLElement | null>(null);
 
   const toggleSettingsSidebar = () => {
     setVisibleSidebar(!visibleSidebar);
+  };
+
+  const handleNotificationClick = (event: React.MouseEvent<HTMLElement>) => {
+    setPopperOpen((prev) => !prev);
+    anchorRef.current = event.currentTarget;
+  };
+
+  const handlePopperClose = () => {
+    setPopperOpen(false);
   };
 
   return (
@@ -82,7 +97,7 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
       <AppBar
         position="fixed"
         sx={{
-          background: 'linear-gradient(135deg, #1a237e 0%, #283593 100%)',
+          background: '#42a5f5',
           backdropFilter: 'blur(10px)',
           boxShadow: '0 2px 12px rgba(0,0,0,0.1)',
           borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
@@ -109,7 +124,15 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
             />
           </Search>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}> 
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <StyledIconButton
+              aria-label="bildirimler"
+              onClick={handleNotificationClick}
+            >
+              <Badge badgeContent={notificationCount} color="error">
+                <NotificationsIcon />
+              </Badge>
+            </StyledIconButton>
             <StyledIconButton
               onClick={toggleSettingsSidebar}
             >
@@ -120,6 +143,11 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
       </AppBar>
       <Toolbar />
       <SidebarComponent visible={visibleSidebar} onHide={() => setVisibleSidebar(false)} />
+      <NotificationPopper
+        anchorEl={anchorRef.current}
+        open={popperOpen}
+        onClose={handlePopperClose}
+      />
     </div>
   );
 };

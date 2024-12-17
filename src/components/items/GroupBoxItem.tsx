@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { styled } from '@mui/material/styles';
-import { Typography, Box, Paper, IconButton } from '@mui/material';
+import { Typography, Box, Paper, IconButton, ThemeProvider, createTheme } from '@mui/material';
 import RepositoryItem from './RepositoryItem';
 import { useDispatch } from 'react-redux';
 import { removeSelectedProject } from '../../infrastructure/store/slices/File/Projects-Slice';
@@ -9,6 +9,8 @@ import { GetRepositoryJob } from '../../infrastructure/store/slices/Job/GetRepos
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import FolderIcon from '@mui/icons-material/Folder';
+import GroupCardProps from '../../infrastructure/props/GroupCardProps';
+
 
 const StyledCard = styled(Paper)(({ theme }) => ({
   margin: '8px',
@@ -17,7 +19,7 @@ const StyledCard = styled(Paper)(({ theme }) => ({
   background: '#ffffff',
   boxShadow: '0 2px 12px rgba(0, 0, 0, 0.03)',
   transition: 'all 0.2s ease',
-  maxWidth: '340px',
+  maxWidth: '440px',
   minWidth: '300px',
   border: '1px solid #f0f0f0',
   '&:hover': {
@@ -48,9 +50,6 @@ const GroupTitle = styled(Typography)({
   letterSpacing: '0.2px'
 });
 
-interface GroupCardProps {
-  groupName: string;
-}
 
 const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -74,11 +73,12 @@ const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
     dispatch(removeSelectedProject(groupName));
   };
 
+
   return (
     <StyledCard elevation={0}>
       <Box sx={{ 
         display: 'flex', 
-        justifyContent: 'space-between', 
+        justifyContent: 'space-between',
         alignItems: 'center', 
         mb: 2,
         pb: 1,

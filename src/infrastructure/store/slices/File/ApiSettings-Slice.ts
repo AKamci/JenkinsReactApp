@@ -12,11 +12,11 @@ const ApiSettingsSlice = createSlice({
   name: "api-settings",
   initialState,
   reducers: {
-    setSelectedProjects(state, action: PayloadAction<string[]>) {
+    setApiSettings(state, action: PayloadAction<string[]>) {
       console.log(action.payload, "action.payload");
       state.selectedApiSettings = action.payload;
     },
-    addSelectedProject(state, action: PayloadAction<string>) {
+    addApiSettings(state, action: PayloadAction<string>) {
         console.log("Added Project");
         console.log("Action Payload:", action.payload);
         console.log("Before Removal:", state.selectedApiSettings);
@@ -24,7 +24,7 @@ const ApiSettingsSlice = createSlice({
         state.selectedApiSettings.push(action.payload);
       }
     },
-    removeSelectedProject(state, action: PayloadAction<string>) {
+    removeApiSettings(state, action: PayloadAction<string>) {
       console.log("Removed Project");
       console.log("Action Payload:", action.payload);
       console.log("Before Removal:", state.selectedApiSettings);
@@ -33,17 +33,17 @@ const ApiSettingsSlice = createSlice({
       );
       console.log(state.selectedApiSettings);
     },
-    clearSelectedProjects(state) {
+    clearApiSettings(state) {
       state.selectedApiSettings = [];
     },
   },
 });
 
 export const {
-  setSelectedProjects,
-  addSelectedProject,
-  removeSelectedProject,
-  clearSelectedProjects,
+  setApiSettings,
+  addApiSettings,
+  removeApiSettings,
+  clearApiSettings,
 } = ApiSettingsSlice.actions;
 
 export default ApiSettingsSlice.reducer;

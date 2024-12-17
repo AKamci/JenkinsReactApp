@@ -2,7 +2,7 @@ import { JobDto } from '../../infrastructure/dtos/JobDto';
 import * as React from 'react';
 import { Box, Card, CardContent, Typography, Fade, styled } from '@mui/material';
 import { AccountTree } from '@mui/icons-material';
-import BranchItem from './BranchItem';
+import BranchItem from './BranchItem/BranchItem';
 import { useDispatch } from 'react-redux';
 import { AppDispatch, useAppSelector } from '../../infrastructure/store/store';
 import { useEffect } from 'react';
@@ -16,7 +16,6 @@ const StyledCard = styled(Card)({
   transition: 'all 0.2s ease',
   border: '1px solid rgba(0,0,0,0.04)',
   '&:hover': {
-   // transform: 'translateY(-1px)',
     boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
   },
 });
@@ -24,6 +23,7 @@ const StyledCard = styled(Card)({
 const StyledCardContent = styled(CardContent)({
   display: 'flex',
   alignItems: 'center',
+  color: 'grey',
   padding: '0px 12px',
   gap: '8px',
   borderBottom: '1px solid rgba(0,0,0,0.03)',
@@ -34,7 +34,7 @@ const BranchContainer = styled(Box)({
   display: 'flex',
   flexWrap: 'wrap',
   gap: '4px',
-  padding: '8px',
+  padding: '2px',
 });
 
 const RepositoryItem: React.FC<{ job: JobDto; parent: string }> = ({ job, parent }) => {
@@ -61,7 +61,7 @@ const RepositoryItem: React.FC<{ job: JobDto; parent: string }> = ({ job, parent
       <StyledCard>
         <StyledCardContent>
           <AccountTree sx={{fontSize: '1rem', color: job.color || '#9c27b0', opacity: 0.7}} />
-          <Typography sx={{fontSize: '0.85rem', fontWeight: 500}}>{job.name}</Typography>
+          <Typography sx={{fontSize: '0.85rem', fontWeight: 500, opacity: 0.3}}>{job.name}</Typography>
         </StyledCardContent>
         
         {BranchJobData[job.name]?.jobs?.length > 0 && (

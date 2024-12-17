@@ -1,6 +1,6 @@
-import { useAppSelector } from '../../infrastructure/store/store';
-import GroupBoxItem from '../items/GroupBoxItem';
-import { JobDto } from '../../infrastructure/dtos/JobDto';
+import { useAppSelector } from '../../../../infrastructure/store/store';
+import GroupBoxItem from '../../../items/GroupBoxItem';
+import { JobDto } from '../../../../infrastructure/dtos/JobDto';
 import Grid from '@mui/material/Grid2';
 
 

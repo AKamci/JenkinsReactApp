@@ -1,15 +1,7 @@
-import { Dispatch, SetStateAction } from 'react';
-import { setSelectedProjects, addSelectedProject, removeSelectedProject } from '../../infrastructure/store/slices/File/Projects-Slice';
+import { Dispatch} from 'react';
+import {addSelectedProject, removeSelectedProject } from '../../infrastructure/store/slices/File/Projects-Slice';
 import { JobDto } from '../../infrastructure/dtos/JobDto';
 
-
-type HandleCheckboxChange = (
-  groupName: string,
-  checked: boolean,
-  checkedStates: { [key: string]: boolean },
-  setCheckedStates: Dispatch<SetStateAction<{ [key: string]: boolean }>>,
-  dispatch: any 
-) => void;
 
 export const handleCheckbox = (
   job: JobDto,

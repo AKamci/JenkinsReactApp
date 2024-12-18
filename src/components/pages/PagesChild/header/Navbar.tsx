@@ -15,6 +15,8 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import SidebarComponent from '../../../settings/SettingsSideBar';
 import NotificationPopper from '../../../settings/NotificationPopper'; 
+import { useAppDispatch, useAppSelector } from '../../../../infrastructure/store/store';
+import { darkTheme } from '../../../../theme/theme';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -78,6 +80,7 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
   const [notificationCount, setNotificationCount] = useState<number>(5);
   const [popperOpen, setPopperOpen] = useState<boolean>(false);
   const anchorRef = useRef<HTMLElement | null>(null);
+  const isDarkMode = useAppSelector((state) => state.generalTheme.isDarkMode);
 
   const toggleSettingsSidebar = () => {
     setVisibleSidebar(!visibleSidebar);
@@ -97,7 +100,7 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
       <AppBar
         position="fixed"
         sx={{
-          background: '#42a5f5',
+          background: isDarkMode ? darkTheme.palette.background.default : '#42a5f5',
           backdropFilter: 'blur(10px)',
           boxShadow: '0 2px 12px rgba(0,0,0,0.1)',
           borderBottom: '1px solid rgba(255, 255, 255, 0.1)',

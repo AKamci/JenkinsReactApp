@@ -35,3 +35,5 @@ export const HomePageLayout: React.FC<LayoutProps> = ({
         </Page.Main>
     </Page>
 );
+
+

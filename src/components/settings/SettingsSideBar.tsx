@@ -29,7 +29,7 @@ import Cookies from 'js-cookie';
       });
       const [featureCount, setFeatureCount] = useState<number>(() => {
         const savedCount = Cookies.get('featureCount');
-        return savedCount ? parseInt(savedCount) : 2;
+        return savedCount ? parseInt(savedCount) : 3;
       });
     
       useEffect(() => {

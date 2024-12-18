@@ -2,15 +2,19 @@ import * as React from 'react';
 import { Tooltip, Zoom } from '@mui/material';
 import { JobDto } from '../../../infrastructure/dtos/JobDto';
 import { useAppSelector } from '../../../infrastructure/store/store';
-import { StyledCard, StyledCardContent, pulse, rotate } from './BranchStyle';
+import { StyledCard, StyledCardContent, rotate } from './BranchStyle';
 import { branchIcons } from './BranchIcons';
 import { colorSchemes } from './BranchColorSchemes';
+import { darkTheme, lightTheme } from '../../../theme/theme';
+import JenkinsJobColor from '../../../infrastructure/Enums/JenkinsJobColor';
 
 const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
   const selectedBranchList = useAppSelector((state) => state.getSelectedBranchList.selectedBranch);
+  const isDarkMode = useAppSelector((state) => state.generalTheme.isDarkMode);
   const colorScheme = colorSchemes[job.color as keyof typeof colorSchemes] || colorSchemes.default;
   const name = job.name.toLowerCase();
-  
+  const isBuilding = job.color === JenkinsJobColor.blue_anime || job.color === JenkinsJobColor.red_anime;
+
   let branchType = Object.keys(branchIcons).find(key => {
     const icon = branchIcons[key as keyof typeof branchIcons];
     if ('matcher' in icon && typeof icon.matcher === 'function') {
@@ -20,7 +24,6 @@ const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
   });
 
   const branchInfo = branchType ? branchIcons[branchType as keyof typeof branchIcons] : null;
-  const isBuilding = job.color === 'blue_anime';
 
   if (!branchInfo || !selectedBranchList.includes(branchType!)) return null;
 
@@ -31,9 +34,9 @@ const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
       borderRadius: '20px',
       width: 'fit-content',
       minWidth: 42,
-      border: `1px solid ${colorScheme.shadow}`,
-      background: `linear-gradient(135deg, ${colorScheme.gradient}40, rgba(255,255,255,0.95))`,
-      boxShadow: `0 3px 8px ${colorScheme.shadow}80, inset 0 1px 2px rgba(255,255,255,0.9)`,
+      border: `0.1px solid ${colorScheme.shadow}`,
+      background: isDarkMode ? darkTheme.palette.background.default : lightTheme.palette.background.default,
+      boxShadow: `0 0px 0px ${colorScheme.shadow}80, inset 0 1px 2px rgba(255,255,255,0.8)`,
       order: branchInfo.order
     }
   };
@@ -42,7 +45,7 @@ const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
     sx: {
       fontSize: 20,
       color: colorScheme.color,
-      filter: 'drop-shadow(0 2px 1px rgba(0,0,0,0.08))',
+      filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.08))',
       transition: 'all 0.2s ease',
       animation: isBuilding ? `${rotate} 2s linear infinite` : 'none',
       '&:hover': {
@@ -54,14 +57,14 @@ const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
   
   return (
     <Tooltip 
-      title={isBuilding ? 'Build Ediliyor...' : (name.startsWith('feature') ? job.name : branchInfo.label)}
+      title={isBuilding ? `Build Ediliyor -> ${job.name}` : (name.startsWith('feature') ? job.name : branchInfo.label)}
       placement="top"
       TransitionComponent={Zoom}
       arrow
     >
       <StyledCard
         {...commonCardProps}
-        onClick={() => job.url && window.open(job.url, '_blank')}
+        onClick={() => job.lastBuild.url && window.open(job.lastBuild.url, '_blank')}
       >
         <StyledCardContent sx={{ display: 'flex', alignItems: 'center', padding: '2px 6px' }}>
           <branchInfo.icon {...commonIconProps} />

@@ -1,4 +1,5 @@
 import { styled, Card, CardContent, keyframes } from '@mui/material';
+import { darkTheme } from '../../../theme/theme';
 
 export const pulse = keyframes`
   0% {
@@ -27,6 +28,7 @@ export const StyledCard = styled(Card)(({ theme }) => ({
   cursor: 'pointer',
   overflow: 'hidden',
   background: 'rgba(255,255,255,0.95)',
+  //background: darkTheme.palette.background.default,
   backdropFilter: 'blur(2px)',
   transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
 
@@ -38,6 +40,7 @@ export const StyledCard = styled(Card)(({ theme }) => ({
     right: 0,
     height: '1.5px',
     background: 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%)',
+    //background: darkTheme.palette.background.default,
     transition: 'transform 0.3s ease',
     transform: 'translateX(-100%)'
   },

@@ -7,7 +7,9 @@ const Page: React.FC<PageProps> & {
     Aside: React.FC<AsideProps>;
     Main: React.FC<MainProps>;
 } = ({ children }) => {
-    return <Grid container>{children}</Grid>;
+    
+    return <Grid 
+    container>{children}</Grid>;
 };
 
 const Header: React.FC<HeaderProps> = ({ children, hidden }) => {

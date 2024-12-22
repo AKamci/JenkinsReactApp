@@ -1,5 +1,4 @@
 import { styled, Card, CardContent, keyframes } from '@mui/material';
-import { darkTheme } from '../../../theme/theme';
 
 export const pulse = keyframes`
   0% {
@@ -22,13 +21,12 @@ export const rotate = keyframes`
   }
 `;
 
-export const StyledCard = styled(Card)(({ theme }) => ({
+export const StyledCard = styled(Card)<{isDarkMode?: boolean}>(({ theme, isDarkMode }) => ({
   margin: '1px 0',
   position: 'relative',
-  cursor: 'pointer',
+  cursor: 'pointer', 
   overflow: 'hidden',
-  background: 'rgba(255,255,255,0.95)',
-  //background: darkTheme.palette.background.default,
+  background: theme.palette.background.default,
   backdropFilter: 'blur(2px)',
   transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
 
@@ -39,15 +37,17 @@ export const StyledCard = styled(Card)(({ theme }) => ({
     left: 0,
     right: 0,
     height: '1.5px',
-    background: 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%)',
-    //background: darkTheme.palette.background.default,
+    background: `linear-gradient(90deg, 
+      ${theme.palette.background.default} 0%, 
+      ${theme.palette.background.paper} 50%, 
+      ${theme.palette.background.default} 100%)`,
     transition: 'transform 0.3s ease',
     transform: 'translateX(-100%)'
   },
 
   '&:hover': {
     transform: 'translateY(-2px) scale(1.02)',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04)',
+    boxShadow: theme.shadows[4],
     '&:before': {
       transform: 'translateX(100%)'
     }
@@ -55,13 +55,13 @@ export const StyledCard = styled(Card)(({ theme }) => ({
 
   '&.building': {
     animation: `${pulse} 2s infinite`,
-    background: 'rgba(255,244,222,0.95)'
+    background: isDarkMode ? theme.palette.warning.dark : theme.palette.warning.light
   }
 }));
 
 export const StyledCardContent = styled(CardContent)({
   padding: '4px 10px !important',
-  '&:last-child': { 
-    paddingBottom: '4px !important' 
+  '&:last-child': {
+    paddingBottom: '4px !important'
   }
 });

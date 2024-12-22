@@ -10,8 +10,11 @@ import 'react-toastify/dist/ReactToastify.css';
 import { HotKeys } from 'react-hotkeys';
 import KeyMap from './shortcuts/KeyMap';
 import  {Handlers}  from './shortcuts/Handlers';
+import { useDocumentTitle } from './hooks/useDocumentTitle';
 
 const App = () => {
+	useDocumentTitle();
+	
 	return (
 		<HotKeys keyMap={KeyMap} handlers={Handlers}>
 			<>

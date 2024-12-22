@@ -1,8 +1,7 @@
 import axios from 'axios';
 import { AsyncThunk, createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import ApiState from "../../../Enums/ApiState";
-import Endpoints from '../../../Helpers/Api-Endpoints';
-import { JobDto } from '../../../dtos/JobDto';
+import Endpoints from '../../../helpers/api-endpoints';
 import { BaseDto } from '../../../dtos/BaseDto';
 
 export interface JobState {
@@ -35,7 +34,6 @@ export const GetRepositoryJob = createAsyncThunk<
                     'Content-Type': 'application/json',
                 },
             });
-            console.log(Endpoints.Job.GetRepository_Name_Url(jobName, apiSettings),"Endpoints.Job.GetRepository_Name_Url(jobName, apiSettings)")
             return { groupName, jobs: response.data };
         } catch (error: any) {
             const status = error.response ? error.response.status : 500;

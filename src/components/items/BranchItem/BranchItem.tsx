@@ -1,31 +1,56 @@
 import * as React from 'react';
-import { Tooltip, Zoom } from '@mui/material';
+import { Tooltip, Zoom, useTheme } from '@mui/material';
 import { JobDto } from '../../../infrastructure/dtos/JobDto';
-import { useAppSelector } from '../../../infrastructure/store/store';
+import { RootState, useAppSelector, useAppDispatch } from '../../../infrastructure/store/store';
 import { StyledCard, StyledCardContent, rotate } from './BranchStyle';
 import { branchIcons } from './BranchIcons';
 import { colorSchemes } from './BranchColorSchemes';
 import { darkTheme, lightTheme } from '../../../theme/theme';
 import JenkinsJobColor from '../../../infrastructure/Enums/JenkinsJobColor';
+import { useSelector } from 'react-redux';
+import { addBuildingJob, removeBuildingJob } from '../../../infrastructure/store/slices/Notification/StartedBuildNotification-Slice';
+import { useEffect, useRef } from 'react';
 
 const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
+  const dispatch = useAppDispatch();
   const selectedBranchList = useAppSelector((state) => state.getSelectedBranchList.selectedBranch);
   const isDarkMode = useAppSelector((state) => state.generalTheme.isDarkMode);
+  const theme = useTheme();
   const colorScheme = colorSchemes[job.color as keyof typeof colorSchemes] || colorSchemes.default;
   const name = job.name.toLowerCase();
   const isBuilding = job.color === JenkinsJobColor.blue_anime || job.color === JenkinsJobColor.red_anime;
+  const prevBuildingRef = useRef(isBuilding);
+  
+  useEffect(() => {
+    if (isBuilding && !prevBuildingRef.current) {
+      console.log('Adding job:', {
+        name: job.name,
+        url: job.url
+      });
+      dispatch(addBuildingJob(job));
+    } else if (!isBuilding && prevBuildingRef.current) {
+      console.log('Removing job:', {
+        name: job.name,
+        url: job.url
+      });
+      dispatch(removeBuildingJob(job));
+    }
+    prevBuildingRef.current = isBuilding;
+  }, [isBuilding, job, dispatch]);
 
+  
   let branchType = Object.keys(branchIcons).find(key => {
+    if (key === 'unknown') return false;
     const icon = branchIcons[key as keyof typeof branchIcons];
     if ('matcher' in icon && typeof icon.matcher === 'function') {
       return icon.matcher(name);
     }
-    return name.includes(key);
-  });
+    return false;
+  }) || 'unknown';
 
-  const branchInfo = branchType ? branchIcons[branchType as keyof typeof branchIcons] : null;
+  const branchInfo = branchIcons[branchType as keyof typeof branchIcons];
 
-  if (!branchInfo || !selectedBranchList.includes(branchType!)) return null;
+  if (!selectedBranchList.includes(branchType)) return null;
 
   const commonCardProps = {
     variant: "outlined" as const,
@@ -35,7 +60,7 @@ const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
       width: 'fit-content',
       minWidth: 42,
       border: `0.1px solid ${colorScheme.shadow}`,
-      background: isDarkMode ? darkTheme.palette.background.default : lightTheme.palette.background.default,
+      background: theme.palette.mode === 'dark' ? theme.palette.background.default : theme.palette.background.paper,
       boxShadow: `0 0px 0px ${colorScheme.shadow}80, inset 0 1px 2px rgba(255,255,255,0.8)`,
       order: branchInfo.order
     }
@@ -54,16 +79,27 @@ const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
       }
     }
   };
+
+  const getFeatureName = (name: string) => {
+    if (name.startsWith('feature/')) {
+      const match = name.match(/feature\/(.+)\./);
+      if (match && match[1]) {
+        return match[1];
+      }
+    }
+    return name;
+  };
   
   return (
     <Tooltip 
-      title={isBuilding ? `Build Ediliyor -> ${job.name}` : (name.startsWith('feature') ? job.name : branchInfo.label)}
+      title={isBuilding ? `Build Ediliyor -> ${job.name}` : (name.startsWith('feature') ? getFeatureName(name) : branchInfo.label)}
       placement="top"
       TransitionComponent={Zoom}
       arrow
     >
       <StyledCard
         {...commonCardProps}
+        isDarkMode={isDarkMode}
         onClick={() => job.lastBuild.url && window.open(job.lastBuild.url, '_blank')}
       >
         <StyledCardContent sx={{ display: 'flex', alignItems: 'center', padding: '2px 6px' }}>

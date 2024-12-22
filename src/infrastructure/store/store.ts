@@ -9,9 +9,14 @@ import ApiSettings  from './slices/File/ApiSettings-Slice';
 import  GetRepositoryJob  from './slices/Job/GetRepositoryJob-Slice';
 import  GetBranchJob  from './slices/Job/GetBranchJob-Slice';
 import SelectedBranchList from './slices/File/SelectedBranchList-Slice';
-import GetLastBuildsForNotification from './slices/Job/GetLastBuildsForNotification-Slice';
 import ThemeSlice from './slices/GeneralSettings/Theme-Slice';
-
+import  GetQueueItems  from './slices/Information/GetInQueueItem-Slice';
+import FeatureCount from './slices/File/FeatureCount-Slice';
+import GetAllJobForSearch from './slices/Job/GetAllJobForSearch-Slice';
+import GetSearchedItems from './slices/File/SelectedSearchedItem-Slice';
+import GetAllBuildingJobs from './slices/Information/GetAllBuildingJobs-Slice';
+import GetLastBuildsForInformation from './slices/Information/GetLastBuildsForInformation-Slice';
+import GetStartedBuildNotification from './slices/Notification/StartedBuildNotification-Slice';
 const store = configureStore({
 	reducer: {
 		getJob: GetJobSlice,
@@ -21,8 +26,14 @@ const store = configureStore({
 		getProjectName: Projects,
 		getApiSettings: ApiSettings,
 		getSelectedBranchList: SelectedBranchList,
-		getLastBuildsForNotification: GetLastBuildsForNotification,
 		generalTheme: ThemeSlice,
+		getQueueItems: GetQueueItems,
+		getFeatureCount: FeatureCount,
+		getAllJobForSearch: GetAllJobForSearch,
+		getSearchedItems: GetSearchedItems,
+		getAllBuildingJobs: GetAllBuildingJobs,
+		getLastBuildsForInformation: GetLastBuildsForInformation,
+		getStartedBuildNotification: GetStartedBuildNotification,
 
 	},
 	middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(thunk),

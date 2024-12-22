@@ -1,9 +1,7 @@
-import { ItemsDto } from "./ItemsDto";
+import { QueueItem } from "./QueueItemsDto";
 
-export interface QueueDto{
-
-    _class:string;
-    discoverableItems: string[];
-    items: ItemsDto[];
-
+export interface QueueDto {
+    _class: string;
+    discoverableItems: any[];
+    items: QueueItem[];
 }

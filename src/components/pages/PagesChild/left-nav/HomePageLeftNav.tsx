@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from '../../../../infrastructure/store/store';
 import { JobDto } from '../../../../infrastructure/dtos/JobDto';
 import { handleCheckbox } from '../../../func/handleCheckBoxChance';
@@ -6,6 +6,8 @@ import { getAllJob } from '../../../../infrastructure/store/slices/Job/GetAllJob
 import OrganizationFolderItem from '../../../items/OrganizationFolderItem';
 import Grid from '@mui/material/Grid2';
 import { darkTheme, lightTheme } from '../../../../theme/theme';
+import { getQueueItems } from '../../../../infrastructure/store/slices/Information/GetInQueueItem-Slice';
+import { getLastBuildsForInformation } from '../../../../infrastructure/store/slices/Information/GetLastBuildsForInformation-Slice';
 
 interface HomePageLeftNavProps {
     checkedJobs: Record<string, boolean>;
@@ -16,16 +18,20 @@ const HomePageLeftNav: React.FC<HomePageLeftNavProps> = ({ checkedJobs, setCheck
     const dispatch = useAppDispatch();
     const allJobWithName = useAppSelector((state) => state.getAllJob.data);
     const isDarkMode = useAppSelector((state) => state.generalTheme.isDarkMode);
+    const folderNames = import.meta.env.VITE_FOLDER_NAME?.split(',').map((name: string) => name.trim().toLowerCase()) || [];
+    console.log(folderNames, 'folderNames');
 
     useEffect(() => {
         dispatch(getAllJob());
+        dispatch(getQueueItems());
+        dispatch(getLastBuildsForInformation());
     }, [dispatch]);
   
     return (
         <Grid container spacing={0} justifyContent="flex-start" sx={{ 
             background: isDarkMode ? darkTheme.palette.background.default : lightTheme.palette.background.default,
         }}>
-            {allJobWithName?.jobs?.map((job: JobDto) => (
+            {allJobWithName?.jobs?.filter((job: JobDto) => !folderNames.includes(job.name.toLowerCase())).map((job: JobDto) => (
                 <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }} key={job.name}>
                     <OrganizationFolderItem
                     key={job.name}

@@ -4,6 +4,8 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import { GroupItemProps } from '../../infrastructure/dtos/GroupItemProps';
 import { styled } from '@mui/material/styles';
 import FolderIcon from '@mui/icons-material/Folder';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../infrastructure/store/store';
 
 const StyledFormControlLabel = styled(FormControlLabel)({
   margin: '8px 0',
@@ -22,13 +24,22 @@ const StyledCheckbox = styled(Checkbox)({
   },
 });
 
+//Buraya bak unutma..
+//Hata slice dan almasına rağmen göstermiyor.
+
 const OrganizationFolderItem: React.FC<GroupItemProps> = ({ label, checked, onChange }) => {
+  const selectedProjects = useSelector((state: RootState) => state.getProjectName.selectedProjects);
+  
+  const isSelectedInStore = selectedProjects.some(project => project.name === label);
+  
+  const isChecked = checked || isSelectedInStore;
+
   return (
     <div style={{ width: '100%' }}>
       <StyledFormControlLabel
         control={
           <StyledCheckbox
-            checked={checked}
+            checked={isChecked}
             onChange={(e) => onChange(e.target.checked)}
             icon={<FolderIcon />}
             checkedIcon={<FolderIcon />}

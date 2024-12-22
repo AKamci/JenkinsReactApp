@@ -1,68 +1,22 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   AppBar,
   Toolbar,
   IconButton,
-  InputBase,
   Box,
-  Typography,
   Badge,
 } from '@mui/material';
 import { styled, alpha } from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
-import SearchIcon from '@mui/icons-material/Search';
 import SettingsIcon from '@mui/icons-material/Settings';
+import InfoIcon from '@mui/icons-material/Info';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import SidebarComponent from '../../../settings/SettingsSideBar';
-import NotificationPopper from '../../../settings/NotificationPopper'; 
-import { useAppDispatch, useAppSelector } from '../../../../infrastructure/store/store';
+import NotificationPopper from '../../../information/InformationPopper';
+import StartedBuildNotification from '../../../notification/StartedBuildNotification';
+import { useAppSelector } from '../../../../infrastructure/store/store';
 import { darkTheme } from '../../../../theme/theme';
-
-const Search = styled('div')(({ theme }) => ({
-  position: 'relative',
-  borderRadius: theme.shape.borderRadius * 4,
-  backgroundColor: alpha(theme.palette.common.white, 0.06),
-  '&:hover': {
-    backgroundColor: alpha(theme.palette.common.white, 0.1),
-  },
-  marginRight: theme.spacing(2),
-  marginLeft: theme.spacing(2),
-  width: '100%',
-  maxWidth: 400,
-  display: 'flex',
-  alignItems: 'center',
-  transition: 'all 0.3s ease',
-  border: '1px solid rgba(255, 255, 255, 0.1)',
-  backdropFilter: 'blur(8px)',
-}));
-
-const SearchIconWrapper = styled('div')(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: '100%',
-  position: 'absolute',
-  pointerEvents: 'none',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  color: alpha(theme.palette.common.white, 0.6),
-}));
-
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: 'inherit',
-  width: '100%',
-  paddingLeft: theme.spacing(6),
-  paddingRight: theme.spacing(2),
-  transition: theme.transitions.create(['width', 'background-color']),
-  '& .MuiInputBase-input': {
-    fontSize: '0.95rem',
-    padding: theme.spacing(1.2),
-    '&::placeholder': {
-      color: alpha(theme.palette.common.white, 0.6),
-      opacity: 1,
-      letterSpacing: '0.5px',
-    },
-  },
-}));
+import Search from '../../../SearchBar/Search';
 
 const StyledIconButton = styled(IconButton)(({ theme }) => ({
   color: 'inherit',
@@ -77,22 +31,34 @@ const StyledIconButton = styled(IconButton)(({ theme }) => ({
 
 const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
   const [visibleSidebar, setVisibleSidebar] = useState<boolean>(false);
-  const [notificationCount, setNotificationCount] = useState<number>(5);
-  const [popperOpen, setPopperOpen] = useState<boolean>(false);
-  const anchorRef = useRef<HTMLElement | null>(null);
+  const [infoPopperOpen, setInfoPopperOpen] = useState<boolean>(false);
+  const [notificationPopperOpen, setNotificationPopperOpen] = useState<boolean>(false);
+  const infoAnchorRef = useRef<HTMLElement | null>(null);
+  const notificationAnchorRef = useRef<HTMLElement | null>(null);
   const isDarkMode = useAppSelector((state) => state.generalTheme.isDarkMode);
+  const buildingJobs = useAppSelector((state) => state.getStartedBuildNotification.buildingJobs);
+  const notificationCount = buildingJobs.length;
 
   const toggleSettingsSidebar = () => {
     setVisibleSidebar(!visibleSidebar);
   };
 
-  const handleNotificationClick = (event: React.MouseEvent<HTMLElement>) => {
-    setPopperOpen((prev) => !prev);
-    anchorRef.current = event.currentTarget;
+  const handleInfoClick = (event: React.MouseEvent<HTMLElement>) => {
+    setInfoPopperOpen((prev) => !prev);
+    infoAnchorRef.current = event.currentTarget;
   };
 
-  const handlePopperClose = () => {
-    setPopperOpen(false);
+  const handleNotificationClick = (event: React.MouseEvent<HTMLElement>) => {
+    setNotificationPopperOpen((prev) => !prev);
+    notificationAnchorRef.current = event.currentTarget;
+  };
+
+  const handleInfoPopperClose = () => {
+    setInfoPopperOpen(false);
+  };
+
+  const handleNotificationPopperClose = () => {
+    setNotificationPopperOpen(false);
   };
 
   return (
@@ -117,17 +83,15 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
             </StyledIconButton>
           </Box>
 
-          <Search>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Projelerde ara..."
-              inputProps={{ 'aria-label': 'search' }}
-            />
-          </Search>
+          <Search />
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <StyledIconButton
+              aria-label="bilgiler"
+              onClick={handleInfoClick}
+            >
+              <InfoIcon />
+            </StyledIconButton>
             <StyledIconButton
               aria-label="bildirimler"
               onClick={handleNotificationClick}
@@ -147,9 +111,14 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
       <Toolbar />
       <SidebarComponent visible={visibleSidebar} onHide={() => setVisibleSidebar(false)} />
       <NotificationPopper
-        anchorEl={anchorRef.current}
-        open={popperOpen}
-        onClose={handlePopperClose}
+        anchorEl={infoAnchorRef.current}
+        open={infoPopperOpen}
+        onClose={handleInfoPopperClose}
+      />
+      <StartedBuildNotification
+        anchorEl={notificationAnchorRef.current}
+        open={notificationPopperOpen}
+        onClose={handleNotificationPopperClose}
       />
     </div>
   );

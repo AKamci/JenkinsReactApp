@@ -2,15 +2,18 @@ import GeneralSettings from './GeneralSettings';
 import ApiSettings from './ApiSettings';
 import BranchSettings from './BranchSettings';
 import SidebarComponentProps from '../../infrastructure/props/SidebarComponentProps';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '../../infrastructure/store/store';
-import { useTheme } from '@emotion/react';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../infrastructure/store/store';
 import { useState, useEffect } from 'react';
 import { removeApiSettings, addApiSettings } from '../../infrastructure/store/slices/File/ApiSettings-Slice';
 import { removeBranchList, addBranchList } from '../../infrastructure/store/slices/File/SelectedBranchList-Slice';
 import Header from './SettingsHeader';
 import { StyledDrawer } from './SettingsStyle';
 import Cookies from 'js-cookie';
+import { addSelectedProject } from '../../infrastructure/store/slices/File/Projects-Slice';
+import { JobDto } from '../../infrastructure/dtos/JobDto';
+import { setFeatureCount } from '../../infrastructure/store/slices/File/FeatureCount-Slice';
+import { setSelectedItems } from '../../infrastructure/store/slices/File/SelectedSearchedItem-Slice';
 
 
     const SidebarComponent: React.FC<SidebarComponentProps> = ({ visible, onHide }) => {
@@ -27,10 +30,12 @@ import Cookies from 'js-cookie';
         const savedBranches = Cookies.get('selectedBranches');
         return savedBranches ? JSON.parse(savedBranches) : [];
       });
-      const [featureCount, setFeatureCount] = useState<number>(() => {
-        const savedCount = Cookies.get('featureCount');
-        return savedCount ? parseInt(savedCount) : 3;
+      const [selectedProjects] = useState<JobDto[]>(() => {
+        const savedProjects = Cookies.get('selectedProjects');
+        return savedProjects ? JSON.parse(savedProjects) : [];
       });
+      const featureCount = useSelector((state: RootState) => state.getFeatureCount.count);
+      const selectedSearchedItems = useSelector((state: RootState) => state.getSearchedItems.selectedItems);
     
       useEffect(() => {
         selectedSettings.forEach(setting => {
@@ -40,20 +45,14 @@ import Cookies from 'js-cookie';
           dispatch(removeBranchList(branch));
         });
         
-        const basicSettings = selectedSettings.filter(setting => !setting.includes('builds['));
-        basicSettings.forEach(setting => {
+        selectedSettings.forEach(setting => {
           dispatch(addApiSettings(setting));
         });
         
         selectedBranches.forEach(branch => {
           dispatch(addBranchList(branch));
         });
-        
-        if (selectedBranches.includes('feature')) {
-          const buildSetting = `builds[number,url,status,timestamp,result,duration]{,${featureCount}}`;
-          dispatch(addApiSettings(buildSetting));
-        }
-      }, [dispatch, selectedSettings, selectedBranches, featureCount]);
+      }, [dispatch, selectedSettings, selectedBranches]);
     
       useEffect(() => {
         Cookies.set('darkMode', String(isDarkMode), { expires: 30 });
@@ -61,8 +60,7 @@ import Cookies from 'js-cookie';
       }, [isDarkMode]);
     
       useEffect(() => {
-        const settingsToSave = selectedSettings.filter(setting => !setting.includes('builds['));
-        Cookies.set('selectedSettings', JSON.stringify(settingsToSave), { expires: 30 });
+        Cookies.set('selectedSettings', JSON.stringify(selectedSettings), { expires: 30 });
       }, [selectedSettings]);
     
       useEffect(() => {
@@ -70,8 +68,42 @@ import Cookies from 'js-cookie';
       }, [selectedBranches]);
     
       useEffect(() => {
+        Cookies.set('selectedProjects', JSON.stringify(selectedProjects), { expires: 30 });
+      }, [selectedProjects]);
+    
+      useEffect(() => {
+        const savedProjects = Cookies.get('selectedProjects');
+        if (savedProjects) {
+          const projects = JSON.parse(savedProjects);
+          projects.forEach((project: JobDto) => {
+            dispatch(addSelectedProject(project));
+          });
+        }
+      }, []);
+    
+      useEffect(() => {
+        const savedFeatureCount = Cookies.get('featureCount');
+        if (savedFeatureCount) {
+          dispatch(setFeatureCount(parseInt(savedFeatureCount)));
+        } else {
+          dispatch(setFeatureCount(3)); 
+        }
+      }, []);
+    
+      useEffect(() => {
         Cookies.set('featureCount', String(featureCount), { expires: 30 });
       }, [featureCount]);
+    
+      useEffect(() => {
+        const savedSearchedItems = Cookies.get('selectedSearchedItems');
+        if (savedSearchedItems) {
+          dispatch(setSelectedItems(JSON.parse(savedSearchedItems)));
+        }
+      }, []);
+    
+      useEffect(() => {
+        Cookies.set('selectedSearchedItems', JSON.stringify(selectedSearchedItems), { expires: 30 });
+      }, [selectedSearchedItems]);
     
       const handleSettingChange = (settingKey: string, checked: boolean) => {
         const newSelectedSettings = checked
@@ -83,15 +115,6 @@ import Cookies from 'js-cookie';
       };
     
       const handleBranchChange = (branchKey: string, checked: boolean) => {
-        if (branchKey.includes('builds[')) {
-          if (checked) {
-            dispatch(addApiSettings(branchKey));
-          } else {
-            dispatch(removeApiSettings(branchKey));
-          }
-          return;
-        }
-    
         const newSelectedBranches = checked
           ? [...selectedBranches, branchKey]
           : selectedBranches.filter(item => item !== branchKey);
@@ -111,8 +134,6 @@ import Cookies from 'js-cookie';
           <BranchSettings 
             selectedBranches={selectedBranches} 
             handleBranchChange={handleBranchChange} 
-            featureCount={featureCount}
-            setFeatureCount={setFeatureCount}
           />
         </StyledDrawer>
       );

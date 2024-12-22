@@ -1,10 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import ApiState from "../../../Enums/ApiState";
 import axios from "axios";
-import { NotificationBuildDto } from "../../../dtos/NotificationBuildDto";
+import { QueueDto } from "../../../dtos/QueueDto";
+import apiEndpoints from "../../../helpers/api-endpoints";
 
 export interface BuildState {
-    builds: NotificationBuildDto[];
+    builds: QueueDto;
     state: ApiState;
     activeRequest: number | null;
     responseStatus: number | null; 
@@ -12,23 +13,23 @@ export interface BuildState {
 }
 
 const initialState: BuildState = { 
-    builds: [],
+    builds: {} as QueueDto,
     state: ApiState.Idle, 
     activeRequest: null, 
     responseStatus: null, 
     errorMessage: null    
 };
 
-export const getLastBuildsForNotification = createAsyncThunk<
-NotificationBuildDto[],
+export const getQueueItems = createAsyncThunk<
+QueueDto,
     void,
     { rejectValue: string }
 >(
-    'job/getLastBuildsForNotification',
+    'queue',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await axios.get<{ builds: NotificationBuildDto[] }>(
-                'http://localhost:8080/api/json?tree=builds[number,url,result,timestamp,duration]{0,10}',
+            const response = await axios.get<QueueDto>( 
+                apiEndpoints.Information.GetQueueItemList,
                 {
                     auth: {
                         username: import.meta.env.VITE_JENKINS_USERNAME,
@@ -39,7 +40,8 @@ NotificationBuildDto[],
                     },
                 }
             );
-            return response.data.builds;
+            console.log("API Yanıtı:", response.data); 
+            return response.data; 
         } catch (error: any) {
             const status = error.response ? error.response.status : 500;
             const message = error.response?.data?.message || "Bir hata meydana geldi";
@@ -48,22 +50,23 @@ NotificationBuildDto[],
     }
 );
 
-const GetLastBuildsForNotificationSlice = createSlice({
-    name: 'getLastBuildsForNotification',
+const GetQueueItemList = createSlice({
+    name: 'getQueueItems',
     initialState,
     extraReducers: (builder) => {
-        builder.addCase(getLastBuildsForNotification.pending, (state) => {
+        builder.addCase(getQueueItems.pending, (state) => {
             state.state = ApiState.Pending;
             state.responseStatus = null; 
             state.errorMessage = null;   
         });
-        builder.addCase(getLastBuildsForNotification.fulfilled, (state, action) => {
+        builder.addCase(getQueueItems.fulfilled, (state, action) => {
+            console.log("Queue verisi Redux'a geldi:", action.payload);
             state.builds = action.payload;
             state.state = ApiState.Fulfilled;
             state.responseStatus = 200;  
             state.errorMessage = null;   
         });
-        builder.addCase(getLastBuildsForNotification.rejected, (state, action) => {
+        builder.addCase(getQueueItems.rejected, (state, action) => {
             state.state = ApiState.Rejected;
             state.errorMessage = action.payload || "Bilinmeyen bir hata oluştu";
             state.responseStatus = action.meta.requestStatus === 'rejected' ? 500 : null;
@@ -71,7 +74,7 @@ const GetLastBuildsForNotificationSlice = createSlice({
     },
     reducers: {
         resetBuildState: (state) => {
-            state.builds = [];
+            state.builds = {} as QueueDto;
             state.state = ApiState.Idle;
             state.responseStatus = null;
             state.errorMessage = null;
@@ -79,6 +82,6 @@ const GetLastBuildsForNotificationSlice = createSlice({
     },
 });
 
-export const { resetBuildState } = GetLastBuildsForNotificationSlice.actions;
+export const { resetBuildState } = GetQueueItemList.actions;
 
-export default GetLastBuildsForNotificationSlice.reducer;
+export default GetQueueItemList.reducer;

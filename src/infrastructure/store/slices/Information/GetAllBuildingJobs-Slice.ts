@@ -1,30 +1,36 @@
 import axios from 'axios';
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import {createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import ApiState from "../../../Enums/ApiState";
-import Endpoints from '../../../helpers/api-endpoints';
+import ApiEndpoints from '../../../helpers/api-endpoints';
+import { BaseDto } from '../../../dtos/BaseDto';
 import { JobDto } from '../../../dtos/JobDto';
 
-export interface JobState {
-    data: Record<string, JobDto>; 
+
+export interface BaseState {
+    data: JobDto[];
     state: ApiState;
     activeRequest: number | null;
     responseStatus: number | null; 
     errorMessage: string | null;   
 }
 
-const initialState: JobState = { 
+const initialState = { 
     state: ApiState.Idle, 
     activeRequest: null, 
-    data: {},  
+    data: [] as JobDto[], 
     responseStatus: null, 
     errorMessage: null    
-};
+} as BaseState;
 
-export const GetBranchJob = createAsyncThunk<JobDto, { jobName: string, jobName2:string, apiSettings:string[] }, { state: JobState }>(
-    'getBranchJob',
-    async ({ jobName, jobName2, apiSettings }, { rejectWithValue }) => {
+
+
+export const getAllBuildingJobs = createAsyncThunk<JobDto[], void, { state: BaseState }>(
+    'getAllBuildingJobs',
+    async (_, { rejectWithValue }) => {
+        console.log("Fetching all jobs");
+        
         try {
-            const response = await axios.get<JobDto>(Endpoints.Job.GetBranch_Name_Url(jobName, jobName2, apiSettings), {
+            const response = await axios.get<JobDto[]>(ApiEndpoints.Job.GetAllBuildingJobs, {
                 auth: {
                     username: import.meta.env.VITE_JENKINS_USERNAME,
                     password: import.meta.env.VITE_JENKINS_TOKEN,
@@ -32,33 +38,37 @@ export const GetBranchJob = createAsyncThunk<JobDto, { jobName: string, jobName2
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                withCredentials: true,
             });
+            console.log("Status:", response.status);
             return response.data;
-        } catch (error: any) {
+        }catch (error: any) {
             const status = error.response ? error.response.status : 500; 
-            const message = error.response?.data?.message || "An error occurred";
+            const message = error.response?.data?.message || 
+                            (status === 0 ? "CORS Error: Unable to reach server" : "An error occurred");
+            console.error("Error status:", status, "Message:", message);
             return rejectWithValue({ status, message });
         }
     }
 );
 
-const GetBranchJobSlice = createSlice({
-    name: 'getJob',
+const getAllBuildingJobsSlice = createSlice({
+    name: 'getAllBuildingJobs',
     initialState,
     extraReducers: (builder) => {
-        builder.addCase(GetBranchJob.pending, (state, action) => {
+        builder.addCase(getAllBuildingJobs.pending, (state, action) => {
             state.state = ApiState.Pending;
             state.responseStatus = null; 
             state.errorMessage = null;   
         });
-        builder.addCase(GetBranchJob.fulfilled, (state, action) => {
-            const jobName2 = action.meta.arg.jobName2;
-            state.data[jobName2] = action.payload; 
+        builder.addCase(getAllBuildingJobs.fulfilled, (state, action) => {
+            console.log("Folder verisi Redux'a geldi:", action.payload);
+            state.data = action.payload;
             state.state = ApiState.Fulfilled;
             state.responseStatus = 200;  
             state.errorMessage = null;   
         });
-        builder.addCase(GetBranchJob.rejected, (state, action) => {
+        builder.addCase(getAllBuildingJobs.rejected, (state, action) => {
             state.state = ApiState.Rejected;
             if (action.payload) {
                 state.responseStatus = (action.payload as any).status;  
@@ -74,7 +84,7 @@ const GetBranchJobSlice = createSlice({
             state.activeRequest = action.payload;
         },
         resetJobState: (state) => {
-            state.data = {}; 
+            state.data = [] as JobDto[]; 
             state.state = ApiState.Idle;
             state.responseStatus = null;
             state.errorMessage = null;
@@ -82,5 +92,6 @@ const GetBranchJobSlice = createSlice({
     },
 });
 
-export const { setActiveRequest, resetJobState } = GetBranchJobSlice.actions;
-export default GetBranchJobSlice.reducer;
+export const { setActiveRequest, resetJobState } = getAllBuildingJobsSlice.actions;
+
+export default getAllBuildingJobsSlice.reducer;

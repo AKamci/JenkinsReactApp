@@ -61,7 +61,7 @@ const getAllJobSlice = createSlice({
             state.errorMessage = null;   
         });
         builder.addCase(getAllJob.fulfilled, (state, action) => {
-            console.log("Müşteri verisi Redux'a geldi:", action.payload);
+            console.log("Folder verisi Redux'a geldi:", action.payload);
             state.data = action.payload;
             state.state = ApiState.Fulfilled;
             state.responseStatus = 200;  

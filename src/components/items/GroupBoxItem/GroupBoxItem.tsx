@@ -12,49 +12,56 @@ import FolderIcon from '@mui/icons-material/Folder';
 import GroupCardProps from '../../../infrastructure/props/GroupCardProps';
 import { ColorPicker, ColorButton, colors } from './ColorPicker';
 import { baseUrl } from '../../../infrastructure/helpers/api-endpoints';
-import { darkTheme, lightTheme } from '../../../theme/theme';
 
 const StyledCard = styled(Paper)<{ borderColor?: string; isDarkMode?: boolean }>(({ theme, borderColor, isDarkMode }) => ({
   margin: '8px',
-  padding: '16px',
-  borderRadius: '12px', 
-  background: isDarkMode ? darkTheme.palette.background.default : lightTheme.palette.background.default,
-  boxShadow: '0 2px 12px rgba(0, 0, 0, 0.03)',
-  transition: 'all 0.2s ease',
+  padding: '12px',
+  borderRadius: '12px',
+  background: isDarkMode 
+    ? `linear-gradient(145deg, ${theme.palette.background.default}, ${theme.palette.background.paper})`
+    : `linear-gradient(145deg, ${theme.palette.background.default}, ${theme.palette.background.paper})`,
+  boxShadow: isDarkMode 
+    ? '0 8px 32px rgba(0, 0, 0, 0.2)' 
+    : '0 8px 32px rgba(0, 0, 0, 0.08)',
+  backdropFilter: 'blur(8px)',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
   maxWidth: '440px',
-  minWidth: '300px',
-  border: `1px solid ${borderColor || '#f0f0f0'}`,
+  minWidth: '320px',
+  border: `1px solid ${borderColor || (isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)')}`,
   '&:hover': {
-    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.06)'
+    boxShadow: isDarkMode 
+      ? '0 12px 40px rgba(0, 0, 0, 0.3)' 
+      : '0 12px 40px rgba(0, 0, 0, 0.12)'
   }
 }));
 
-const StyledIconButton = styled(IconButton)({
-  padding: '2px',
-  borderRadius: '0px',
-  transition: 'all 0.2s ease',
+const StyledIconButton = styled(IconButton)(({ theme }) => ({
+  padding: '4px',
+  borderRadius: '6px',
+  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
   '&:hover': {
-    background: 'rgba(0, 0, 0, 0.03)'
+    background: 'rgba(0, 0, 0, 0.08)',
   },
   '& .MuiSvgIcon-root': {
-    fontSize: '1.1rem'
+    fontSize: '0.9rem'
   }
-});
+}));
 
 const GroupTitle = styled(Typography)<{ isDarkMode?: boolean }>(({ isDarkMode }) => ({
-  fontWeight: 500,
-  fontSize: '1rem',
-  color: isDarkMode ? '#fff' : '#2c3e50',
-  maxWidth: '200px',
+  fontWeight: 600,
+  fontSize: '1.1rem',
+  color: isDarkMode ? '#fff' : '#1a2027',
+  maxWidth: '220px',
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
-  letterSpacing: '0.2px'
+  letterSpacing: '0.3px',
+  textShadow: isDarkMode ? '0 2px 4px rgba(0,0,0,0.2)' : 'none'
 }));
 
 const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const [folderColor, setFolderColor] = useState('#27ae60');
+  const [folderColor, setFolderColor] = useState('#2ecc71');
   const [borderColor, setBorderColor] = useState('#f0f0f0');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [colorPickerType, setColorPickerType] = useState<'folder' | 'border'>('folder');
@@ -105,22 +112,23 @@ const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
         display: 'flex', 
         justifyContent: 'space-between',
         alignItems: 'center', 
-        mb: 2,
+        mb: 1.5,
         pb: 1,
-        borderBottom: `1px solid ${borderColor}`
+        borderBottom: `1px solid ${isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)'}`
       }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <FolderIcon
             component="svg"
             onClick={(e: React.MouseEvent<SVGSVGElement>) => handleFolderClick(e as unknown as React.MouseEvent<HTMLElement>)}
             sx={{
               color: folderColor,
-              opacity: 0.9,
-              fontSize: '1.2rem',
+              opacity: 0.95,
+              fontSize: '1.3rem',
               cursor: 'pointer',
-              transition: 'transform 0.2s',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))',
               '&:hover': {
-                transform: 'scale(1.1)'
+                filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))'
               }
             }} 
           />
@@ -139,12 +147,24 @@ const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
             vertical: 'top',
             horizontal: 'left',
           }}
+          sx={{
+            '& .MuiPopover-paper': {
+              borderRadius: '8px',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+              border: '1px solid rgba(0,0,0,0.08)'
+            }
+          }}
         >
           <ColorPicker>
             {colors.map((color) => (
               <ColorButton
                 key={color}
-                sx={{ backgroundColor: color }}
+                sx={{ 
+                  backgroundColor: color,
+                  transition: 'transform 0.2s ease',
+                  '&:hover': {
+                  }
+                }}
                 onClick={() => handleColorSelect(color)}
               />
             ))}
@@ -155,14 +175,24 @@ const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
           <StyledIconButton 
             onClick={() => window.open(`${baseUrl}/job/${groupName}`, '_blank')}
             size="small"
-            sx={{ color: isDarkMode ? '#5dade2' : '#3498db' }}
+            sx={{ 
+              color: isDarkMode ? '#60a5fa' : '#3b82f6',
+              '&:hover': {
+                color: isDarkMode ? '#93c5fd' : '#2563eb'
+              }
+            }}
           >
             <OpenInNewIcon />
           </StyledIconButton>
           <StyledIconButton 
             onClick={handleRemoveGroup}
             size="small"
-            sx={{ color: isDarkMode ? '#e74c3c' : '#c0392b' }}
+            sx={{ 
+              color: isDarkMode ? '#f87171' : '#ef4444',
+              '&:hover': {
+                color: isDarkMode ? '#fca5a5' : '#dc2626'
+              }
+            }}
           >
             <DeleteOutlineIcon />
           </StyledIconButton>

@@ -15,7 +15,6 @@ import SidebarComponent from '../../../settings/SettingsSideBar';
 import NotificationPopper from '../../../information/InformationPopper';
 import StartedBuildNotification from '../../../notification/StartedBuildNotification';
 import { useAppSelector } from '../../../../infrastructure/store/store';
-import { darkTheme } from '../../../../theme/theme';
 import Search from '../../../SearchBar/Search';
 
 const StyledIconButton = styled(IconButton)(({ theme }) => ({
@@ -66,7 +65,6 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
       <AppBar
         position="fixed"
         sx={{
-          background: isDarkMode ? darkTheme.palette.background.default : '#42a5f5',
           backdropFilter: 'blur(10px)',
           boxShadow: '0 2px 12px rgba(0,0,0,0.1)',
           borderBottom: '1px solid rgba(255, 255, 255, 0.1)',

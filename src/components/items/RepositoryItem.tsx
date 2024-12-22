@@ -7,7 +7,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState, useAppSelector } from '../../infrastructure/store/store';
 import { useEffect } from 'react';
 import { GetBranchJob } from '../../infrastructure/store/slices/Job/GetBranchJob-Slice';
-import { darkTheme, lightTheme } from '../../theme/theme';
 
 const RepositoryItem: React.FC<{ job: JobDto; parent: string }> = ({ job, parent }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -17,7 +16,6 @@ const RepositoryItem: React.FC<{ job: JobDto; parent: string }> = ({ job, parent
   const isDarkMode = useAppSelector((state) => state.generalTheme.isDarkMode);
   const featureCount = useSelector((state: RootState) => state.getFeatureCount.count);
 
-  const currentTheme = isDarkMode ? darkTheme : lightTheme;
 
   useEffect(() => {
     const fetchJobData = () => {
@@ -53,12 +51,11 @@ const RepositoryItem: React.FC<{ job: JobDto; parent: string }> = ({ job, parent
         sx={{
           margin: '2px',
           borderRadius: '8px',
-          backgroundColor: currentTheme.palette.background.paper,
-          boxShadow: currentTheme.shadows[1],
+          boxShadow: theme.shadows[1],
           transition: 'all 0.2s ease',
-          border: `1px solid ${currentTheme.palette.divider}`,
+          border: `1px solid ${theme.palette.divider}`,
           '&:hover': {
-            boxShadow: currentTheme.shadows[3],
+            boxShadow: theme.shadows[3],
           },
         }}
       >
@@ -66,19 +63,19 @@ const RepositoryItem: React.FC<{ job: JobDto; parent: string }> = ({ job, parent
           sx={{
             display: 'flex',
             alignItems: 'center',
-            color: currentTheme.palette.text.secondary,
+            color: theme.palette.text.secondary,
             padding: '0px 12px',
             gap: '8px',
-            borderBottom: `1px solid ${currentTheme.palette.divider}`,
+            borderBottom: `1px solid ${theme.palette.divider}`,
             backgroundColor: isDarkMode ? 
-              currentTheme.palette.background.default : 
-              currentTheme.palette.action.hover,
+              theme.palette.background.default : 
+              theme.palette.action.hover,
           }}
         >
           <AccountTree 
             sx={{
               fontSize: '1rem',
-              color: job.color || currentTheme.palette.secondary.main,
+              color: job.color || theme.palette.secondary.main,
               opacity: isDarkMode ? 0.9 : 0.7
             }}
           />
@@ -87,7 +84,7 @@ const RepositoryItem: React.FC<{ job: JobDto; parent: string }> = ({ job, parent
               fontSize: '0.85rem',
               fontWeight: 500,
               opacity: isDarkMode ? 0.7 : 0.3,
-              color: currentTheme.palette.text.primary
+              color: theme.palette.text.primary
             }}
           >
             {job.name}
@@ -101,7 +98,7 @@ const RepositoryItem: React.FC<{ job: JobDto; parent: string }> = ({ job, parent
               flexWrap: 'wrap',
               gap: '4px',
               padding: '2px',
-              backgroundColor: currentTheme.palette.background.default,
+              backgroundColor: theme.palette.background.default,
             }}
           >
             {getFilteredBranches().map((branchJob, index) => (

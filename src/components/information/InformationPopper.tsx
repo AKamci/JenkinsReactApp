@@ -30,9 +30,13 @@ const InformationPopper: React.FC<InformationPopperProps> = ({ anchorEl, open, o
             maxHeight: '80vh',
             overflow: 'auto',
             borderRadius: 2,
-            background: 'linear-gradient(to bottom, #ffffff, #f8f9fa)',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-            border: '1px solid rgba(0,0,0,0.05)'
+            background: theme => theme.palette.mode === 'dark'
+              ? 'linear-gradient(to bottom, #1a1a1a, #2d2d2d)'
+              : 'linear-gradient(to bottom, #ffffff, #f8f9fa)',
+            boxShadow: theme => theme.palette.mode === 'dark'
+              ? '0 8px 32px rgba(0,0,0,0.3)'
+              : '0 8px 32px rgba(0,0,0,0.12)',
+            border: theme => `1px solid ${theme.palette.divider}`
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>

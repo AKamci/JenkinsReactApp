@@ -3,6 +3,7 @@ import { Popper, Paper, Typography, ClickAwayListener, Box, Badge, List, ListIte
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import BuildIcon from '@mui/icons-material/Build';
 import { useAppSelector } from '../../infrastructure/store/store';
+import { alpha } from '@mui/material/styles';
 
 interface StartedBuildNotificationProps {
   anchorEl: HTMLElement | null;
@@ -12,13 +13,19 @@ interface StartedBuildNotificationProps {
 
 const StartedBuildNotification: React.FC<StartedBuildNotificationProps> = ({ anchorEl, open, onClose }) => {
     const buildingJobs = useAppSelector((state) => state.getStartedBuildNotification.buildingJobs);
+    const folderNames = import.meta.env.VITE_FOLDER_NAME?.split(',').map((name: string) => name.trim().toLowerCase()) || [];
     
+    const filteredBuildingJobs = buildingJobs.filter(job => {
+      const jobPath = parseJobPath(job.url).split(' → ')[0].toLowerCase();
+      return !folderNames.includes(jobPath);
+    });
+
     useEffect(() => {
-      console.log('Current building jobs:', buildingJobs.map(job => ({
+      console.log('Current building jobs:', filteredBuildingJobs.map(job => ({
         name: job.name,
         url: job.url
       })));
-    }, [buildingJobs]);
+    }, [filteredBuildingJobs]);
 
   const handleJobClick = (url: string) => {
     window.open(url, '_blank');
@@ -41,9 +48,13 @@ const StartedBuildNotification: React.FC<StartedBuildNotificationProps> = ({ anc
             maxHeight: '80vh',
             overflow: 'auto',
             borderRadius: 2,
-            background: 'linear-gradient(to bottom, #ffffff, #f8f9fa)',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-            border: '1px solid rgba(0,0,0,0.05)'
+            background: theme => theme.palette.mode === 'dark' 
+              ? 'linear-gradient(to bottom, #1a1a1a, #2d2d2d)'
+              : 'linear-gradient(to bottom, #ffffff, #f8f9fa)',
+            boxShadow: theme => theme.palette.mode === 'dark'
+              ? '0 8px 32px rgba(0,0,0,0.3)'
+              : '0 8px 32px rgba(0,0,0,0.12)',
+            border: theme => `1px solid ${theme.palette.divider}`
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
@@ -64,19 +75,23 @@ const StartedBuildNotification: React.FC<StartedBuildNotificationProps> = ({ anc
             </Typography>
           </Box>
           
-          {buildingJobs.length > 0 ? (
+          {filteredBuildingJobs.length > 0 ? (
             <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
-              {buildingJobs.map((job, index) => (
+              {filteredBuildingJobs.map((job, index) => (
                 <ListItem
                   key={index}
                   onClick={() => handleJobClick(job.url)}
                   sx={{
                     mb: 1,
                     borderRadius: 1,
-                    bgcolor: 'rgba(25, 118, 210, 0.08)',
+                    bgcolor: theme => theme.palette.mode === 'dark'
+                      ? alpha(theme.palette.primary.main, 0.15)
+                      : 'rgba(25, 118, 210, 0.08)',
                     cursor: 'pointer',
                     '&:hover': {
-                      bgcolor: 'rgba(25, 118, 210, 0.12)',
+                      bgcolor: theme => theme.palette.mode === 'dark'
+                        ? alpha(theme.palette.primary.main, 0.25)
+                        : 'rgba(25, 118, 210, 0.12)',
                     }
                   }}
                 >
@@ -84,7 +99,6 @@ const StartedBuildNotification: React.FC<StartedBuildNotificationProps> = ({ anc
                   <ListItemText
                     primary={
                       <Typography
-                      
                         sx={{
                           fontWeight: 'medium',
                           color: 'primary.main',

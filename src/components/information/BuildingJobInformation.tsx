@@ -9,6 +9,7 @@ import { JobDto } from '../../infrastructure/dtos/JobDto';
 const BuildingJobInformation = () => {
     const buildingJobs = useAppSelector(state => state.getAllBuildingJobs.data);
     const dispatch = useAppDispatch();
+    const folderNames = import.meta.env.VITE_FOLDER_NAME?.split(',').map((name: string) => name.trim().toLowerCase()) || [];
 
     useEffect(() => {
         const fetchBuildingJobs = () => {
@@ -21,13 +22,16 @@ const BuildingJobInformation = () => {
         return () => clearInterval(intervalId);
     }, [dispatch]);
 
-    const buildingJobsList = buildingJobs?.jobs?.flatMap((folder: JobDto) =>
-        folder.jobs?.flatMap((project: JobDto) =>
+    const buildingJobsList = buildingJobs?.jobs?.flatMap((folder: JobDto) => {
+        if (folderNames.includes(folder.name?.toLowerCase())) {
+            return [];
+        }
+        return folder.jobs?.flatMap((project: JobDto) =>
             project.jobs?.filter((job: JobDto) =>
                 job?.lastBuild?.building === true
             ) || []
-        ) || []
-    ) || [];
+        ) || [];
+    }) || [];
 
     return (
         <Accordion sx={{ 

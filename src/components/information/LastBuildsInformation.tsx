@@ -17,12 +17,17 @@ interface ProcessedBuild {
 
 const LastBuildsInformation: React.FC = () => {
   const lastBuilds = useAppSelector((state) => state.getLastBuildsForInformation.builds);
+  const folderNames = import.meta.env.VITE_FOLDER_NAME?.split(',').map((name: string) => name.trim().toLowerCase()) || [];
 
   const processedBuilds = useMemo(() => {
     const builds: ProcessedBuild[] = [];
 
     const processJobs = (jobs: JobDto[], folderName: string = '') => {
       jobs.forEach(job => {
+        if (folderNames.includes(job.name.toLowerCase())) {
+          return;
+        }
+
         if (job.jobs) {
           if (job._class === 'jenkins.branch.OrganizationFolder') {
             processJobs(job.jobs, job.name);
@@ -50,7 +55,7 @@ const LastBuildsInformation: React.FC = () => {
     }
 
     return builds.sort((a, b) => b.buildNumber - a.buildNumber).slice(0, 20);
-  }, [lastBuilds]);
+  }, [lastBuilds, folderNames]);
 
   return (
     <Accordion sx={{ 
@@ -71,10 +76,10 @@ const LastBuildsInformation: React.FC = () => {
         }}
       >
         <Typography
-          variant="subtitle1"
+          variant="h6"
           sx={{
-            fontSize: '1rem',
-            fontWeight: 600,
+            fontSize: '1.1rem',
+            fontWeight: 700,
             display: 'flex',
             alignItems: 'center',
             gap: 1,
@@ -86,7 +91,13 @@ const LastBuildsInformation: React.FC = () => {
         </Typography>
       </AccordionSummary>
       <AccordionDetails sx={{ padding: 0, mt: 1 }}>
-        <Box sx={{ backgroundColor: alpha('#1a73e8', 0.04), borderRadius: 2, p: 1 }}>
+        <Box sx={{ 
+          backgroundColor: theme => theme.palette.mode === 'dark'
+            ? alpha(theme.palette.primary.main, 0.15)
+            : alpha('#1a73e8', 0.04),
+          borderRadius: 2,
+          p: 1
+        }}>
           {processedBuilds.length === 0 ? (
             <Typography variant="body2" sx={{ textAlign: 'center', color: '#666', py: 1 }}>
               Henüz tamamlanan iş bulunmuyor
@@ -101,9 +112,9 @@ const LastBuildsInformation: React.FC = () => {
                     borderRadius: 1,
                     mb: 0.5,
                     py: 0.5,
-                    backgroundColor: '#fff',
+                    backgroundColor: theme => theme.palette.background.paper,
                     '&:hover': {
-                      backgroundColor: '#f8f9fa',
+                      backgroundColor: theme => theme.palette.action.hover,
                     }
                   }}
                 >

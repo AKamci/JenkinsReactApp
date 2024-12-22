@@ -5,9 +5,6 @@ import { handleCheckbox } from '../../../func/handleCheckBoxChance';
 import { getAllJob } from '../../../../infrastructure/store/slices/Job/GetAllJob-Slice';
 import OrganizationFolderItem from '../../../items/OrganizationFolderItem';
 import Grid from '@mui/material/Grid2';
-import { darkTheme, lightTheme } from '../../../../theme/theme';
-import { getQueueItems } from '../../../../infrastructure/store/slices/Information/GetInQueueItem-Slice';
-import { getLastBuildsForInformation } from '../../../../infrastructure/store/slices/Information/GetLastBuildsForInformation-Slice';
 
 interface HomePageLeftNavProps {
     checkedJobs: Record<string, boolean>;
@@ -23,13 +20,10 @@ const HomePageLeftNav: React.FC<HomePageLeftNavProps> = ({ checkedJobs, setCheck
 
     useEffect(() => {
         dispatch(getAllJob());
-        dispatch(getQueueItems());
-        dispatch(getLastBuildsForInformation());
     }, [dispatch]);
   
     return (
         <Grid container spacing={0} justifyContent="flex-start" sx={{ 
-            background: isDarkMode ? darkTheme.palette.background.default : lightTheme.palette.background.default,
         }}>
             {allJobWithName?.jobs?.filter((job: JobDto) => !folderNames.includes(job.name.toLowerCase())).map((job: JobDto) => (
                 <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }} key={job.name}>

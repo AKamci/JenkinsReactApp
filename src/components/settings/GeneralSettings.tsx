@@ -12,7 +12,6 @@ const GeneralSettings: React.FC = () => {
 
   const handleThemeChange = (checked: boolean) => {
     dispatch(setDarkMode(checked));
-    console.log(isDarkMode, "isDarkMode")
   };
 
   return (

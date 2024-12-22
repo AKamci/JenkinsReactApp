@@ -1,13 +1,11 @@
 import * as React from 'react';
 import { Tooltip, Zoom, useTheme } from '@mui/material';
 import { JobDto } from '../../../infrastructure/dtos/JobDto';
-import { RootState, useAppSelector, useAppDispatch } from '../../../infrastructure/store/store';
+import {  useAppSelector, useAppDispatch } from '../../../infrastructure/store/store';
 import { StyledCard, StyledCardContent, rotate } from './BranchStyle';
 import { branchIcons } from './BranchIcons';
 import { colorSchemes } from './BranchColorSchemes';
-import { darkTheme, lightTheme } from '../../../theme/theme';
 import JenkinsJobColor from '../../../infrastructure/Enums/JenkinsJobColor';
-import { useSelector } from 'react-redux';
 import { addBuildingJob, removeBuildingJob } from '../../../infrastructure/store/slices/Notification/StartedBuildNotification-Slice';
 import { useEffect, useRef } from 'react';
 
@@ -59,10 +57,15 @@ const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
       borderRadius: '20px',
       width: 'fit-content',
       minWidth: 42,
-      border: `0.1px solid ${colorScheme.shadow}`,
+      border: `0.5px solid ${colorScheme.color}`,
       background: theme.palette.mode === 'dark' ? theme.palette.background.default : theme.palette.background.paper,
-      boxShadow: `0 0px 0px ${colorScheme.shadow}80, inset 0 1px 2px rgba(255,255,255,0.8)`,
-      order: branchInfo.order
+      boxShadow: `0 0 4px ${colorScheme.color}40`,
+      order: branchInfo.order,
+      transition: 'all 0.3s ease',
+      '&:hover': {
+        boxShadow: `0 0 8px ${colorScheme.color}60`,
+        borderColor: colorScheme.color
+      }
     }
   };
 

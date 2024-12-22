@@ -6,22 +6,31 @@ import React from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-
 import { HotKeys } from 'react-hotkeys';
 import KeyMap from './shortcuts/KeyMap';
 import  {Handlers}  from './shortcuts/Handlers';
 import { useDocumentTitle } from './hooks/useDocumentTitle';
+import { ThemeProvider } from '@mui/material';
+import { useAppSelector } from './infrastructure/store/store';
+import CssBaseline from '@mui/material/CssBaseline';
+import { createAppTheme } from './theme/theme';
 
 const App = () => {
 	useDocumentTitle();
 	
+	const isDarkMode = useAppSelector((state) => state.generalTheme.isDarkMode);
+	const theme = createAppTheme(isDarkMode);
+
 	return (
-		<HotKeys keyMap={KeyMap} handlers={Handlers}>
-			<>
-				<Routers />
-				<ToastContainer />
-			</>
-		</HotKeys>
+		<ThemeProvider theme={theme}>
+			<CssBaseline />
+			<HotKeys keyMap={KeyMap} handlers={Handlers}>
+				<>
+					<Routers />
+					<ToastContainer theme={isDarkMode ? 'dark' : 'light'} />
+				</>
+			</HotKeys>
+		</ThemeProvider>
 	);
 };
 

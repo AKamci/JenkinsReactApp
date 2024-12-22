@@ -11,11 +11,17 @@ interface QueueInformationProps {
 
 const QueueInformation: React.FC<QueueInformationProps> = ({ onItemClick }) => {
   const QueueItems = useAppSelector((state) => state.getQueueItems.builds);
+  const folderNames = import.meta.env.VITE_FOLDER_NAME?.split(',').map((name: string) => name.trim().toLowerCase()) || [];
 
   const getFormattedTaskName = (url: string) => {
     const parts = url.split('/job/').filter(Boolean);
     return parts.slice(1).join('->');
   };
+
+  const filteredQueueItems = QueueItems.items?.filter(item => {
+    const taskName = getFormattedTaskName(item.task.url).split('->')[0].toLowerCase();
+    return !folderNames.includes(taskName);
+  });
 
   return (
     <Accordion sx={{ 
@@ -47,13 +53,13 @@ const QueueInformation: React.FC<QueueInformationProps> = ({ onItemClick }) => {
           }}
         >
           <AccessTimeIcon sx={{ fontSize: '1.3rem' }} />
-          Sıradaki İşler ({QueueItems.items?.length || 0})
+          Sıradaki İşler ({filteredQueueItems?.length || 0})
         </Typography>
       </AccordionSummary>
       <AccordionDetails sx={{ padding: 0, mt: 2 }}>
         <Box sx={{ backgroundColor: alpha('#1a73e8', 0.04), borderRadius: 2, p: 2 }}>
           <List sx={{ pt: 0 }}>
-            {QueueItems.items?.map((item, index) => (
+            {filteredQueueItems?.map((item, index) => (
               <Tooltip
                 key={index}
                 title={

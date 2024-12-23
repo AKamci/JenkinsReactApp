@@ -5,6 +5,7 @@ import { useAppSelector } from '../../infrastructure/store/store';
 import BuildIcon from '@mui/icons-material/Build';
 import { JobDto } from '../../infrastructure/dtos/JobDto';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { BuildResult, getBuildResultDetails } from '../../infrastructure/Enums/BuildResult';
 
 interface ProcessedBuild {
   folder: string;
@@ -13,6 +14,8 @@ interface ProcessedBuild {
   buildNumber: number;
   duration: number;
   buildUrl: string;
+  timestamp: number;
+  result: BuildResult | null;
 }
 
 const LastBuildsInformation: React.FC = () => {
@@ -34,14 +37,18 @@ const LastBuildsInformation: React.FC = () => {
           }
           else if (job._class === 'org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject') {
             job.jobs.forEach(branchJob => {
-              if (branchJob.lastBuild && Object.keys(branchJob.lastBuild).length > 0) {
+              if (branchJob.lastBuild && 
+                  Object.keys(branchJob.lastBuild).length > 0 && 
+                  branchJob.lastBuild.result !== null) {
                 builds.push({
                   folder: folderName,
                   project: job.name,
                   branch: branchJob.name,
                   buildNumber: branchJob.lastBuild.number,
                   duration: branchJob.lastBuild.duration,
-                  buildUrl: branchJob.lastBuild.url
+                  buildUrl: branchJob.lastBuild.url,
+                  timestamp: branchJob.lastBuild.timestamp,
+                  result: branchJob.lastBuild.result
                 });
               }
             });
@@ -54,7 +61,7 @@ const LastBuildsInformation: React.FC = () => {
       processJobs(lastBuilds.jobs);
     }
 
-    return builds.sort((a, b) => b.buildNumber - a.buildNumber).slice(0, 20);
+    return builds.sort((a, b) => b.timestamp - a.timestamp).slice(0, 20);
   }, [lastBuilds, folderNames]);
 
   return (
@@ -111,17 +118,107 @@ const LastBuildsInformation: React.FC = () => {
                   sx={{
                     borderRadius: 1,
                     mb: 0.5,
-                    py: 0.5,
-                    backgroundColor: theme => theme.palette.background.paper,
+                    py: 0.75,
+                    px: 1.5,
+                    backgroundColor: theme => {
+                      const resultDetails = getBuildResultDetails(build.result);
+                      switch (resultDetails.severity) {
+                        case 'success':
+                          return alpha(theme.palette.success.main, 0.05);
+                        case 'error':
+                          return alpha(theme.palette.error.main, 0.05);
+                        case 'warning':
+                          return alpha(theme.palette.warning.main, 0.05);
+                        default:
+                          return alpha(theme.palette.info.main, 0.05);
+                      }
+                    },
                     '&:hover': {
-                      backgroundColor: theme => theme.palette.action.hover,
+                      backgroundColor: theme => {
+                        const resultDetails = getBuildResultDetails(build.result);
+                        switch (resultDetails.severity) {
+                          case 'success':
+                            return alpha(theme.palette.success.main, 0.1);
+                          case 'error':
+                            return alpha(theme.palette.error.main, 0.1);
+                          case 'warning':
+                            return alpha(theme.palette.warning.main, 0.1);
+                          default:
+                            return alpha(theme.palette.info.main, 0.1);
+                        }
+                      },
                     }
                   }}
                 >
                   <ListItemText
                     primary={
-                      <Typography variant="body2" sx={{ color: '#2c3e50' }}>
-                        {`${build.folder} -> ${build.project} -> ${build.branch} `}
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Typography 
+                          variant="body2" 
+                          sx={{ 
+                            color: theme => {
+                              const resultDetails = getBuildResultDetails(build.result);
+                              switch (resultDetails.severity) {
+                                case 'success':
+                                  return theme.palette.success.main;
+                                case 'error':
+                                  return theme.palette.error.main;
+                                case 'warning':
+                                  return theme.palette.warning.main;
+                                default:
+                                  return theme.palette.info.main;
+                              }
+                            },
+                            fontWeight: 500,
+                            fontSize: '0.8rem'
+                          }}
+                        >
+                          {getBuildResultDetails(build.result).description}
+                        </Typography>
+                        <Typography 
+                          variant="body2" 
+                          sx={{ 
+                            color: 'text.primary',
+                            fontSize: '0.8rem',
+                            flex: 1
+                          }}
+                        >
+                          {`${build.project}/${build.branch}`}
+                        </Typography>
+                        <Typography 
+                          variant="caption" 
+                          sx={{ 
+                            color: 'text.secondary',
+                            fontSize: '0.75rem',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          {new Date(build.timestamp).toLocaleString('tr-TR', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </Typography>
+                      </Box>
+                    }
+                    secondary={
+                      <Typography 
+                        variant="caption" 
+                        sx={{ 
+                          color: 'text.secondary',
+                          fontSize: '0.7rem',
+                          display: 'flex',
+                          gap: 1
+                        }}
+                      >
+                        <span>#{build.buildNumber}</span>
+                        <span>•</span>
+                        <span>{Math.round(build.duration / 1000)}s</span>
+                        {build.folder && (
+                          <>
+                            <span>•</span>
+                            <span>{build.folder}</span>
+                          </>
+                        )}
                       </Typography>
                     }
                   />

@@ -22,7 +22,7 @@ export default {
     },
     GetAll_Name: `${baseUrl}/api/json?tree=jobs[name]`,
     GetAll_Name_With_Repository: `${baseUrl}/api/json?tree=jobs[name,jobs[name,url]]`,
-    GetAllBuildingJobs: `${baseUrl}/api/json?tree=jobs[name,jobs[name,jobs[name,lastBuild[building]]]]`
+    GetAllBuildingJobs: `${baseUrl}/api/json?tree=jobs[name,jobs[name,jobs[name,url,lastBuild[building]]]]`
   },
 
   Information: {

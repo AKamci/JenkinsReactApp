@@ -11,6 +11,12 @@ interface StartedBuildNotificationProps {
   onClose: () => void;
 }
 
+const parseJobPath = (url: string) => {
+  const cleanUrl = url.replace(/^https?:\/\/[^\/]+\/job\//, '');
+  const parts = cleanUrl.split('/job/').filter(Boolean);
+  return parts.map(p => p.replace(/\/$/, '')).join(' → ');
+};
+
 const StartedBuildNotification: React.FC<StartedBuildNotificationProps> = ({ anchorEl, open, onClose }) => {
     const buildingJobs = useAppSelector((state) => state.getStartedBuildNotification.buildingJobs);
     const folderNames = import.meta.env.VITE_FOLDER_NAME?.split(',').map((name: string) => name.trim().toLowerCase()) || [];
@@ -29,12 +35,6 @@ const StartedBuildNotification: React.FC<StartedBuildNotificationProps> = ({ anc
 
   const handleJobClick = (url: string) => {
     window.open(url, '_blank');
-  };
-
-  const parseJobPath = (url: string) => {
-    const cleanUrl = url.replace(/^https?:\/\/[^\/]+\/job\//, '');
-    const parts = cleanUrl.split('/job/').filter(Boolean);
-    return parts.map(p => p.replace(/\/$/, '')).join(' → ');
   };
 
   return (

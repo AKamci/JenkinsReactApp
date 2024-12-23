@@ -5,8 +5,7 @@ import {  useAppSelector, useAppDispatch } from '../../../infrastructure/store/s
 import { StyledCard, StyledCardContent, rotate } from './BranchStyle';
 import { branchIcons } from './BranchIcons';
 import { colorSchemes } from './BranchColorSchemes';
-import JenkinsJobColor from '../../../infrastructure/Enums/JenkinsJobColor';
-import { addBuildingJob, removeBuildingJob } from '../../../infrastructure/store/slices/Notification/StartedBuildNotification-Slice';
+import { addBuildingJob} from '../../../infrastructure/store/slices/Notification/StartedBuildNotification-Slice';
 import { useEffect, useRef } from 'react';
 
 const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
@@ -16,7 +15,7 @@ const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
   const theme = useTheme();
   const colorScheme = colorSchemes[job.color as keyof typeof colorSchemes] || colorSchemes.default;
   const name = job.name.toLowerCase();
-  const isBuilding = job.color === JenkinsJobColor.blue_anime || job.color === JenkinsJobColor.red_anime;
+  const isBuilding = job.color.includes('_anime');
   const prevBuildingRef = useRef(isBuilding);
   
   useEffect(() => {
@@ -26,13 +25,7 @@ const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
         url: job.url
       });
       dispatch(addBuildingJob(job));
-    } else if (!isBuilding && prevBuildingRef.current) {
-      console.log('Removing job:', {
-        name: job.name,
-        url: job.url
-      });
-      dispatch(removeBuildingJob(job));
-    }
+    } 
     prevBuildingRef.current = isBuilding;
   }, [isBuilding, job, dispatch]);
 

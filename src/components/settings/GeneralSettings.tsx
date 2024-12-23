@@ -2,18 +2,13 @@ import { ExpandMore, Tune, DarkMode, LightMode } from "@mui/icons-material";
 import { AccordionSummary, Box, Typography, AccordionDetails, Switch } from "@mui/material";
 import { StyledAccordion } from "./SettingsStyle";
 import { SettingItem } from "./SettingsStyle";
-import { useDispatch } from "react-redux";
-import { useAppSelector } from "../../infrastructure/store/store";
-import { setDarkMode } from "../../infrastructure/store/slices/GeneralSettings/Theme-Slice";
 
-const GeneralSettings: React.FC = () => {
-  const dispatch = useDispatch();
-  const isDarkMode = useAppSelector((state) => state.generalTheme.isDarkMode);
+interface GeneralSettingsProps {
+  isDarkMode: boolean;
+  onThemeChange: (checked: boolean) => void;
+}
 
-  const handleThemeChange = (checked: boolean) => {
-    dispatch(setDarkMode(checked));
-  };
-
+const GeneralSettings: React.FC<GeneralSettingsProps> = ({ isDarkMode, onThemeChange }) => {
   return (
     <StyledAccordion defaultExpanded>
       <AccordionSummary 
@@ -47,7 +42,7 @@ const GeneralSettings: React.FC = () => {
             </Box>
             <Switch
               checked={isDarkMode}
-              onChange={(e) => handleThemeChange(e.target.checked)}
+              onChange={(e) => onThemeChange(e.target.checked)}
               color="primary"
             />
           </Box>

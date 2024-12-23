@@ -14,10 +14,11 @@ import { addSelectedProject } from '../../infrastructure/store/slices/File/Proje
 import { JobDto } from '../../infrastructure/dtos/JobDto';
 import { setFeatureCount } from '../../infrastructure/store/slices/File/FeatureCount-Slice';
 import { setSelectedItems } from '../../infrastructure/store/slices/File/SelectedSearchedItem-Slice';
+import { setDarkMode } from '../../infrastructure/store/slices/GeneralSettings/Theme-Slice';
 
 
     const SidebarComponent: React.FC<SidebarComponentProps> = ({ visible, onHide }) => {
-      const dispatch = useDispatch<AppDispatch>();
+      const dispatch = useDispatch();
       const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
         const savedMode = Cookies.get('darkMode');
         return savedMode === 'true';
@@ -105,6 +106,12 @@ import { setSelectedItems } from '../../infrastructure/store/slices/File/Selecte
         Cookies.set('selectedSearchedItems', JSON.stringify(selectedSearchedItems), { expires: 30 });
       }, [selectedSearchedItems]);
     
+      useEffect(() => {
+        const savedMode = Cookies.get('darkMode');
+        const initialDarkMode = savedMode === 'true';
+        dispatch(setDarkMode(initialDarkMode));
+      }, []);
+    
       const handleSettingChange = (settingKey: string, checked: boolean) => {
         const newSelectedSettings = checked
           ? [...selectedSettings, settingKey]
@@ -123,10 +130,20 @@ import { setSelectedItems } from '../../infrastructure/store/slices/File/Selecte
         dispatch(checked ? addBranchList(branchKey) : removeBranchList(branchKey));
       };
     
+      const handleThemeChange = (checked: boolean) => {
+        setIsDarkMode(checked);
+        dispatch(setDarkMode(checked));
+        Cookies.set('darkMode', String(checked), { expires: 30 });
+        document.body.classList.toggle('dark-mode', checked);
+      };
+    
       return (
         <StyledDrawer anchor="right" open={visible} onClose={onHide}>
           <Header onHide={onHide} />
-          <GeneralSettings isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+          <GeneralSettings 
+            isDarkMode={isDarkMode} 
+            onThemeChange={handleThemeChange} 
+          />
           <ApiSettings 
             selectedSettings={selectedSettings} 
             handleSettingChange={handleSettingChange} 

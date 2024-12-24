@@ -29,6 +29,10 @@ export default {
   
     GetQueueItemList : `${baseUrl}/queue/api/json`,
     GetLastBuildsForInformation : `${baseUrl}/api/json?tree=jobs[name,url,jobs[name,url,jobs[name,lastBuild[number,timestamp,duration,result,url,actions[causes[userId,userName]]]]]]`
+  },
+
+  Test: {
+    GetTest: (url: string) => `${url}lastBuild/api/json?tree=failCount,skipCount,totalCount,passedCount`
   }
 
 

@@ -17,6 +17,10 @@ import GetSearchedItems from './slices/File/SelectedSearchedItem-Slice';
 import GetAllBuildingJobs from './slices/Information/GetAllBuildingJobs-Slice';
 import GetLastBuildsForInformation from './slices/Information/GetLastBuildsForInformation-Slice';
 import GetStartedBuildNotification from './slices/Notification/StartedBuildNotification-Slice';
+import GetTestResult from './slices/Test/GetTestResult-Slice';
+import GetMockTestResult from './slices/Test/MockTest-Slice';
+import TestOpenClose from './slices/Test/TestOpenClose-Slice';
+
 const store = configureStore({
 	reducer: {
 		getJob: GetJobSlice,
@@ -34,7 +38,9 @@ const store = configureStore({
 		getAllBuildingJobs: GetAllBuildingJobs,
 		getLastBuildsForInformation: GetLastBuildsForInformation,
 		getStartedBuildNotification: GetStartedBuildNotification,
-
+		getTestResult: GetTestResult,
+		getMockTestResult: GetMockTestResult,
+		getTestOpenClose: TestOpenClose,
 	},
 	middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(thunk),
 });

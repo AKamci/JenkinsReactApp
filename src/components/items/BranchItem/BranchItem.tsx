@@ -7,9 +7,16 @@ import { branchIcons } from './BranchIcons';
 import { colorSchemes } from './BranchColorSchemes';
 import { addBuildingJob} from '../../../infrastructure/store/slices/Notification/StartedBuildNotification-Slice';
 import { useEffect, useRef } from 'react';
+import { GetMockTestResult } from '../../../infrastructure/store/slices/Test/MockTest-Slice';
+import { calculateSuccessRate, getFillColor } from './BranchTest';
+import { GetTestResult } from '../../../infrastructure/store/slices/Test/GetTestResult-Slice';
 
 const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
   const dispatch = useAppDispatch();
+  const isTestResultsOpen = useAppSelector((state) => state.getTestOpenClose.isOpen);
+  const testResult = useAppSelector((state) => 
+    state.getMockTestResult.data[job.url]
+  );
   const selectedBranchList = useAppSelector((state) => state.getSelectedBranchList.selectedBranch);
   const isDarkMode = useAppSelector((state) => state.generalTheme.isDarkMode);
   const theme = useTheme();
@@ -29,6 +36,11 @@ const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
     prevBuildingRef.current = isBuilding;
   }, [isBuilding, job, dispatch]);
 
+  useEffect(() => {
+    if (isTestResultsOpen) {
+      dispatch(GetMockTestResult({ url: job.url }));
+    }
+  }, [isTestResultsOpen]);
   
   let branchType = Object.keys(branchIcons).find(key => {
     if (key === 'unknown') return false;
@@ -43,6 +55,10 @@ const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
 
   if (!selectedBranchList.includes(branchType)) return null;
 
+  const successRate = calculateSuccessRate(testResult);
+  const fillHeight = successRate ? `${successRate}%` : '0%';
+  const fillColor = getFillColor(successRate);
+
   const commonCardProps = {
     variant: "outlined" as const,
     className: isBuilding ? 'building' : '',
@@ -55,10 +71,23 @@ const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
       boxShadow: `0 0 4px ${colorScheme.color}40`,
       order: branchInfo.order,
       transition: 'all 0.3s ease',
+      position: 'relative',
+      overflow: 'hidden',
       '&:hover': {
         boxShadow: `0 0 8px ${colorScheme.color}60`,
         borderColor: colorScheme.color
-      }
+      },
+      '&::after': isTestResultsOpen ? {
+        content: '""',
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        width: '100%',
+        height: fillHeight,
+        background: `linear-gradient(180deg, ${fillColor}30 0%, ${fillColor}50 100%)`,
+        transition: 'all 0.5s ease-in-out',
+        zIndex: 0
+      } : {}
     }
   };
 
@@ -69,6 +98,8 @@ const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
       filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.08))',
       transition: 'all 0.2s ease',
       animation: isBuilding ? `${rotate} 2s linear infinite` : 'none',
+      position: 'relative',
+      zIndex: 1,
       '&:hover': {
         transform: isBuilding ? 'scale(1.1)' : 'scale(1.1) rotate(3deg)',
         filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.12))'
@@ -88,7 +119,11 @@ const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
   
   return (
     <Tooltip 
-      title={isBuilding ? `Build Ediliyor -> ${job.name}` : (name.startsWith('feature') ? getFeatureName(name) : branchInfo.label)}
+      title={isBuilding ? `Build Ediliyor -> ${job.name}` : (
+        isTestResultsOpen && successRate !== null ? 
+        `${name} - Başarı Oranı: ${successRate}%` :
+        (name.startsWith('feature') ? getFeatureName(name) : branchInfo.label)
+      )}
       placement="top"
       TransitionComponent={Zoom}
       arrow
@@ -98,7 +133,7 @@ const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
         isDarkMode={isDarkMode}
         onClick={() => job.lastBuild.url && window.open(job.lastBuild.url, '_blank')}
       >
-        <StyledCardContent sx={{ display: 'flex', alignItems: 'center', padding: '2px 6px' }}>
+        <StyledCardContent sx={{ display: 'flex', alignItems: 'center', padding: '2px 6px', position: 'relative', zIndex: 1 }}>
           <branchInfo.icon {...commonIconProps} />
         </StyledCardContent>
       </StyledCard>

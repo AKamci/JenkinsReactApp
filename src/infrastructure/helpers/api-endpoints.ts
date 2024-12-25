@@ -1,4 +1,4 @@
-export const baseUrl = 'http://localhost:8080/';
+export const baseUrl = import.meta.env.VITE_BASE_URL;
 
 export default {
   Job: {
@@ -32,7 +32,7 @@ export default {
   },
 
   Test: {
-    GetTest: (url: string) => `${url}/lastBuild/api/json`
+    GetTest: (url: string) => `${url}/lastBuild/testResult/api/json?tree=failCount,passCount,skipCount`
   }
 
 };

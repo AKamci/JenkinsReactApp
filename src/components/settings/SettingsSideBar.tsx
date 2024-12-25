@@ -29,7 +29,7 @@ import { setDarkMode } from '../../infrastructure/store/slices/GeneralSettings/T
       });
       const [selectedBranches, setSelectedBranches] = useState<string[]>(() => {
         const savedBranches = Cookies.get('selectedBranches');
-        return savedBranches ? JSON.parse(savedBranches) : [];
+        return savedBranches ? JSON.parse(savedBranches) : ['dev', 'stable', 'stage', 'prod'];
       });
       const [selectedProjects] = useState<JobDto[]>(() => {
         const savedProjects = Cookies.get('selectedProjects');

@@ -19,7 +19,7 @@ const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
   const theme = useTheme();
   const colorScheme = colorSchemes[job.color as keyof typeof colorSchemes] || colorSchemes.default;
   const name = job.name.toLowerCase();
-  const isBuilding = job.color.includes('_anime');
+  const isBuilding = job?.color?.includes('_anime') || false;
   const prevBuildingRef = useRef(isBuilding);
 
   useEffect(() => {

@@ -1,13 +1,22 @@
+import React from 'react';
 import { TestResultDto } from '../../../infrastructure/dtos/TestResultDto';
 
 export const calculateSuccessRate = (testResult: TestResultDto | null) => {
   if (!testResult) return null;
+  
+  let passCount = 0;
+  let totalCount = 0;
 
-  const { passCount, failCount, skipCount } = testResult;
-  const totalTests = passCount + failCount + skipCount;
-  if (totalTests === 0) return 0;
+  testResult.actions.forEach(action => {
+    if(action._class === "hudson.tasks.junit.TestResultAction") {
+      passCount = action.passCount;
+      totalCount = action.totalCount;
+    }
+  });
 
-  const successRate = (passCount / totalTests) * 100;
+  if (totalCount === 0) return 0;
+
+  const successRate = (passCount / totalCount) * 100;
   return Math.round(successRate);
 };
 

@@ -16,7 +16,7 @@ const BranchSettings: React.FC<{
     const featureCount = useSelector((state: RootState) => state.getFeatureCount.count);
     const isTestResultsOpen = useSelector((state: RootState) => state.getTestOpenClose.isOpen);
 
-    const branches = ['dev', 'stable', 'stage', 'prod', 'feature'];
+    const branches = ['dev', 'stable', 'stage', 'prod', 'feature', 'master'];
   
     const handleFeatureCountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       const value = parseInt(event.target.value) || 0;

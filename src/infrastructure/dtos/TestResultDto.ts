@@ -1,7 +1,6 @@
+import { ActionDtoForTest } from "./ActionDtoForTest";
+
 export interface TestResultDto {
     _class: string;
-    failCount: number;
-    passCount: number;
-    skipCount: number;
-    suites: any[];
+    actions: ActionDtoForTest[];
 }

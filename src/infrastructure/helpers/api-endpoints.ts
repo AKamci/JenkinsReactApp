@@ -32,7 +32,7 @@ export default {
   },
 
   Test: {
-    GetTest: (url: string) => `${url}/lastBuild/testResult/api/json?tree=failCount,passCount,skipCount`
+    GetTest: (url: string) => `${url}/lastBuild/testReport/api/json?tree=failCount,passCount,skipCount`
   }
 
 };

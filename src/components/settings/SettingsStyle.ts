@@ -69,7 +69,6 @@ const StyledDrawer = styled(Drawer)(({ theme }) => ({
     border: `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
     backgroundColor: theme.palette.background.paper,
     '&:hover': {
-      transform: 'translateY(-1px)',
       boxShadow: `0 2px 8px ${alpha(theme.palette.primary.main, 0.08)}`,
     }
   }));

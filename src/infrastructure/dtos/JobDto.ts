@@ -1,10 +1,12 @@
 import { BuildInfo } from "./BuildInfoDto";
 
-export interface JobDto{
+export interface JobDto {
     _class: string;
-    url:string;
     name: string;
+    url: string;
     color: string;
-    lastBuild: BuildInfo;
-    jobs:JobDto[];
+    jobs?: JobDto[];
+    lastBuild?: BuildInfo;
+    onScoreChange?: (score: number) => void;
+    isVisible?: boolean;
 }

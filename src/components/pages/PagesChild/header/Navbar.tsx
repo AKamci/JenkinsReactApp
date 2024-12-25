@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -34,7 +34,6 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
   const [notificationPopperOpen, setNotificationPopperOpen] = useState<boolean>(false);
   const infoAnchorRef = useRef<HTMLElement | null>(null);
   const notificationAnchorRef = useRef<HTMLElement | null>(null);
-  const isDarkMode = useAppSelector((state) => state.generalTheme.isDarkMode);
   const buildingJobs = useAppSelector((state) => state.getStartedBuildNotification.buildingJobs);
   const notificationCount = buildingJobs.length;
 

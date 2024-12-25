@@ -81,8 +81,7 @@ export const createAppTheme = (isDarkMode: boolean) => createTheme({
                     '&:hover': {
                         boxShadow: isDarkMode 
                             ? '0 5px 8px rgba(0, 0, 0, 0.6)'
-                            : '0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04)',
-                        transform: 'translateY(-1px)'
+                            : '0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04)'
                     }
                 }
             }

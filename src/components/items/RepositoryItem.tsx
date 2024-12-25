@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState, useAppSelector } from '../../infrastructure/store/store';
 import { useEffect } from 'react';
 import { GetBranchJob } from '../../infrastructure/store/slices/Job/GetBranchJob-Slice';
+import { branchIcons } from './BranchItem/BranchIcons';
 
 const RepositoryItem: React.FC<{ job: JobDto; parent: string }> = ({ job, parent }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -15,7 +16,7 @@ const RepositoryItem: React.FC<{ job: JobDto; parent: string }> = ({ job, parent
   const apiSettings = useAppSelector((state) => state.getApiSettings.selectedApiSettings);
   const isDarkMode = useAppSelector((state) => state.generalTheme.isDarkMode);
   const featureCount = useSelector((state: RootState) => state.getFeatureCount.count);
-
+  const selectedBranchList = useAppSelector((state) => state.getSelectedBranchList.selectedBranch);
 
   useEffect(() => {
     const fetchJobData = () => {
@@ -31,19 +32,77 @@ const RepositoryItem: React.FC<{ job: JobDto; parent: string }> = ({ job, parent
     return () => clearInterval(intervalId);
   }, [dispatch, job.name, parent, apiSettings]);
 
-  const getFilteredBranches = () => {
-    if (!BranchJobData[job.name]?.jobs) return [];
+  const getBranchType = (name: string): string => {
+    return Object.keys(branchIcons).find(key => {
+      if (key === 'unknown') return false;
+      const icon = branchIcons[key as keyof typeof branchIcons];
+      if ('matcher' in icon && typeof icon.matcher === 'function') {
+        return icon.matcher(name.toLowerCase());
+      }
+      return false;
+    }) || 'unknown';
+  };
 
-    const allBranches = BranchJobData[job.name].jobs;
-    const featureBranches = allBranches
+  const getFilteredBranches = () => {
+    const jobs = BranchJobData[job.name]?.jobs;
+    if (!jobs) return [];
+
+    const visibleJobs = jobs.filter(branch => {
+      const branchType = getBranchType(branch.name);
+      return selectedBranchList.includes(branchType);
+    });
+
+    const featureBranches = visibleJobs
       .filter(branch => branch.name.toLowerCase().startsWith('feature') && branch.lastBuild)
       .sort((a, b) => (b.lastBuild?.timestamp || 0) - (a.lastBuild?.timestamp || 0))
       .slice(0, featureCount);
 
-    const otherBranches = allBranches.filter(branch => !branch.name.toLowerCase().startsWith('feature'));
+    const otherBranches = visibleJobs.filter(branch => !branch.name.toLowerCase().startsWith('feature'));
 
     return [...featureBranches, ...otherBranches];
   };
+  
+  const getBranchColorCounts = () => {
+    const branches = getFilteredBranches();
+    if (branches.length === 0) return {};
+    
+    return branches.reduce((acc: { [key: string]: number }, branch) => {
+      if (branch.color) {
+        acc[branch.color] = (acc[branch.color] || 0) + 1;
+      }
+      return acc;
+    }, {});
+  };
+
+  const getRepositoryScore = () => {
+    const filteredBranches = getFilteredBranches();
+    const colorCounts = filteredBranches.reduce((acc: { [key: string]: number }, branch) => {
+      if (branch.color) {
+        acc[branch.color] = (acc[branch.color] || 0) + 1;
+      }
+      return acc;
+    }, {});
+
+    const scoreMap: { [key: string]: number } = {
+      'red': 2,
+      'yellow': 1,
+      'blue': 0,
+      'blue_anime': 0,
+      'red_anime': 2,
+      'yellow_anime': 1
+    };
+
+    return Object.entries(colorCounts).reduce((total, [color, count]) => {
+      const baseColor = color.replace('_anime', '');
+      return total + (scoreMap[baseColor] || 0) * count;
+    }, 0);
+  };
+
+  React.useEffect(() => {
+    if (job.onScoreChange) {
+      job.onScoreChange(getRepositoryScore());
+    }
+  }, [BranchJobData, job]);
 
   return (
     <Fade in={true} timeout={300}>
@@ -91,7 +150,7 @@ const RepositoryItem: React.FC<{ job: JobDto; parent: string }> = ({ job, parent
           </Typography>
         </CardContent>
         
-        {BranchJobData[job.name]?.jobs?.length > 0 && (
+        {BranchJobData[job.name]?.jobs && BranchJobData[job.name].jobs?.length > 0 && (
           <Box
             sx={{
               display: 'flex',

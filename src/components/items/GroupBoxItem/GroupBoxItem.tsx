@@ -12,6 +12,7 @@ import FolderIcon from '@mui/icons-material/Folder';
 import GroupCardProps from '../../../infrastructure/props/GroupCardProps';
 import { ColorPicker, ColorButton, colors } from './ColorPicker';
 import { baseUrl } from '../../../infrastructure/helpers/api-endpoints';
+import { JobDto } from '../../../infrastructure/dtos/JobDto';
 
 const StyledCard = styled(Paper)<{ borderColor?: string; isDarkMode?: boolean }>(({ theme, borderColor, isDarkMode }) => ({
   margin: '8px',
@@ -65,6 +66,7 @@ const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
   const [borderColor, setBorderColor] = useState('#f0f0f0');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [colorPickerType, setColorPickerType] = useState<'folder' | 'border'>('folder');
+  const [repositoryScores, setRepositoryScores] = useState<{ [key: string]: number }>({});
   const isDarkMode = useAppSelector((state) => state.generalTheme.isDarkMode);
  
   const getRepositoryJobData = useAppSelector(
@@ -89,6 +91,23 @@ const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
       setBorderColor(color);
     }
     setAnchorEl(null);
+  };
+
+  const handleScoreChange = (jobName: string, score: number) => {
+    setRepositoryScores(prev => ({
+      ...prev,
+      [jobName]: score
+    }));
+  };
+
+  const getSortedRepositories = () => {
+    if (!getRepositoryJobData?.jobs) return [];
+    
+    return [...getRepositoryJobData.jobs].sort((a, b) => {
+      const scoreA = repositoryScores[a.name] || 0;
+      const scoreB = repositoryScores[b.name] || 0;
+      return scoreB - scoreA; // Yüksek puandan düşük puana sıralama
+    });
   };
 
   useEffect(() => {
@@ -204,8 +223,15 @@ const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
         flexDirection: 'column',
         gap: 1
       }}>
-        {getRepositoryJobData?.jobs?.map((job) => (
-          <RepositoryItem key={job.name} job={job} parent={groupName} />
+        {getSortedRepositories().map((job) => (
+          <RepositoryItem 
+            key={job.name} 
+            job={{
+              ...job,
+              onScoreChange: (score) => handleScoreChange(job.name, score)
+            }} 
+            parent={groupName} 
+          />
         ))}
       </Box>
     </StyledCard>

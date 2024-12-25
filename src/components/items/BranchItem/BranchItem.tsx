@@ -7,7 +7,6 @@ import { branchIcons } from './BranchIcons';
 import { colorSchemes } from './BranchColorSchemes';
 import { addBuildingJob} from '../../../infrastructure/store/slices/Notification/StartedBuildNotification-Slice';
 import { useEffect, useRef } from 'react';
-import { GetMockTestResult } from '../../../infrastructure/store/slices/Test/MockTest-Slice';
 import { calculateSuccessRate, getFillColor } from './BranchTest';
 import { GetTestResult } from '../../../infrastructure/store/slices/Test/GetTestResult-Slice';
 
@@ -38,7 +37,7 @@ const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
 
   useEffect(() => {
     if (isTestResultsOpen) {
-      dispatch(GetMockTestResult({ url: job.url }));
+      dispatch(GetTestResult({ url: job.url }));
     }
   }, [isTestResultsOpen]);
   

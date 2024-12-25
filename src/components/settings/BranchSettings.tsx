@@ -142,7 +142,6 @@ const BranchSettings: React.FC<{
                     backgroundColor: selectedBranches.includes(branch) 
                       ? alpha(theme?.palette?.primary?.main || '#1976d2', 0.85)
                       : alpha(theme?.palette?.primary?.main || '#1976d2', 0.1),
-                    transform: 'translateY(-1px)',
                     boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                   }
                 }}

@@ -46,11 +46,7 @@ export const StyledCard = styled(Card)<{isDarkMode?: boolean}>(({ theme, isDarkM
   },
 
   '&:hover': {
-    transform: 'translateY(-2px) scale(1.02)',
-    boxShadow: theme.shadows[4],
-    '&:before': {
-      transform: 'translateX(100%)'
-    }
+    boxShadow: theme.shadows[4]
   },
 
   '&.building': {

@@ -25,5 +25,9 @@ export const ColorButton = styled(Box)({
 });
 
 export const colors = [
-  '#27ae60', '#2ecc71', '#3498db','#009688' 
+  '#27ae60', '#2ecc71', '#3498db','#009688', 
+  '#FF69B4', '#FFC107', '#8E24AA', '#4CAF50', 
+  '#03A9F4', '#FF9800', '#9C27B0', '#2196F3', 
+  '#E91E63', '#795548', '#9E9E9E', '#607D8B', 
+  '#3F51B5', '#FFC400', '#8BC34A', '#FF99CC'
 ];

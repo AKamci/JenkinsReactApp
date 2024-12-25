@@ -10,7 +10,6 @@ import { useEffect } from 'react';
 const HomePageMain = () => {
     const dispatch = useAppDispatch();
     const selectedProjects: JobDto[] = useAppSelector((state) => state.getProjectName.selectedProjects);
-    const isDarkMode = useAppSelector((state) => state.generalTheme.isDarkMode);
 
     useEffect(() => {
         const fetchData = () => {

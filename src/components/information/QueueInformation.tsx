@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { List, ListItemButton, ListItemText, Tooltip, Typography, Badge, Box, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -94,7 +94,6 @@ const QueueInformation: React.FC<QueueInformationProps> = ({ onItemClick }) => {
                     cursor: 'pointer',
                     '&:hover': {
                       backgroundColor: '#f8f9fa',
-                      transform: 'translateY(-1px)',
                       boxShadow: '0 4px 8px rgba(0,0,0,0.08)',
                     }
                   }}

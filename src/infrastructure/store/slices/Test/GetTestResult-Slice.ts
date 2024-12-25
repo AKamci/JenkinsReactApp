@@ -5,7 +5,7 @@ import Endpoints from '../../../helpers/api-endpoints';
 import { TestResultDto } from '../../../dtos/TestResultDto';
 
 export interface TestResultState {
-    data: Record<string, TestResultDto>; 
+    data: { [url: string]: TestResultDto };
     state: ApiState;
     activeRequest: number | null;
     responseStatus: number | null; 

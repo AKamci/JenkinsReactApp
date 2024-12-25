@@ -3,7 +3,7 @@ import ApiSettings from './ApiSettings';
 import BranchSettings from './BranchSettings';
 import SidebarComponentProps from '../../infrastructure/props/SidebarComponentProps';
 import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../../infrastructure/store/store';
+import { RootState } from '../../infrastructure/store/store';
 import { useState, useEffect } from 'react';
 import { removeApiSettings, addApiSettings } from '../../infrastructure/store/slices/File/ApiSettings-Slice';
 import { removeBranchList, addBranchList } from '../../infrastructure/store/slices/File/SelectedBranchList-Slice';

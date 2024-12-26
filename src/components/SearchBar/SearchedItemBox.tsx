@@ -5,12 +5,13 @@ import { styled } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
 import { clearSelectedItems, removeSelectedItem } from '../../infrastructure/store/slices/File/SelectedSearchedItem-Slice';
+import { useMemo, useCallback } from 'react';
 
 const StyledBox = styled(Paper)(({ theme }) => ({
   padding: '24px',
   margin: '16px 8px',
   position: 'relative',
-  border: '1px solid rgba(0, 0, 0, 0.08)',
+  border: '1px solid rgba(0, 0, 0, 0.08)', 
   borderRadius: '12px',
   boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
   transition: 'all 0.3s ease',
@@ -32,7 +33,7 @@ const CloseButton = styled(IconButton)({
 
 const SearchHeader = styled(Box)({
   display: 'flex',
-  alignItems: 'center',
+  alignItems: 'center', 
   gap: '8px',
   marginBottom: '20px',
   paddingBottom: '12px',
@@ -43,13 +44,49 @@ const SearchedItemBox = () => {
   const dispatch = useAppDispatch();
   const searchedItems = useAppSelector((state) => state.getSearchedItems.selectedItems);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     dispatch(clearSelectedItems());
-  };
+  }, [dispatch]);
 
-  const handleRemoveItem = (item: any) => {
+  const handleRemoveItem = useCallback((item: any) => {
     dispatch(removeSelectedItem(item));
-  };
+  }, [dispatch]);
+
+  const renderSearchItems = useMemo(() => {
+    return searchedItems.map((item, index) => (
+      <Grid item xs={12} sm={6} md={3} key={index}>
+        <Fade in={true} timeout={300 + index * 100}>
+          <Box sx={{ position: 'relative' }}>
+            <IconButton
+              size="small" 
+              onClick={() => handleRemoveItem(item)}
+              sx={{
+                position: 'absolute',
+                right: 5,
+                top: 5,
+                zIndex: 1,
+                backgroundColor: 'rgba(255,255,255,0.8)',
+                '&:hover': {
+                  backgroundColor: 'rgba(255,255,255,0.9)'
+                }
+              }}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+            <RepositoryItem
+              job={{
+                name: item.repositoryName,
+                _class: 'hudson.model.FreeStyleProject',
+                url: '',
+                color: 'blue'
+              }}
+              parent={item.folderName}
+            />
+          </Box>
+        </Fade>
+      </Grid>
+    ));
+  }, [searchedItems, handleRemoveItem]);
 
   if (searchedItems.length === 0) return null;
 
@@ -68,36 +105,7 @@ const SearchedItemBox = () => {
         </SearchHeader>
         
         <Grid container spacing={2}>
-          {searchedItems.map((item, index) => (
-            <Grid item xs={12} sm={6} md={3} key={index}>
-              <Fade in={true} timeout={300 + index * 100}>
-                <Box sx={{ position: 'relative' }}>
-                  <IconButton 
-                    size="small"
-                    onClick={() => handleRemoveItem(item)}
-                    sx={{
-                      position: 'absolute',
-                      right: 5,
-                      top: 5,
-                      zIndex: 1,
-                      backgroundColor: 'rgba(255,255,255,0.8)',
-                      '&:hover': {
-                        backgroundColor: 'rgba(255,255,255,0.9)'
-                      }
-                    }}
-                  >
-                    <CloseIcon fontSize="small" />
-                  </IconButton>
-                  <RepositoryItem
-                    job={{
-                      name: item.repositoryName,
-                    }}
-                    parent={item.folderName}
-                  />
-                </Box>
-              </Fade>
-            </Grid>
-          ))}
+          {renderSearchItems}
         </Grid>
       </StyledBox>
     </Fade>

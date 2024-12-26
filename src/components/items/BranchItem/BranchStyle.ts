@@ -21,7 +21,9 @@ export const rotate = keyframes`
   }
 `;
 
-export const StyledCard = styled(Card)<{isDarkMode?: boolean}>(({ theme, isDarkMode }) => ({
+export const StyledCard = styled(Card, {
+  shouldForwardProp: (prop) => prop !== 'isDarkMode'
+})<{isDarkMode?: boolean}>(({ theme, isDarkMode }) => ({
   margin: '1px 0',
   position: 'relative',
   cursor: 'pointer', 

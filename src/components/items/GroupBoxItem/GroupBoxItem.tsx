@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { styled } from '@mui/material/styles';
 import { Typography, Box, Paper, IconButton, Popover } from '@mui/material';
 import RepositoryItem from '../RepositoryItem';
@@ -12,9 +12,10 @@ import FolderIcon from '@mui/icons-material/Folder';
 import GroupCardProps from '../../../infrastructure/props/GroupCardProps';
 import { ColorPicker, ColorButton, colors } from './ColorPicker';
 import { baseUrl } from '../../../infrastructure/helpers/api-endpoints';
-import { JobDto } from '../../../infrastructure/dtos/JobDto';
 
-const StyledCard = styled(Paper)<{ borderColor?: string; isDarkMode?: boolean }>(({ theme, borderColor, isDarkMode }) => ({
+const StyledCard = styled(Paper, {
+  shouldForwardProp: (prop) => prop !== 'isDarkMode' && prop !== 'borderColor'
+})<{ borderColor?: string; isDarkMode?: boolean }>(({ theme, borderColor, isDarkMode }) => ({
   margin: '8px',
   padding: '12px',
   borderRadius: '12px',
@@ -26,7 +27,7 @@ const StyledCard = styled(Paper)<{ borderColor?: string; isDarkMode?: boolean }>
     : '0 8px 32px rgba(0, 0, 0, 0.08)',
   backdropFilter: 'blur(8px)',
   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-  maxWidth: '440px',
+  maxWidth: '840px',
   minWidth: '320px',
   border: `1px solid ${borderColor || (isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)')}`,
   '&:hover': {
@@ -48,7 +49,9 @@ const StyledIconButton = styled(IconButton)(({ theme }) => ({
   }
 }));
 
-const GroupTitle = styled(Typography)<{ isDarkMode?: boolean }>(({ isDarkMode }) => ({
+const GroupTitle = styled(Typography, {
+  shouldForwardProp: (prop) => prop !== 'isDarkMode'
+})<{ isDarkMode?: boolean }>(({ isDarkMode }) => ({
   fontWeight: 600,
   fontSize: '1.1rem',
   color: isDarkMode ? '#fff' : '#1a2027',
@@ -74,41 +77,45 @@ const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
   );
   const apiSettings = useAppSelector((state) => state.getApiSettings.selectedApiSettings);
 
-  const handleFolderClick = (event: React.MouseEvent<HTMLElement>) => {
+  const handleFolderClick = useCallback((event: React.MouseEvent<HTMLElement>) => {
     setColorPickerType('folder');
     setAnchorEl(event.currentTarget);
-  };
+  }, []);
 
-  const handleBorderClick = (event: React.MouseEvent<HTMLElement>) => {
+  const handleBorderClick = useCallback((event: React.MouseEvent<HTMLElement>) => {
     setColorPickerType('border');
     setAnchorEl(event.currentTarget);
-  };
+  }, []);
 
-  const handleColorSelect = (color: string) => {
+  const handleColorSelect = useCallback((color: string) => {
     if (colorPickerType === 'folder') {
       setFolderColor(color);
     } else {
       setBorderColor(color);
     }
     setAnchorEl(null);
-  };
+  }, [colorPickerType]);
 
-  const handleScoreChange = (jobName: string, score: number) => {
-    setRepositoryScores(prev => ({
-      ...prev,
-      [jobName]: score
-    }));
-  };
+  const handleScoreChange = useCallback((jobName: string, score: number) => {
+    setRepositoryScores(prev => {
+      const newScores = { ...prev };
+      if (newScores[jobName] !== score) {
+        newScores[jobName] = score;
+        return newScores;
+      }
+      return prev;
+    });
+  }, []);
 
-  const getSortedRepositories = () => {
+  const getSortedRepositories = useMemo(() => {
     if (!getRepositoryJobData?.jobs) return [];
     
     return [...getRepositoryJobData.jobs].sort((a, b) => {
       const scoreA = repositoryScores[a.name] || 0;
       const scoreB = repositoryScores[b.name] || 0;
-      return scoreB - scoreA; // Yüksek puandan düşük puana sıralama
+      return scoreB - scoreA;
     });
-  };
+  }, [getRepositoryJobData?.jobs, repositoryScores]);
 
   useEffect(() => {
     const fetchJobData = () => {
@@ -121,9 +128,15 @@ const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
     return () => clearInterval(intervalId);
   }, [dispatch, groupName, apiSettings]);
 
-  const handleRemoveGroup = () => {
+  const handleRemoveGroup = useCallback(() => {
     dispatch(removeSelectedProject(groupName));
-  };
+  }, [dispatch, groupName]);
+
+  const handlePopoverClose = useCallback(() => setAnchorEl(null), []);
+
+  const handleOpenInNewTab = useCallback(() => {
+    window.open(`${baseUrl}/job/${groupName}`, '_blank');
+  }, [groupName]);
 
   return (
     <StyledCard elevation={0} borderColor={borderColor} isDarkMode={isDarkMode}>
@@ -157,7 +170,7 @@ const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
         <Popover
           open={Boolean(anchorEl)}
           anchorEl={anchorEl}
-          onClose={() => setAnchorEl(null)}
+          onClose={handlePopoverClose}
           anchorOrigin={{
             vertical: 'bottom',
             horizontal: 'left',
@@ -192,7 +205,7 @@ const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
         
         <Box sx={{ display: 'flex', gap: 0.5 }}>
           <StyledIconButton 
-            onClick={() => window.open(`${baseUrl}/job/${groupName}`, '_blank')}
+            onClick={handleOpenInNewTab}
             size="small"
             sx={{ 
               color: isDarkMode ? '#60a5fa' : '#3b82f6',
@@ -223,7 +236,7 @@ const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
         flexDirection: 'column',
         gap: 1
       }}>
-        {getSortedRepositories().map((job) => (
+        {getSortedRepositories.map((job) => (
           <RepositoryItem 
             key={job.name} 
             job={{

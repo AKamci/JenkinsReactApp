@@ -1,4 +1,4 @@
-import React, { useEffect, useState} from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { InputBase, Popper, Paper, List, ListItem, Typography, Divider, ClickAwayListener } from '@mui/material';
 import { styled, alpha } from '@mui/material/styles';
 import SearchIcon from '@mui/icons-material/Search';
@@ -128,25 +128,25 @@ const Search: React.FC<SearchProps> = ({ placeholder = "Projelerde ara...", onCh
     dispatch(getAllJobForSearch());
   }, [dispatch]);
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearchChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
     setAnchorEl(event.currentTarget);
     setIsPopperOpen(true);
     if (onChange) onChange(event);
-  };
+  }, [onChange]);
 
-  const handleSearchClick = (event: React.MouseEvent<HTMLDivElement>) => {
+  const handleSearchClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     if (searchTerm) {
       setAnchorEl(event.currentTarget);
       setIsPopperOpen(true);
     }
-  };
+  }, [searchTerm]);
 
-  const handleClickAway = () => {
+  const handleClickAway = useCallback(() => {
     setIsPopperOpen(false);
-  };
+  }, []);
 
-  const getGroupedSearchResults = (): GroupedResults => {
+  const getGroupedSearchResults = useCallback((): GroupedResults => {
     if (!searchTerm || !allProjects?.jobs) return { folders: [], jobs: {} };
 
     const results: GroupedResults = {
@@ -162,9 +162,7 @@ const Search: React.FC<SearchProps> = ({ placeholder = "Projelerde ara...", onCh
           name: folder.name
         });
       }
-    });
 
-    allProjects.jobs.forEach(folder => {
       if (folder.jobs) {
         const matchingJobs = folder.jobs.filter(job => 
           job.name.toLowerCase().includes(searchLower)
@@ -181,12 +179,15 @@ const Search: React.FC<SearchProps> = ({ placeholder = "Projelerde ara...", onCh
     });
 
     return results;
-  };
+  }, [searchTerm, allProjects]);
 
-  const groupedResults = getGroupedSearchResults();
-  const hasResults = groupedResults.folders?.length > 0 || Object.keys(groupedResults.jobs || {}).length > 0;
+  const groupedResults = useMemo(() => getGroupedSearchResults(), [getGroupedSearchResults]);
+  const hasResults = useMemo(() => 
+    groupedResults.folders?.length > 0 || Object.keys(groupedResults.jobs || {}).length > 0,
+    [groupedResults]
+  );
 
-  const handleItemClick = (item: SearchResult) => {
+  const handleItemClick = useCallback((item: SearchResult) => {
     if (item.type === 'job' && item.folderName) {
       const searchedItem = {
         folderName: item.folderName,
@@ -204,7 +205,7 @@ const Search: React.FC<SearchProps> = ({ placeholder = "Projelerde ara...", onCh
         dispatch(addSelectedItem(searchedItem));
       }
     }
-  };
+  }, [dispatch, selectedItems]);
 
   return (
     <ClickAwayListener onClickAway={handleClickAway}>

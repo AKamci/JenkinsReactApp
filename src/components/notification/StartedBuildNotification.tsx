@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo, useCallback } from 'react';
 import { Popper, Paper, Typography, ClickAwayListener, Box, Badge, List, ListItem, ListItemText } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import BuildIcon from '@mui/icons-material/Build';
@@ -19,12 +19,18 @@ const parseJobPath = (url: string) => {
 
 const StartedBuildNotification: React.FC<StartedBuildNotificationProps> = ({ anchorEl, open, onClose }) => {
     const buildingJobs = useAppSelector((state) => state.getStartedBuildNotification.buildingJobs);
-    const folderNames = import.meta.env.VITE_FOLDER_NAME?.split(',').map((name: string) => name.trim().toLowerCase()) || [];
+    const folderNames = useMemo(() => 
+      import.meta.env.VITE_FOLDER_NAME?.split(',').map((name: string) => name.trim().toLowerCase()) || [],
+      []
+    );
     
-    const filteredBuildingJobs = buildingJobs.filter(job => {
-      const jobPath = parseJobPath(job.url).split(' → ')[0].toLowerCase();
-      return !folderNames.includes(jobPath);
-    });
+    const filteredBuildingJobs = useMemo(() => 
+      buildingJobs.filter(job => {
+        const jobPath = parseJobPath(job.url).split(' → ')[0].toLowerCase();
+        return !folderNames.includes(jobPath);
+      }),
+      [buildingJobs, folderNames]
+    );
 
     useEffect(() => {
       console.log('Current building jobs:', filteredBuildingJobs.map(job => ({
@@ -33,9 +39,9 @@ const StartedBuildNotification: React.FC<StartedBuildNotificationProps> = ({ anc
       })));
     }, [filteredBuildingJobs]);
 
-  const handleJobClick = (url: string) => {
+  const handleJobClick = useCallback((url: string) => {
     window.open(url, '_blank');
-  };
+  }, []);
 
   return (
     <Popper open={open} anchorEl={anchorEl} placement="bottom-end" style={{ zIndex: 1300 }}>
@@ -79,7 +85,7 @@ const StartedBuildNotification: React.FC<StartedBuildNotificationProps> = ({ anc
             <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
               {filteredBuildingJobs.map((job, index) => (
                 <ListItem
-                  key={index}
+                  key={`${job.url}-${index}`}
                   onClick={() => handleJobClick(job.url)}
                   sx={{
                     mb: 1,

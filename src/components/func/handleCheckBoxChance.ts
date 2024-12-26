@@ -9,36 +9,39 @@ export const handleCheckbox = (
   setCheckedJobs: React.Dispatch<React.SetStateAction<Record<string, boolean>>>,
   dispatch: Dispatch<any>
 ) => {
+  const updateStateAndCookies = () => {
+    try {
+      const savedProjects = Cookies.get('selectedProjects');
+      const currentProjects = savedProjects ? JSON.parse(savedProjects) : [];
+      
+      const updatedProjects = isChecked 
+        ? [...currentProjects, job]
+        : currentProjects.filter((project: JobDto) => project.name !== job.name);
+      
+      Cookies.set('selectedProjects', JSON.stringify(updatedProjects), { expires: 30 });
+      
+      if (isChecked) {
+        dispatch(addSelectedProject(job));
+      } else {
+        dispatch(removeSelectedProject(job.name));
+      }
+      
+    } catch (error) {
+      console.error('Cookie işlemi sırasında hata:', error);
+    }
+  };
+
   setCheckedJobs((prevState) => {
     const newState = {
       ...prevState,
       [job.name]: isChecked,
     };
-
-    console.log(`Checkbox değişti: ${job.name} - ${isChecked ? 'Seçildi' : 'Seçilmedi'}`);
-    console.log('Güncellenmiş kontrol durumu:', newState);
-
-    if (isChecked) {
-      dispatch(addSelectedProject(job));
-    } else {
-      dispatch(removeSelectedProject(job.name));
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`Checkbox değişti: ${job.name} - ${isChecked ? 'Seçildi' : 'Seçilmedi'}`);
+      console.log('Güncellenmiş kontrol durumu:', newState);
     }
-    
-    try {
-      const savedProjects = Cookies.get('selectedProjects');
-      const currentProjects = savedProjects ? JSON.parse(savedProjects) : [];
-      
-      if (isChecked) {
-        const updatedProjects = [...currentProjects, job];
-        Cookies.set('selectedProjects', JSON.stringify(updatedProjects), { expires: 30 });
-      } else {
-        const updatedProjects = currentProjects.filter((project: JobDto) => project.name !== job.name);
-        Cookies.set('selectedProjects', JSON.stringify(updatedProjects), { expires: 30 });
-      }
-    } catch (error) {
-      console.error('Cookie işlemi sırasında hata:', error);
-    }
-    
+    setTimeout(updateStateAndCookies, 0);
+
     return newState;
   });
 };

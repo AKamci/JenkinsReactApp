@@ -42,7 +42,10 @@ const store = configureStore({
 		getMockTestResult: GetMockTestResult,
 		getTestOpenClose: TestOpenClose,
 	},
-	middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(thunk),
+	middleware: (getDefaultMiddleware) => getDefaultMiddleware({
+		serializableCheck: false,
+		immutableCheck: false
+	}).concat(thunk),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

@@ -2,13 +2,13 @@ import Routers from './infrastructure/Routers/Routers';
 import 'primereact/resources/themes/lara-light-blue/theme.css'; 
 import 'primereact/resources/primereact.min.css'; 
 import './assets/app.css';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import { HotKeys } from 'react-hotkeys';
 import KeyMap from './shortcuts/KeyMap';
-import  {Handlers}  from './shortcuts/Handlers';
+import { Handlers } from './shortcuts/Handlers';
 import { useDocumentTitle } from './hooks/useDocumentTitle';
 import { ThemeProvider } from '@mui/material';
 import { useAppSelector } from './infrastructure/store/store';
@@ -19,7 +19,9 @@ const App = () => {
 	useDocumentTitle();
 	
 	const isDarkMode = useAppSelector((state) => state.generalTheme.isDarkMode);
-	const theme = createAppTheme(isDarkMode);
+	const theme = useMemo(() => createAppTheme(isDarkMode), [isDarkMode]);
+
+	const toastTheme = useMemo(() => isDarkMode ? 'dark' : 'light', [isDarkMode]);
 
 	return (
 		<ThemeProvider theme={theme}>
@@ -27,7 +29,7 @@ const App = () => {
 			<HotKeys keyMap={KeyMap} handlers={Handlers}>
 				<>
 					<Routers />
-					<ToastContainer theme={isDarkMode ? 'dark' : 'light'} />
+					<ToastContainer theme={toastTheme} position="top-right" limit={3} />
 				</>
 			</HotKeys>
 		</ThemeProvider>

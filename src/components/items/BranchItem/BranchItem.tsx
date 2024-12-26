@@ -6,20 +6,25 @@ import { StyledCard, StyledCardContent, rotate } from './BranchStyle';
 import { branchIcons } from './BranchIcons';
 import { colorSchemes } from './BranchColorSchemes';
 import { addBuildingJob } from '../../../infrastructure/store/slices/Notification/StartedBuildNotification-Slice';
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useRef, useMemo, useCallback } from 'react';
 import { calculateSuccessRate, getFillColor } from './BranchTest';
 import { GetTestResult } from '../../../infrastructure/store/slices/Test/GetTestResult-Slice';
 
-const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
+const BranchItem: React.FC<{ job: JobDto }> = React.memo(({ job }) => {
   const dispatch = useAppDispatch();
   const isTestResultsOpen = useAppSelector((state) => state.getTestOpenClose.isOpen);
   const testResult = useAppSelector((state) => state.getTestResult.data[job.url]);
   const selectedBranchList = useAppSelector((state) => state.getSelectedBranchList.selectedBranch);
   const isDarkMode = useAppSelector((state) => state.generalTheme.isDarkMode);
   const theme = useTheme();
-  const colorScheme = colorSchemes[job.color as keyof typeof colorSchemes] || colorSchemes.default;
-  const name = job.name.toLowerCase();
-  const isBuilding = job?.color?.includes('_anime') || false;
+
+  const colorScheme = useMemo(() => 
+    colorSchemes[job.color as keyof typeof colorSchemes] || colorSchemes.default,
+    [job.color]
+  );
+
+  const name = useMemo(() => job.name.toLowerCase(), [job.name]);
+  const isBuilding = useMemo(() => job?.color?.includes('_anime') || false, [job.color]);
   const prevBuildingRef = useRef(isBuilding);
 
   useEffect(() => {
@@ -52,7 +57,7 @@ const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
   const fillHeight = successRate ? `${successRate}%` : '0%';
   const fillColor = getFillColor(successRate);
 
-  const commonCardProps = {
+  const commonCardProps = useMemo(() => ({
     variant: "outlined" as const,
     className: isBuilding ? 'building' : '',
     sx: {
@@ -82,25 +87,54 @@ const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
         zIndex: 0
       } : {}
     }
-  };
+  }), [colorScheme.color, theme.palette.mode, theme.palette.background, isBuilding, branchType, isTestResultsOpen, fillHeight, fillColor]);
 
-  const getFeatureName = (name: string) => {
+  const getFeatureName = useCallback((name: string) => {
     if (name.startsWith('feature/')) {
-      const match = decodeURIComponent(name).match(/feature\/(.+)\./);
-      if (match && match[1]) {
-        return match[1];
+      const decodedName = decodeURIComponent(name);
+      const parts = decodedName.split('/');
+      if (parts.length > 1) {
+        const featurePart = parts[1].split('.')[0];
+        return featurePart;
       }
     }
-    return name;
-  };
+    return decodeURIComponent(name);
+  }, []);
+
+  const handleClick = useCallback(() => {
+    if (job.lastBuild?.url) {
+      window.open(job.lastBuild.url, '_blank');
+    }
+  }, [job.lastBuild?.url]);
+
+  const tooltipTitle = useMemo(() => {
+    if (isBuilding) return `Build Ediliyor -> ${job.name}`;
+    if (isTestResultsOpen && successRate !== null) return `${name} - Başarı Oranı: ${successRate}%`;
+    return name.startsWith('feature') ? getFeatureName(name) : branchIcons[branchType as keyof typeof branchIcons].label;
+  }, [isBuilding, job.name, isTestResultsOpen, successRate, name, getFeatureName, branchType]);
+
+  const iconElement = useMemo(() => {
+    const IconComponent = branchIcons[branchType as keyof typeof branchIcons].icon;
+    return React.createElement(IconComponent, {
+      sx: {
+        fontSize: 20,
+        color: colorScheme.color,
+        filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.08))',
+        transition: 'all 0.2s ease',
+        animation: isBuilding ? `${rotate} 2s linear infinite` : 'none',
+        position: 'relative',
+        zIndex: 1,
+        '&:hover': {
+          transform: isBuilding ? 'scale(1.1)' : 'scale(1.1) rotate(3deg)',
+          filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.12))'
+        }
+      }
+    });
+  }, [branchType, colorScheme.color, isBuilding]);
 
   return (
     <Tooltip 
-      title={isBuilding ? `Build Ediliyor -> ${job.name}` : (
-        isTestResultsOpen && successRate !== null ? 
-        `${name} - Başarı Oranı: ${successRate}%` :
-        (name.startsWith('feature') ? getFeatureName(name) : branchIcons[branchType as keyof typeof branchIcons].label)
-      )}
+      title={tooltipTitle}
       placement="top"
       TransitionComponent={Zoom}
       arrow
@@ -108,28 +142,14 @@ const BranchItem: React.FC<{ job: JobDto }> = ({ job }) => {
       <StyledCard
         {...commonCardProps}
         isDarkMode={isDarkMode}
-        onClick={() => job.lastBuild?.url ? window.open(job.lastBuild.url, '_blank') : null}
+        onClick={handleClick}
       >
         <StyledCardContent sx={{ display: 'flex', alignItems: 'center', padding: '2px 6px', position: 'relative', zIndex: 1 }}>
-          {React.createElement(branchIcons[branchType as keyof typeof branchIcons].icon, {
-            sx: {
-              fontSize: 20,
-              color: colorScheme.color,
-              filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.08))',
-              transition: 'all 0.2s ease',
-              animation: isBuilding ? `${rotate} 2s linear infinite` : 'none',
-              position: 'relative',
-              zIndex: 1,
-              '&:hover': {
-                transform: isBuilding ? 'scale(1.1)' : 'scale(1.1) rotate(3deg)',
-                filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.12))'
-              }
-            }
-          })}
+          {iconElement}
         </StyledCardContent>
       </StyledCard>
     </Tooltip>
   );
-};
+});
 
 export default BranchItem;

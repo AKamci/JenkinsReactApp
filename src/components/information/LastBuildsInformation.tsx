@@ -152,51 +152,54 @@ const LastBuildsInformation: React.FC = () => {
                 >
                   <ListItemText
                     primary={
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Typography 
-                          variant="body2" 
-                          sx={{ 
-                            color: theme => {
-                              const resultDetails = getBuildResultDetails(build.result);
-                              switch (resultDetails.severity) {
-                                case 'success':
-                                  return theme.palette.success.main;
-                                case 'error':
-                                  return theme.palette.error.main;
-                                case 'warning':
-                                  return theme.palette.warning.main;
-                                default:
-                                  return theme.palette.info.main;
-                              }
-                            },
-                            fontWeight: 500,
-                            fontSize: '0.8rem'
-                          }}
-                        >
-                          {getBuildResultDetails(build.result).description}
-                        </Typography>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Typography 
+                            variant="body2" 
+                            sx={{ 
+                              color: theme => {
+                                const resultDetails = getBuildResultDetails(build.result);
+                                switch (resultDetails.severity) {
+                                  case 'success':
+                                    return theme.palette.success.main;
+                                  case 'error':
+                                    return theme.palette.error.main;
+                                  case 'warning':
+                                    return theme.palette.warning.main;
+                                  default:
+                                    return theme.palette.info.main;
+                                }
+                              },
+                              fontWeight: 500,
+                              fontSize: '0.8rem'
+                            }}
+                          >
+                            {getBuildResultDetails(build.result).description}
+                          </Typography>
+                          <Typography 
+                            variant="caption" 
+                            sx={{ 
+                              color: 'text.secondary',
+                              fontSize: '0.75rem',
+                              whiteSpace: 'nowrap',
+                              ml: 'auto'
+                            }}
+                          >
+                            {new Date(build.timestamp).toLocaleString('tr-TR', {
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </Typography>
+                        </Box>
                         <Typography 
                           variant="body2" 
                           sx={{ 
                             color: 'text.primary',
                             fontSize: '0.8rem',
-                            flex: 1
+                            wordBreak: 'break-word'
                           }}
                         >
                           {`${build.project}/${build.branch}`}
-                        </Typography>
-                        <Typography 
-                          variant="caption" 
-                          sx={{ 
-                            color: 'text.secondary',
-                            fontSize: '0.75rem',
-                            whiteSpace: 'nowrap'
-                          }}
-                        >
-                          {new Date(build.timestamp).toLocaleString('tr-TR', {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
                         </Typography>
                       </Box>
                     }
@@ -207,7 +210,8 @@ const LastBuildsInformation: React.FC = () => {
                           color: 'text.secondary',
                           fontSize: '0.7rem',
                           display: 'flex',
-                          gap: 1
+                          gap: 1,
+                          mt: 0.5
                         }}
                       >
                         <span>#{build.buildNumber}</span>

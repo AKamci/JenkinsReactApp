@@ -18,119 +18,159 @@ const BranchItem: React.FC<{ job: JobDto }> = React.memo(({ job }) => {
   const isDarkMode = useAppSelector((state) => state.generalTheme.isDarkMode);
   const theme = useTheme();
 
+  const name = useMemo(() => job.name.toLowerCase(), [job.name]);
+  const isBuilding = useMemo(() => job?.color?.includes('_anime') || false, [job.color]);
+  const prevBuildingRef = useRef(isBuilding);
+  const prevTestResultRef = useRef(testResult);
+
   const colorScheme = useMemo(() => 
     colorSchemes[job.color as keyof typeof colorSchemes] || colorSchemes.default,
     [job.color]
   );
 
-  const name = useMemo(() => job.name.toLowerCase(), [job.name]);
-  const isBuilding = useMemo(() => job?.color?.includes('_anime') || false, [job.color]);
-  const prevBuildingRef = useRef(isBuilding);
+  const branchType = useMemo(() => {
+    if (!name) return 'unknown';
+    return Object.entries(branchIcons).find(([key, icon]) => {
+      if (key === 'unknown') return false;
+      return 'matcher' in icon && typeof icon.matcher === 'function' && icon.matcher(name);
+    })?.[0] || 'unknown';
+  }, [name]);
 
   useEffect(() => {
-    if (isBuilding && !prevBuildingRef.current) {
+    if (!isBuilding || prevBuildingRef.current) return;
+    const timeoutId = setTimeout(() => {
       dispatch(addBuildingJob(job));
-    }
-    prevBuildingRef.current = isBuilding;
+    }, 0);
+    return () => clearTimeout(timeoutId);
   }, [isBuilding, job, dispatch]);
 
   useEffect(() => {
-    if (isTestResultsOpen && !testResult) {
-      dispatch(GetTestResult({ url: job.url }));
-    }
+    if (!isTestResultsOpen || testResult || !job.url) return;
+    
+    let isSubscribed = true;
+    const controller = new AbortController();
+
+    const fetchTestResults = async () => {
+      try {
+        if (!isSubscribed) return;
+        await dispatch(GetTestResult({ 
+          url: job.url,
+          signal: controller.signal 
+        }));
+      } catch (error) {
+        if (error instanceof Error && error.name === 'AbortError') return;
+        console.error('Error fetching test results:', error);
+      }
+    };
+
+    fetchTestResults();
+
+    return () => {
+      isSubscribed = false;
+      controller.abort();
+    };
   }, [isTestResultsOpen, job.url, testResult, dispatch]);
 
-  const branchType = useMemo(() => {
-    return Object.keys(branchIcons).find(key => {
-      if (key === 'unknown') return false;
-      const icon = branchIcons[key as keyof typeof branchIcons];
-      if ('matcher' in icon && typeof icon.matcher === 'function') {
-        return icon.matcher(name);
-      }
-      return false;
-    }) || 'unknown';
-  }, [name]);
+  useEffect(() => {
+    prevBuildingRef.current = isBuilding;
+    prevTestResultRef.current = testResult;
+  }, [isBuilding, testResult]);
 
   if (!selectedBranchList.includes(branchType)) return null;
 
-  const successRate = testResult ? calculateSuccessRate(testResult) : null;
-  const fillHeight = successRate ? `${successRate}%` : '0%';
-  const fillColor = getFillColor(successRate);
+  const testMetrics = useMemo(() => {
+    if (!testResult) return { successRate: null, fillHeight: '0%', fillColor: null };
+    const successRate = calculateSuccessRate(testResult);
+    return {
+      successRate,
+      fillHeight: successRate ? `${successRate}%` : '0%',
+      fillColor: getFillColor(successRate)
+    };
+  }, [testResult]);
 
-  const commonCardProps = useMemo(() => ({
-    variant: "outlined" as const,
-    className: isBuilding ? 'building' : '',
-    sx: {
-      borderRadius: '20px',
-      width: 'fit-content',
-      minWidth: 42,
-      border: `0.5px solid ${colorScheme.color}`,
-      background: theme.palette.mode === 'dark' ? theme.palette.background.default : theme.palette.background.paper,
-      boxShadow: `0 0 4px ${colorScheme.color}40`,
-      order: branchIcons[branchType as keyof typeof branchIcons].order,
-      transition: 'all 0.3s ease',
+  const styles = useMemo(() => ({
+    card: {
+      variant: "outlined" as const,
+      className: isBuilding ? 'building' : '',
+      sx: {
+        borderRadius: '20px',
+        width: 'fit-content',
+        minWidth: 42,
+        border: `0.5px solid ${colorScheme.color}`,
+        background: theme.palette.mode === 'dark' ? theme.palette.background.default : theme.palette.background.paper,
+        boxShadow: `0 0 4px ${colorScheme.color}40`,
+        order: branchIcons[branchType as keyof typeof branchIcons]?.order || 0,
+        transition: 'all 0.3s ease',
+        position: 'relative',
+        overflow: 'hidden',
+        '&:hover': {
+          boxShadow: `0 0 8px ${colorScheme.color}60`,
+          borderColor: colorScheme.color
+        },
+        '&::after': isTestResultsOpen ? {
+          content: '""',
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          width: '100%',
+          height: testMetrics.fillHeight,
+          background: testMetrics.fillColor ? 
+            `linear-gradient(180deg, ${testMetrics.fillColor}30 0%, ${testMetrics.fillColor}50 100%)` : 
+            'none',
+          transition: 'all 0.5s ease-in-out',
+          zIndex: 0
+        } : {}
+      }
+    },
+    cardContent: {
+      display: 'flex', 
+      alignItems: 'center', 
+      padding: '2px 6px', 
+      position: 'relative', 
+      zIndex: 1
+    },
+    icon: {
+      fontSize: 20,
+      color: colorScheme.color,
+      filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.08))',
+      transition: 'all 0.2s ease',
+      animation: isBuilding ? `${rotate} 2s linear infinite` : 'none',
       position: 'relative',
-      overflow: 'hidden',
+      zIndex: 1,
       '&:hover': {
-        boxShadow: `0 0 8px ${colorScheme.color}60`,
-        borderColor: colorScheme.color
-      },
-      '&::after': isTestResultsOpen ? {
-        content: '""',
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        width: '100%',
-        height: fillHeight,
-        background: `linear-gradient(180deg, ${fillColor}30 0%, ${fillColor}50 100%)`,
-        transition: 'all 0.5s ease-in-out',
-        zIndex: 0
-      } : {}
-    }
-  }), [colorScheme.color, theme.palette.mode, theme.palette.background, isBuilding, branchType, isTestResultsOpen, fillHeight, fillColor]);
-
-  const getFeatureName = useCallback((name: string) => {
-    if (name.startsWith('feature/')) {
-      const decodedName = decodeURIComponent(name);
-      const parts = decodedName.split('/');
-      if (parts.length > 1) {
-        const featurePart = parts[1].split('.')[0];
-        return featurePart;
+        transform: isBuilding ? 'scale(1.1)' : 'scale(1.1) rotate(3deg)',
+        filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.12))'
       }
     }
-    return decodeURIComponent(name);
+  }), [colorScheme.color, theme.palette.mode, theme.palette.background, isBuilding, branchType, isTestResultsOpen, testMetrics]);
+
+  const getFeatureName = useCallback((branchName: string) => {
+    if (!branchName.startsWith('feature/')) return decodeURIComponent(branchName);
+    
+    const decodedName = decodeURIComponent(branchName);
+    const parts = decodedName.split('/');
+    return parts.length > 1 ? parts[1].split('.')[0] : decodedName;
   }, []);
 
   const handleClick = useCallback(() => {
-    if (job.lastBuild?.url) {
-      window.open(job.lastBuild.url, '_blank');
-    }
+    job.lastBuild?.url && window.open(job.lastBuild.url, '_blank');
   }, [job.lastBuild?.url]);
 
   const tooltipTitle = useMemo(() => {
     if (isBuilding) return `Build Ediliyor -> ${job.name}`;
-    if (isTestResultsOpen && successRate !== null) return `${name} - Başarı Oranı: ${successRate}%`;
-    return name.startsWith('feature') ? getFeatureName(name) : branchIcons[branchType as keyof typeof branchIcons].label;
-  }, [isBuilding, job.name, isTestResultsOpen, successRate, name, getFeatureName, branchType]);
+    if (isTestResultsOpen && testMetrics.successRate !== null) {
+      return `${name} - Başarı Oranı: ${testMetrics.successRate}%`;
+    }
+    return name.startsWith('feature') ? 
+      getFeatureName(name) : 
+      branchIcons[branchType as keyof typeof branchIcons]?.label || name;
+  }, [isBuilding, job.name, isTestResultsOpen, testMetrics.successRate, name, branchType]);
 
   const iconElement = useMemo(() => {
-    const IconComponent = branchIcons[branchType as keyof typeof branchIcons].icon;
-    return React.createElement(IconComponent, {
-      sx: {
-        fontSize: 20,
-        color: colorScheme.color,
-        filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.08))',
-        transition: 'all 0.2s ease',
-        animation: isBuilding ? `${rotate} 2s linear infinite` : 'none',
-        position: 'relative',
-        zIndex: 1,
-        '&:hover': {
-          transform: isBuilding ? 'scale(1.1)' : 'scale(1.1) rotate(3deg)',
-          filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.12))'
-        }
-      }
-    });
-  }, [branchType, colorScheme.color, isBuilding]);
+    const IconComponent = branchIcons[branchType as keyof typeof branchIcons]?.icon;
+    if (!IconComponent) return null;
+    return <IconComponent sx={styles.icon} />;
+  }, [branchType, styles.icon]);
 
   return (
     <Tooltip 
@@ -140,16 +180,18 @@ const BranchItem: React.FC<{ job: JobDto }> = React.memo(({ job }) => {
       arrow
     >
       <StyledCard
-        {...commonCardProps}
+        {...styles.card}
         isDarkMode={isDarkMode}
         onClick={handleClick}
       >
-        <StyledCardContent sx={{ display: 'flex', alignItems: 'center', padding: '2px 6px', position: 'relative', zIndex: 1 }}>
+        <StyledCardContent sx={styles.cardContent}>
           {iconElement}
         </StyledCardContent>
       </StyledCard>
     </Tooltip>
   );
 });
+
+BranchItem.displayName = 'BranchItem';
 
 export default BranchItem;

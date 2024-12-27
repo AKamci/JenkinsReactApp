@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { InputBase, Popper, Paper, List, ListItem, Typography, Divider, ClickAwayListener } from '@mui/material';
 import { styled, alpha } from '@mui/material/styles';
 import SearchIcon from '@mui/icons-material/Search';
@@ -123,6 +123,19 @@ const Search: React.FC<SearchProps> = ({ placeholder = "Projelerde ara...", onCh
   const [isPopperOpen, setIsPopperOpen] = useState(false);
   const allProjects = useAppSelector((state) => state.getAllJobForSearch.data);
   const selectedItems = useAppSelector((state) => state.getSearchedItems.selectedItems);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
+        event.preventDefault();
+        inputRef.current?.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   useEffect(() => {
     dispatch(getAllJobForSearch());
@@ -219,6 +232,7 @@ const Search: React.FC<SearchProps> = ({ placeholder = "Projelerde ara...", onCh
             inputProps={{ 'aria-label': 'search' }}
             onChange={handleSearchChange}
             value={searchTerm}
+            inputRef={inputRef}
           />
         </SearchWrapper>
 

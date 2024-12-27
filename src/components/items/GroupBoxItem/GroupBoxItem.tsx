@@ -12,6 +12,7 @@ import FolderIcon from '@mui/icons-material/Folder';
 import GroupCardProps from '../../../infrastructure/props/GroupCardProps';
 import { ColorPicker, ColorButton, colors } from './ColorPicker';
 import { baseUrl } from '../../../infrastructure/helpers/api-endpoints';
+import { setFolderColor } from '../../../infrastructure/store/slices/GeneralSettings/FolderColor-Slice';
 
 const StyledCard = styled(Paper, {
   shouldForwardProp: (prop) => prop !== 'isDarkMode' && prop !== 'borderColor'
@@ -65,10 +66,8 @@ const GroupTitle = styled(Typography, {
 
 const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const [folderColor, setFolderColor] = useState('#2ecc71');
-  const [borderColor, setBorderColor] = useState('#f0f0f0');
+  const folderColor = useAppSelector((state) => state.folderColor.color);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [colorPickerType, setColorPickerType] = useState<'folder' | 'border'>('folder');
   const [repositoryScores, setRepositoryScores] = useState<{ [key: string]: number }>({});
   const isDarkMode = useAppSelector((state) => state.generalTheme.isDarkMode);
  
@@ -77,24 +76,14 @@ const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
   );
   const apiSettings = useAppSelector((state) => state.getApiSettings.selectedApiSettings);
 
-  const handleFolderClick = useCallback((event: React.MouseEvent<HTMLElement>) => {
-    setColorPickerType('folder');
+  const handleColorClick = useCallback((event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   }, []);
 
-  const handleBorderClick = useCallback((event: React.MouseEvent<HTMLElement>) => {
-    setColorPickerType('border');
-    setAnchorEl(event.currentTarget);
-  }, []);
-
-  const handleColorSelect = useCallback((color: string) => {
-    if (colorPickerType === 'folder') {
-      setFolderColor(color);
-    } else {
-      setBorderColor(color);
-    }
+  const handleColorSelect = useCallback((newColor: string) => {
+    dispatch(setFolderColor(newColor));
     setAnchorEl(null);
-  }, [colorPickerType]);
+  }, [dispatch]);
 
   const handleScoreChange = useCallback((jobName: string, score: number) => {
     setRepositoryScores(prev => {
@@ -139,7 +128,7 @@ const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
   }, [groupName]);
 
   return (
-    <StyledCard elevation={0} borderColor={borderColor} isDarkMode={isDarkMode}>
+    <StyledCard elevation={0} borderColor={folderColor} isDarkMode={isDarkMode}>
       <Box sx={{ 
         display: 'flex', 
         justifyContent: 'space-between',
@@ -150,8 +139,6 @@ const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
       }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <FolderIcon
-            component="svg"
-            onClick={(e: React.MouseEvent<SVGSVGElement>) => handleFolderClick(e as unknown as React.MouseEvent<HTMLElement>)}
             sx={{
               color: folderColor,
               opacity: 0.95,
@@ -162,9 +149,11 @@ const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
               '&:hover': {
                 filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))'
               }
-            }} 
+            }}
           />
-          <GroupTitle onClick={handleBorderClick} style={{cursor: 'pointer'}} isDarkMode={isDarkMode}>{groupName}</GroupTitle>
+          <Box onClick={handleColorClick} sx={{ cursor: 'pointer' }}>
+            <GroupTitle isDarkMode={isDarkMode}>{groupName}</GroupTitle>
+          </Box>
         </Box>
         
         <Popover
@@ -188,16 +177,16 @@ const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
           }}
         >
           <ColorPicker>
-            {colors.map((color) => (
+            {colors.map((colorOption) => (
               <ColorButton
-                key={color}
+                key={colorOption}
                 sx={{ 
-                  backgroundColor: color,
+                  backgroundColor: colorOption,
                   transition: 'transform 0.2s ease',
                   '&:hover': {
                   }
                 }}
-                onClick={() => handleColorSelect(color)}
+                onClick={() => handleColorSelect(colorOption)}
               />
             ))}
           </ColorPicker>

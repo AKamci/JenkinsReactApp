@@ -13,7 +13,7 @@ interface JobDtoWithScore extends JobDto {
   onScoreChange?: (score: number) => void;
 }
 
-const RepositoryItem: React.FC<{ job: JobDtoWithScore; parent: string }> = ({ job, parent }) => {
+const RepositoryItem: React.FC<{ job: JobDtoWithScore; parent: string }> = React.memo(({ job, parent }) => {
   const dispatch = useDispatch<AppDispatch>();
   const theme = useTheme();
   const BranchJobData = useAppSelector((state) => state.getBranchJob.data);
@@ -23,54 +23,71 @@ const RepositoryItem: React.FC<{ job: JobDtoWithScore; parent: string }> = ({ jo
   const selectedBranchList = useAppSelector((state) => state.getSelectedBranchList.selectedBranch);
 
   useEffect(() => {
-    const fetchJobData = () => {
-      dispatch(GetBranchJob({
-        jobName: parent,
-        jobName2: job.name,
-        apiSettings,
-      }));
+    let isSubscribed = true;
+    const controller = new AbortController();
+
+    const fetchJobData = async () => {
+      try {
+        if (!isSubscribed) return;
+        await dispatch(GetBranchJob({
+          jobName: parent,
+          jobName2: job.name,
+          apiSettings
+        }));
+      } catch (error) {
+        if ((error as Error).name === 'AbortError') return;
+        console.error('Error fetching branch job:', error);
+      }
     };
 
     fetchJobData();
     const intervalId = setInterval(fetchJobData, 10000);
-    return () => clearInterval(intervalId);
+    
+    return () => {
+      isSubscribed = false;
+      controller.abort();
+      clearInterval(intervalId);
+    };
   }, [dispatch, job.name, parent, apiSettings]);
 
   const getBranchType = useCallback((name: string): string => {
-    return Object.keys(branchIcons).find(key => {
+    const nameLower = name.toLowerCase();
+    return Object.entries(branchIcons).find(([key, icon]) => {
       if (key === 'unknown') return false;
-      const icon = branchIcons[key as keyof typeof branchIcons];
-      if ('matcher' in icon && typeof icon.matcher === 'function') {
-        return icon.matcher(name.toLowerCase());
-      }
-      return false;
-    }) || 'unknown';
+      return 'matcher' in icon && typeof icon.matcher === 'function' && icon.matcher(nameLower);
+    })?.[0] || 'unknown';
   }, []);
 
   const getFilteredBranches = useMemo(() => {
     const jobs = BranchJobData[job.name]?.jobs;
-    if (!jobs) return [];
+    if (!jobs?.length) return [];
 
-    const visibleJobs = jobs.filter(branch => {
+    interface AccumulatorType {
+      featureBranches: JobDto[];
+      otherBranches: JobDto[];
+    }
+
+    const { featureBranches, otherBranches } = jobs.reduce<AccumulatorType>((acc, branch) => {
       const branchType = getBranchType(branch.name);
-      return selectedBranchList.includes(branchType);
-    });
+      if (!selectedBranchList.includes(branchType)) return acc;
 
-    const featureBranches = visibleJobs
-      .filter(branch => branch.name.toLowerCase().startsWith('feature') && branch.lastBuild)
-      .sort((a, b) => (b.lastBuild?.timestamp || 0) - (a.lastBuild?.timestamp || 0))
-      .slice(0, featureCount);
+      if (branch.name.toLowerCase().startsWith('feature') && branch.lastBuild) {
+        acc.featureBranches.push(branch);
+      } else {
+        acc.otherBranches.push(branch);
+      }
+      return acc;
+    }, { featureBranches: [], otherBranches: [] });
 
-    const otherBranches = visibleJobs.filter(branch => !branch.name.toLowerCase().startsWith('feature'));
+    featureBranches.sort((a, b) => (b.lastBuild?.timestamp || 0) - (a.lastBuild?.timestamp || 0));
 
-    return [...featureBranches, ...otherBranches];
+    return [...featureBranches.slice(0, featureCount), ...otherBranches];
   }, [BranchJobData, job.name, selectedBranchList, featureCount, getBranchType]);
-  
+
   const getBranchColorCounts = useMemo(() => {
-    const branches = getFilteredBranches;
-    if (branches.length === 0) return {};
+    if (!getFilteredBranches.length) return {};
     
-    return branches.reduce((acc: { [key: string]: number }, branch) => {
+    return getFilteredBranches.reduce((acc: { [key: string]: number }, branch) => {
       if (branch.color) {
         acc[branch.color] = (acc[branch.color] || 0) + 1;
       }
@@ -79,15 +96,9 @@ const RepositoryItem: React.FC<{ job: JobDtoWithScore; parent: string }> = ({ jo
   }, [getFilteredBranches]);
 
   const getRepositoryScore = useMemo(() => {
-    const filteredBranches = getFilteredBranches;
-    const colorCounts = filteredBranches.reduce((acc: { [key: string]: number }, branch) => {
-      if (branch.color) {
-        acc[branch.color] = (acc[branch.color] || 0) + 1;
-      }
-      return acc;
-    }, {});
+    if (!getFilteredBranches.length) return 0;
 
-    const scoreMap: { [key: string]: number } = {
+    const scoreMap: Record<string, number> = {
       'red': 2,
       'yellow': 1,
       'blue': 0,
@@ -96,83 +107,86 @@ const RepositoryItem: React.FC<{ job: JobDtoWithScore; parent: string }> = ({ jo
       'yellow_anime': 1
     };
 
-    return Object.entries(colorCounts).reduce((total, [color, count]) => {
-      const baseColor = color.replace('_anime', '');
-      return total + (scoreMap[baseColor] || 0) * count;
+    return getFilteredBranches.reduce((total, branch) => {
+      if (!branch.color) return total;
+      const baseColor = branch.color.replace('_anime', '');
+      return total + (scoreMap[baseColor] || 0);
     }, 0);
   }, [getFilteredBranches]);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    if (!job.onScoreChange) return;
     const currentScore = getRepositoryScore;
-    if (job.onScoreChange && typeof currentScore === 'number') {
+    const timeoutId = setTimeout(() => {
       job.onScoreChange(currentScore);
-    }
+    }, 0);
+    return () => clearTimeout(timeoutId);
   }, [getRepositoryScore, job.onScoreChange]);
 
-  const cardContentStyle = useMemo(() => ({
-    display: 'flex',
-    alignItems: 'center',
-    color: theme.palette.text.secondary,
-    padding: '0px 12px',
-    gap: '8px',
-    borderBottom: `1px solid ${theme.palette.divider}`,
-    backgroundColor: isDarkMode ? 
-      theme.palette.background.default : 
-      theme.palette.action.hover,
-  }), [theme, isDarkMode]);
-
-  const cardStyle = useMemo(() => ({
-    margin: '2px',
-    borderRadius: '8px',
-    boxShadow: theme.shadows[1],
-    transition: 'all 0.2s ease',
-    border: `1px solid ${theme.palette.divider}`,
-    '&:hover': {
-      boxShadow: theme.shadows[3],
+  const styles = useMemo(() => ({
+    card: {
+      margin: '2px',
+      borderRadius: '8px',
+      boxShadow: theme.shadows[1],
+      transition: 'all 0.2s ease',
+      border: `1px solid ${theme.palette.divider}`,
+      '&:hover': {
+        boxShadow: theme.shadows[3],
+      },
     },
-  }), [theme]);
+    cardContent: {
+      display: 'flex',
+      alignItems: 'center',
+      color: theme.palette.text.secondary,
+      padding: '0px 12px',
+      gap: '8px',
+      borderBottom: `1px solid ${theme.palette.divider}`,
+      backgroundColor: isDarkMode ? 
+        theme.palette.background.default : 
+        theme.palette.action.hover,
+    },
+    branchBox: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: '4px',
+      padding: '2px',
+      backgroundColor: theme.palette.background.default,
+    },
+    icon: {
+      fontSize: '1rem',
+      color: job.color || theme.palette.secondary.main,
+      opacity: isDarkMode ? 0.9 : 0.7
+    },
+    text: {
+      fontSize: '0.85rem',
+      fontWeight: 500,
+      opacity: isDarkMode ? 0.7 : 0.3,
+      color: theme.palette.text.primary
+    }
+  }), [theme, isDarkMode, job.color]);
 
-  const branchBoxStyle = useMemo(() => ({
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: '4px',
-    padding: '2px',
-    backgroundColor: theme.palette.background.default,
-  }), [theme]);
+  const branchJobsExist = BranchJobData[job.name]?.jobs?.length > 0;
 
   return (
     <Fade in={true} timeout={300}>
-      <Card sx={cardStyle}>
-        <CardContent sx={cardContentStyle}>
-          <AccountTree 
-            sx={{
-              fontSize: '1rem',
-              color: job.color || theme.palette.secondary.main,
-              opacity: isDarkMode ? 0.9 : 0.7
-            }}
-          />
-          <Typography 
-            sx={{
-              fontSize: '0.85rem',
-              fontWeight: 500,
-              opacity: isDarkMode ? 0.7 : 0.3,
-              color: theme.palette.text.primary
-            }}
-          >
-            {job.name}
-          </Typography>
+      <Card sx={styles.card}>
+        <CardContent sx={styles.cardContent}>
+          <AccountTree sx={styles.icon} />
+          <Typography sx={styles.text}>{job.name}</Typography>
         </CardContent>
         
-        {BranchJobData[job.name]?.jobs && BranchJobData[job.name].jobs?.length > 0 && (
-          <Box sx={branchBoxStyle}>
+        {branchJobsExist && (
+          <Box sx={styles.branchBox}>
             {getFilteredBranches.map((branchJob, index) => (
-              <BranchItem key={index} job={branchJob} />
+              <BranchItem key={`${branchJob.name}-${index}`} job={branchJob} />
             ))}
           </Box>
         )}
       </Card>
     </Fade>
   );
-};
+});
+
+RepositoryItem.displayName = 'RepositoryItem';
 
 export default RepositoryItem;

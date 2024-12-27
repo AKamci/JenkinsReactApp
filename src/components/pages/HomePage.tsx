@@ -1,14 +1,17 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useKeyboardShortcut } from '../../shortcuts/useKeyboardShortcut';
 import { HomePageLayout } from './PagesLayout/HomePageLayout';
+import BirthDayAnimation from '../animation/BirthDayAnimation';
+import GlobalSystemNotification from '../notifications/GlobalSystemNotification';
 
 const HomePage: React.FC = () => {
     const [layout, setLayout] = useState({
-        isCollapsed: false,
+        isCollapsed: true,
         isHeaderHidden: false
     });
     
     const [checkedJobs, setCheckedJobs] = useState<Record<string, boolean>>({});
+    const [showBirthday, setShowBirthday] = useState(false);
 
     const toggleSidebar = useCallback(() => {
         setLayout(prev => ({
@@ -25,14 +28,25 @@ const HomePage: React.FC = () => {
     }, []);
 
     useKeyboardShortcut('shift', toggleHeaderVisibility);
+    const handleBirthdayComplete = useCallback(() => {
+        setShowBirthday(false);
+    }, []);
+
+    const layoutProps = useMemo(() => ({
+        layout,
+        onToggleSidebar: toggleSidebar,
+        checkedJobs,
+        setCheckedJobs
+    }), [layout, toggleSidebar, checkedJobs]);
 
     return (
-        <HomePageLayout
-            layout={layout}
-            onToggleSidebar={toggleSidebar}
-            checkedJobs={checkedJobs}
-            setCheckedJobs={setCheckedJobs}
-        />
+        <>
+            <GlobalSystemNotification />
+            {showBirthday && (
+                <BirthDayAnimation onComplete={handleBirthdayComplete} />
+            )}
+            <HomePageLayout {...layoutProps} />
+        </>
     );
 };
 

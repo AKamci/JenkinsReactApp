@@ -117,13 +117,6 @@ const BuildingJobInformation = () => {
                                         }
                                         secondary={
                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                                                <Badge
-                                                    variant="dot"
-                                                    sx={{ '& .MuiBadge-dot': { backgroundColor: '#f57c00' } }}
-                                                />
-                                                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                                                    Build #{job.lastBuild.number}
-                                                </Typography>
                                             </Box>
                                         }
                                     />

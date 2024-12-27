@@ -33,6 +33,10 @@ export default {
 
   Test: {
     GetTest: (url: string) => `${url}/lastBuild/testReport/api/json?tree=failCount,passCount,skipCount`
+  },
+
+  Notification: {
+    GetNotification: `${baseUrl}/api/json?tree=description`
   }
 
 };

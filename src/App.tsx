@@ -18,10 +18,10 @@ import { createAppTheme } from './theme/theme';
 const App = () => {
 	useDocumentTitle();
 	
-	const isDarkMode = useAppSelector((state) => state.generalTheme.isDarkMode);
-	const theme = useMemo(() => createAppTheme(isDarkMode), [isDarkMode]);
+	const themeState = useAppSelector((state) => state.theme);
+	const theme = useMemo(() => createAppTheme(themeState.isDarkMode, themeState.themeVariant), [themeState.isDarkMode, themeState.themeVariant]);
 
-	const toastTheme = useMemo(() => isDarkMode ? 'dark' : 'light', [isDarkMode]);
+	const toastTheme = useMemo(() => themeState.isDarkMode ? 'dark' : 'light', [themeState.isDarkMode]);
 
 	return (
 		<ThemeProvider theme={theme}>

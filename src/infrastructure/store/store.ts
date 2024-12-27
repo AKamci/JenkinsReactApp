@@ -20,6 +20,9 @@ import GetStartedBuildNotification from './slices/Notification/StartedBuildNotif
 import GetTestResult from './slices/Test/GetTestResult-Slice';
 import GetMockTestResult from './slices/Test/MockTest-Slice';
 import TestOpenClose from './slices/Test/TestOpenClose-Slice';
+import GetGlobalSystemMessage from './slices/Notification/GlobalSystemMessage-Slice';
+import themeReducer from "./slices/GeneralSettings/Theme-Slice";
+import folderColorReducer from './slices/GeneralSettings/FolderColor-Slice';
 
 const store = configureStore({
 	reducer: {
@@ -41,6 +44,9 @@ const store = configureStore({
 		getTestResult: GetTestResult,
 		getMockTestResult: GetMockTestResult,
 		getTestOpenClose: TestOpenClose,
+		getGlobalSystemMessage: GetGlobalSystemMessage,
+		theme: themeReducer,
+		folderColor: folderColorReducer
 	},
 	middleware: (getDefaultMiddleware) => getDefaultMiddleware({
 		serializableCheck: false,

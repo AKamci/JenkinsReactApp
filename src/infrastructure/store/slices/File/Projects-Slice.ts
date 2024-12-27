@@ -14,7 +14,6 @@ const projectsSlice = createSlice({
   initialState,
   reducers: {
     setSelectedProjects(state, action: PayloadAction<JobDto[]>) {
-      console.log(action.payload)
       state.selectedProjects = action.payload;
     },
     addSelectedProject(state, action: PayloadAction<JobDto>) {
@@ -23,13 +22,9 @@ const projectsSlice = createSlice({
       }
     },
     removeSelectedProject(state, action: PayloadAction<string>) {
-      console.log("Removed Group")
-      console.log("Action Payload:", action.payload);
-      console.log("Before Removal:", state.selectedProjects);
       state.selectedProjects = state.selectedProjects.filter(
         project => project.name !== action.payload
       );
-      console.log(state.selectedProjects)
     },
     clearSelectedProjects(state) {
       state.selectedProjects = [];

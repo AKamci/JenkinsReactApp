@@ -33,10 +33,7 @@ const StartedBuildNotification: React.FC<StartedBuildNotificationProps> = ({ anc
     );
 
     useEffect(() => {
-      console.log('Current building jobs:', filteredBuildingJobs.map(job => ({
-        name: job.name,
-        url: job.url
-      })));
+      // ... existing code ...
     }, [filteredBuildingJobs]);
 
   const handleJobClick = useCallback((url: string) => {

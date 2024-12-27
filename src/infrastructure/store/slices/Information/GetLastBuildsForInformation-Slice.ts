@@ -40,7 +40,6 @@ export const getLastBuildsForInformation = createAsyncThunk<
                     },
                 }
             );
-            console.log(response.data,"response.data");
             return response.data;
         } catch (error: any) {
             const message = error.response?.data?.message || "Bir hata meydana geldi";

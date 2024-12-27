@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../../infrastructure/store/store';
 import { getAllBuildingJobs } from '../../infrastructure/store/slices/Information/GetAllBuildingJobs-Slice';
-import { Accordion, AccordionSummary, AccordionDetails, Typography, Box, List, ListItemButton, ListItemText, alpha, Badge } from '@mui/material';
+import { Accordion, AccordionSummary, AccordionDetails, Typography, Box, List, ListItemButton, ListItemText, alpha } from '@mui/material';
 import ConstructionIcon from '@mui/icons-material/Construction';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { JobDto } from '../../infrastructure/dtos/JobDto';

@@ -9,6 +9,7 @@ import { addBuildingJob } from '../../../infrastructure/store/slices/Notificatio
 import { useEffect, useRef, useMemo, useCallback } from 'react';
 import { calculateSuccessRate, getFillColor } from './BranchTest';
 import { GetTestResult } from '../../../infrastructure/store/slices/Test/GetTestResult-Slice';
+import { useScreenSize } from '../../../hooks/useScreenSize';
 
 const BranchItem: React.FC<{ job: JobDto }> = React.memo(({ job }) => {
   const dispatch = useAppDispatch();
@@ -16,6 +17,7 @@ const BranchItem: React.FC<{ job: JobDto }> = React.memo(({ job }) => {
   const testResult = useAppSelector((state) => state.getTestResult.data[job.url]);
   const selectedBranchList = useAppSelector((state) => state.getSelectedBranchList.selectedBranch);
   const isDarkMode = useAppSelector((state) => state.generalTheme.isDarkMode);
+  const { scaling } = useScreenSize();
   const theme = useTheme();
 
   const name = useMemo(() => job.name.toLowerCase(), [job.name]);
@@ -55,7 +57,6 @@ const BranchItem: React.FC<{ job: JobDto }> = React.memo(({ job }) => {
         if (!isSubscribed) return;
         await dispatch(GetTestResult({ 
           url: job.url,
-          signal: controller.signal 
         }));
       } catch (error) {
         if (error instanceof Error && error.name === 'AbortError') return;
@@ -93,18 +94,18 @@ const BranchItem: React.FC<{ job: JobDto }> = React.memo(({ job }) => {
       variant: "outlined" as const,
       className: isBuilding ? 'building' : '',
       sx: {
-        borderRadius: '20px',
+        borderRadius: `${20 * scaling}px`,
         width: 'fit-content',
-        minWidth: 42,
-        border: `0.5px solid ${colorScheme.color}`,
+        minWidth: 42 * scaling,
+        border: `${0.5 * scaling}px solid ${colorScheme.color}`,
         background: theme.palette.mode === 'dark' ? theme.palette.background.default : theme.palette.background.paper,
-        boxShadow: `0 0 4px ${colorScheme.color}40`,
+        boxShadow: `0 0 ${4 * scaling}px ${colorScheme.color}40`,
         order: branchIcons[branchType as keyof typeof branchIcons]?.order || 0,
         transition: 'all 0.3s ease',
         position: 'relative',
         overflow: 'hidden',
         '&:hover': {
-          boxShadow: `0 0 8px ${colorScheme.color}60`,
+          boxShadow: `0 0 ${8 * scaling}px ${colorScheme.color}60`,
           borderColor: colorScheme.color
         },
         '&::after': isTestResultsOpen ? {
@@ -125,24 +126,29 @@ const BranchItem: React.FC<{ job: JobDto }> = React.memo(({ job }) => {
     cardContent: {
       display: 'flex', 
       alignItems: 'center', 
-      padding: '2px 6px', 
-      position: 'relative', 
+      justifyContent: 'center',
+      padding: `${4 * scaling}px ${8 * scaling}px`, 
+      position: 'relative',
+      minHeight: 32 * scaling,
       zIndex: 1
     },
     icon: {
-      fontSize: 20,
+      fontSize: 20 * scaling,
       color: colorScheme.color,
       filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.08))',
       transition: 'all 0.2s ease',
       animation: isBuilding ? `${rotate} 2s linear infinite` : 'none',
       position: 'relative',
       zIndex: 1,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
       '&:hover': {
         transform: isBuilding ? 'scale(1.1)' : 'scale(1.1) rotate(3deg)',
         filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.12))'
       }
     }
-  }), [colorScheme.color, theme.palette.mode, theme.palette.background, isBuilding, branchType, isTestResultsOpen, testMetrics]);
+  }), [colorScheme.color, theme.palette.mode, theme.palette.background, isBuilding, branchType, isTestResultsOpen, testMetrics, scaling]);
 
   const getFeatureName = useCallback((branchName: string) => {
     if (!branchName.startsWith('feature/')) return decodeURIComponent(branchName);

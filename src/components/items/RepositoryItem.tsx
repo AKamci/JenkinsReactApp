@@ -8,6 +8,7 @@ import { AppDispatch, RootState, useAppSelector } from '../../infrastructure/sto
 import { useMemo, useEffect, useCallback } from 'react';
 import { GetBranchJob } from '../../infrastructure/store/slices/Job/GetBranchJob-Slice';
 import { branchIcons } from './BranchItem/BranchIcons';
+import { useScreenSize } from '../../hooks/useScreenSize';
 
 interface JobDtoWithScore extends JobDto {
   onScoreChange?: (score: number) => void;
@@ -19,6 +20,7 @@ const RepositoryItem: React.FC<{ job: JobDtoWithScore; parent: string }> = React
   const BranchJobData = useAppSelector((state) => state.getBranchJob.data);
   const apiSettings = useAppSelector((state) => state.getApiSettings.selectedApiSettings);
   const isDarkMode = useAppSelector((state) => state.generalTheme.isDarkMode);
+  const { scaling } = useScreenSize();
   const featureCount = useSelector((state: RootState) => state.getFeatureCount.count);
   const selectedBranchList = useAppSelector((state) => state.getSelectedBranchList.selectedBranch);
 
@@ -84,16 +86,6 @@ const RepositoryItem: React.FC<{ job: JobDtoWithScore; parent: string }> = React
     return [...featureBranches.slice(0, featureCount), ...otherBranches];
   }, [BranchJobData, job.name, selectedBranchList, featureCount, getBranchType]);
 
-  const getBranchColorCounts = useMemo(() => {
-    if (!getFilteredBranches.length) return {};
-    
-    return getFilteredBranches.reduce((acc: { [key: string]: number }, branch) => {
-      if (branch.color) {
-        acc[branch.color] = (acc[branch.color] || 0) + 1;
-      }
-      return acc;
-    }, {});
-  }, [getFilteredBranches]);
 
   const getRepositoryScore = useMemo(() => {
     if (!getFilteredBranches.length) return 0;
@@ -125,11 +117,11 @@ const RepositoryItem: React.FC<{ job: JobDtoWithScore; parent: string }> = React
 
   const styles = useMemo(() => ({
     card: {
-      margin: '2px',
-      borderRadius: '8px',
+      margin: `${2 * scaling}px`,
+      borderRadius: `${8 * scaling}px`,
       boxShadow: theme.shadows[1],
       transition: 'all 0.2s ease',
-      border: `1px solid ${theme.palette.divider}`,
+      border: `${1 * scaling}px solid ${theme.palette.divider}`,
       '&:hover': {
         boxShadow: theme.shadows[3],
       },
@@ -138,9 +130,9 @@ const RepositoryItem: React.FC<{ job: JobDtoWithScore; parent: string }> = React
       display: 'flex',
       alignItems: 'center',
       color: theme.palette.text.secondary,
-      padding: '0px 12px',
-      gap: '8px',
-      borderBottom: `1px solid ${theme.palette.divider}`,
+      padding: `${6 * scaling}px ${12 * scaling}px`,
+      gap: `${8 * scaling}px`,
+      borderBottom: `${1 * scaling}px solid ${theme.palette.divider}`,
       backgroundColor: isDarkMode ? 
         theme.palette.background.default : 
         theme.palette.action.hover,
@@ -148,22 +140,22 @@ const RepositoryItem: React.FC<{ job: JobDtoWithScore; parent: string }> = React
     branchBox: {
       display: 'flex',
       flexWrap: 'wrap',
-      gap: '4px',
-      padding: '2px',
+      gap: `${4 * scaling}px`,
+      padding: `${2 * scaling}px`,
       backgroundColor: theme.palette.background.default,
     },
     icon: {
-      fontSize: '1rem',
+      fontSize: `${1 * scaling}rem`,
       color: job.color || theme.palette.secondary.main,
       opacity: isDarkMode ? 0.9 : 0.7
     },
     text: {
-      fontSize: '0.85rem',
+      fontSize: `${0.85 * scaling}rem`,
       fontWeight: 500,
       opacity: isDarkMode ? 0.7 : 0.3,
       color: theme.palette.text.primary
     }
-  }), [theme, isDarkMode, job.color]);
+  }), [theme, isDarkMode, job.color, scaling]);
 
   const branchJobsExist = BranchJobData[job.name]?.jobs?.length > 0;
 

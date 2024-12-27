@@ -16,6 +16,7 @@ import { setFeatureCount } from '../../infrastructure/store/slices/File/FeatureC
 import { setSelectedItems } from '../../infrastructure/store/slices/File/SelectedSearchedItem-Slice';
 import { setDarkMode, setThemeVariant } from '../../infrastructure/store/slices/GeneralSettings/Theme-Slice';
 import { setFolderColor } from '../../infrastructure/store/slices/GeneralSettings/FolderColor-Slice';
+import { ThemeVariant } from '../../theme/theme';
 
 
     const SidebarComponent: React.FC<SidebarComponentProps> = ({ visible, onHide }) => {
@@ -34,8 +35,6 @@ import { setFolderColor } from '../../infrastructure/store/slices/GeneralSetting
         const savedProjects = Cookies.get('selectedProjects');
         return savedProjects ? JSON.parse(savedProjects) : [];
       });
-      const featureCount = useSelector((state: RootState) => state.getFeatureCount.count);
-      const selectedSearchedItems = useSelector((state: RootState) => state.getSearchedItems.selectedItems);
     
       useEffect(() => {
         const updateCookies = () => {
@@ -128,7 +127,7 @@ import { setFolderColor } from '../../infrastructure/store/slices/GeneralSetting
         document.body.classList.toggle('dark-mode', checked);
       };
     
-      const handleThemeVariantChange = (variant: 'classic' | 'default' | 'nature' | 'sunset' | 'ocean' | 'lavender') => {
+      const handleThemeVariantChange = (variant: ThemeVariant) => {
         dispatch(setThemeVariant(variant));
       };
     

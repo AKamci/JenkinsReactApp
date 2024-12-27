@@ -2,7 +2,6 @@ import axios from 'axios';
 import {createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import ApiState from "../../../Enums/ApiState";
 import ApiEndpoints from '../../../helpers/api-endpoints';
-import { BaseDto } from '../../../dtos/BaseDto';
 import { JobDto } from '../../../dtos/JobDto';
 
 
@@ -27,8 +26,6 @@ const initialState = {
 export const getAllJobForSearch = createAsyncThunk<JobDto, void, { state: JobForSearchState }>(
     'getAllJobForSearch',
     async (_, { rejectWithValue }) => {
-        console.log("Fetching all jobs");
-        
         try {
             const response = await axios.get<JobDto>(ApiEndpoints.Job.GetAll_Name_With_Repository, {
                 auth: {
@@ -40,13 +37,11 @@ export const getAllJobForSearch = createAsyncThunk<JobDto, void, { state: JobFor
                 },
                 withCredentials: true,
             });
-            console.log("Status:", response.status);
             return response.data;
         }catch (error: any) {
             const status = error.response ? error.response.status : 500; 
             const message = error.response?.data?.message || 
                             (status === 0 ? "CORS Error: Unable to reach server" : "An error occurred");
-            console.error("Error status:", status, "Message:", message);
             return rejectWithValue({ status, message });
         }
     }
@@ -56,13 +51,12 @@ const getAllJobForSearchSlice = createSlice({
     name: 'getJob',
     initialState,
     extraReducers: (builder) => {
-        builder.addCase(getAllJobForSearch.pending, (state, action) => {
+        builder.addCase(getAllJobForSearch.pending, (state) => {
             state.state = ApiState.Pending;
             state.responseStatus = null; 
             state.errorMessage = null;   
         });
         builder.addCase(getAllJobForSearch.fulfilled, (state, action) => {
-            console.log("Folder verisi Redux'a geldi:", action.payload);
             state.data = action.payload;
             state.state = ApiState.Fulfilled;
             state.responseStatus = 200;  

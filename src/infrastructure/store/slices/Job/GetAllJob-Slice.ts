@@ -26,8 +26,6 @@ const initialState = {
 export const getAllJob = createAsyncThunk<BaseDto, void, { state: BaseState }>(
     'getAllJob',
     async (_, { rejectWithValue }) => {
-        console.log("Fetching all jobs");
-        
         try {
             const response = await axios.get<BaseDto>(ApiEndpoints.Job.GetAll_Name, {
                 auth: {
@@ -39,13 +37,11 @@ export const getAllJob = createAsyncThunk<BaseDto, void, { state: BaseState }>(
                 },
                 withCredentials: true,
             });
-            console.log("Status:", response.status);
             return response.data;
         }catch (error: any) {
             const status = error.response ? error.response.status : 500; 
             const message = error.response?.data?.message || 
                             (status === 0 ? "CORS Error: Unable to reach server" : "An error occurred");
-            console.error("Error status:", status, "Message:", message);
             return rejectWithValue({ status, message });
         }
     }
@@ -55,13 +51,12 @@ const getAllJobSlice = createSlice({
     name: 'getJob',
     initialState,
     extraReducers: (builder) => {
-        builder.addCase(getAllJob.pending, (state, action) => {
+        builder.addCase(getAllJob.pending, (state) => {
             state.state = ApiState.Pending;
             state.responseStatus = null; 
             state.errorMessage = null;   
         });
         builder.addCase(getAllJob.fulfilled, (state, action) => {
-            console.log("Folder verisi Redux'a geldi:", action.payload);
             state.data = action.payload;
             state.state = ApiState.Fulfilled;
             state.responseStatus = 200;  

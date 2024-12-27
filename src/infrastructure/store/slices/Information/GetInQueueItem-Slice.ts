@@ -40,10 +40,8 @@ QueueDto,
                     },
                 }
             );
-            console.log("API Yanıtı:", response.data); 
             return response.data; 
         } catch (error: any) {
-            const status = error.response ? error.response.status : 500;
             const message = error.response?.data?.message || "Bir hata meydana geldi";
             return rejectWithValue(message);
         }
@@ -60,7 +58,6 @@ const GetQueueItemList = createSlice({
             state.errorMessage = null;   
         });
         builder.addCase(getQueueItems.fulfilled, (state, action) => {
-            console.log("Queue verisi Redux'a geldi:", action.payload);
             state.builds = action.payload;
             state.state = ApiState.Fulfilled;
             state.responseStatus = 200;  

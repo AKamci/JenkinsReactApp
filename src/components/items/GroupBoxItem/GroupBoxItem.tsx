@@ -38,7 +38,7 @@ const StyledCard = styled(Paper, {
   }
 }));
 
-const StyledIconButton = styled(IconButton)(({ theme }) => ({
+const StyledIconButton = styled(IconButton)(({ }) => ({
   padding: '4px',
   borderRadius: '6px',
   transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',

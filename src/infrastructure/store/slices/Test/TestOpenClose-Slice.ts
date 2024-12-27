@@ -16,7 +16,6 @@ const TestOpenCloseSlice = createSlice({
       state.isOpen = !state.isOpen;
     },
     setTestOpenClose(state, action: PayloadAction<boolean>) {
-      console.log(action.payload);
       state.isOpen = action.payload;
     }
   }

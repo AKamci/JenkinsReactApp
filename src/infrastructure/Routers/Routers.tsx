@@ -3,7 +3,6 @@ import HomePage from '../../components/pages/HomePage';
 import React from 'react';
 
 const Routers = () => {
-	console.log('Routers is rendered.');
 	return (
 		<BrowserRouter>
 			<Routes>

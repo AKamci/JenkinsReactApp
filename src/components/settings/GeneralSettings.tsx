@@ -15,20 +15,9 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
   isDarkMode, 
   themeVariant,
   onThemeChange,
-  onThemeVariantChange 
+  onThemeVariantChange
 }) => {
 
-  const getThemePreview = (variant: string) => {
-    const colors = {
-      classic: isDarkMode ? '#2196F3' : '#1976D2',
-      default: isDarkMode ? '#8B5CF6' : '#6366F1',
-      nature: isDarkMode ? '#10B981' : '#059669',
-      sunset: isDarkMode ? '#F59E0B' : '#EA580C',
-      ocean: isDarkMode ? '#06B6D4' : '#0284C7',
-      lavender: isDarkMode ? '#D946EF' : '#C026D3',
-    };
-    return colors[variant as keyof typeof colors];
-  };
 
   const themeOptions = isDarkMode ? [
     { value: 'modern', label: 'Modern' },

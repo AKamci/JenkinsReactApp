@@ -24,9 +24,6 @@ const initialState = {
 export const GetJob = createAsyncThunk<JobDto, { jobName: string }, { state: JobState }>(
     'getJob',
     async ({ jobName }, { rejectWithValue }) => {
-        console.log("jobName : ")
-        console.log(jobName)
-        
         try {
             const response = await axios.get<JobDto>(ApiEndpoints.Job.GetRepository_Name_Url(jobName), {
                 auth: {
@@ -37,13 +34,10 @@ export const GetJob = createAsyncThunk<JobDto, { jobName: string }, { state: Job
                     'Content-Type': 'application/json',
                 },
             });
-            console.log("Status:", response.status);
             return response.data;
         } catch (error: any) {
-            
             const status = error.response ? error.response.status : 500; 
             const message = error.response?.data?.message || "An error occurred";
-            console.error("Error status:", status, "Message:", message);
             return rejectWithValue({ status, message });
         }
     }
@@ -53,13 +47,12 @@ const GetJobSlice = createSlice({
     name: 'getJob',
     initialState,
     extraReducers: (builder) => {
-        builder.addCase(GetJob.pending, (state, action) => {
+        builder.addCase(GetJob.pending, (state) => {
             state.state = ApiState.Pending;
             state.responseStatus = null; 
             state.errorMessage = null;   
         });
         builder.addCase(GetJob.fulfilled, (state, action) => {
-            console.log("Müşteri verisi Redux'a geldi:", action.payload);
             state.data = action.payload;
             state.state = ApiState.Fulfilled;
             state.responseStatus = 200;  

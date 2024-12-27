@@ -36,10 +36,6 @@ export const handleCheckbox = (
       ...prevState,
       [job.name]: isChecked,
     };
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`Checkbox değişti: ${job.name} - ${isChecked ? 'Seçildi' : 'Seçilmedi'}`);
-      console.log('Güncellenmiş kontrol durumu:', newState);
-    }
     setTimeout(updateStateAndCookies, 0);
 
     return newState;

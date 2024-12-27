@@ -14,7 +14,6 @@ interface HomePageLeftNavProps {
 const HomePageLeftNav: React.FC<HomePageLeftNavProps> = React.memo(({ checkedJobs, setCheckedJobs }) => {
     const dispatch = useAppDispatch();
     const allJobWithName = useAppSelector((state) => state.getAllJob.data);
-    const isDarkMode = useAppSelector((state) => state.generalTheme.isDarkMode);
     
     const folderNames = useMemo(() => {
         return import.meta.env.VITE_FOLDER_NAME?.split(',')

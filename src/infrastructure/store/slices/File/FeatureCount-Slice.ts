@@ -13,19 +13,15 @@ const featureCountSlice = createSlice({
   initialState,
   reducers: {
     setFeatureCount(state, action: PayloadAction<number>) {
-      console.log(action.payload, "action.payload")
       state.count = action.payload;
     },
     incrementCount(state) {
-        console.log("incrementCount")
       state.count += 1;
     },
     decrementCount(state) {
-      console.log("decrementCount")
       state.count -= 1;
     },
     resetCount(state) {
-      console.log("resetCount")
       state.count = 3;
     }
   }

@@ -18,17 +18,6 @@ const startedBuildNotificationSlice = createSlice({
         job.url === action.payload.url && 
         job.name === action.payload.name
       );
-      console.log('Adding job check:', {
-        exists: jobExists,
-        newJob: {
-          name: action.payload.name,
-          url: action.payload.url
-        },
-        currentJobs: state.buildingJobs.map(j => ({
-          name: j.name,
-          url: j.url
-        }))
-      });
       if (!jobExists) {
         state.buildingJobs.push(action.payload);
       }

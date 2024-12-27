@@ -5,7 +5,7 @@ import ApiEndpoints from '../../../helpers/api-endpoints';
 import { JobDto } from '../../../dtos/JobDto';
 
 
-export interface BaseState {
+export interface JobState {
     data: JobDto[];
     state: ApiState;
     activeRequest: number | null;
@@ -19,11 +19,11 @@ const initialState = {
     data: [] as JobDto[], 
     responseStatus: null, 
     errorMessage: null    
-} as BaseState;
+} as JobState;
 
 
 
-export const getAllBuildingJobs = createAsyncThunk<JobDto[], void, { state: BaseState }>(
+export const getAllBuildingJobs = createAsyncThunk<JobDto[], void, { state: JobState }>(
     'getAllBuildingJobs',
     async (_, { rejectWithValue }) => {
         try {
@@ -34,7 +34,12 @@ export const getAllBuildingJobs = createAsyncThunk<JobDto[], void, { state: Base
                 },
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 },
+                transformResponse: [(data) => {
+                    const parsedData = JSON.parse(data);
+                    return parsedData;
+                }],
                 withCredentials: true,
             });
             return response.data;

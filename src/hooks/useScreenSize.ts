@@ -28,12 +28,6 @@ export const SCREEN_BREAKPOINTS = {
 const getScreenType = (width: number, pixelDensity: number): ScreenType => {
   const physicalWidth = width / (96 * pixelDensity);
 
-  console.log('Ekran Detayları:', {
-    pikselGenişliği: width,
-    pikselYoğunluğu: pixelDensity,
-    fizikselGenişlik: `${physicalWidth.toFixed(2)} inç`,
-  });
-
   if (width >= SCREEN_BREAKPOINTS['4k']) return '4k';
   if (width >= SCREEN_BREAKPOINTS.tv || physicalWidth >= 40) return 'tv';
   if (width >= SCREEN_BREAKPOINTS.desktop) return 'desktop';
@@ -43,12 +37,6 @@ const getScreenType = (width: number, pixelDensity: number): ScreenType => {
 
 const getScaling = (type: ScreenType): number => {
   const scaling = SCREEN_SCALES[type];
-
-  console.log('Ölçekleme Detayları:', {
-    ekranTipi: type,
-    ölçeklemeFaktörü: scaling
-  });
-
   return scaling;
 };
 
@@ -56,14 +44,6 @@ export const useScreenSize = (): ScreenSize => {
   const [screenSize, setScreenSize] = useState<ScreenSize>(() => {
     const type = getScreenType(window.innerWidth, window.devicePixelRatio);
     const scaling = getScaling(type);
-
-    console.log('Başlangıç Ekran Boyutları:', {
-      genişlik: window.innerWidth,
-      yükseklik: window.innerHeight,
-      ekranTipi: type,
-      ölçekleme: scaling,
-      pikselYoğunluğu: window.devicePixelRatio
-    });
 
     return {
       width: window.innerWidth,
@@ -81,14 +61,6 @@ export const useScreenSize = (): ScreenSize => {
       debounceTimer = setTimeout(() => {
         const type = getScreenType(window.innerWidth, window.devicePixelRatio);
         const scaling = getScaling(type);
-
-        console.log('Ekran Boyutu Değişti:', {
-          genişlik: window.innerWidth,
-          yükseklik: window.innerHeight,
-          ekranTipi: type,
-          ölçekleme: scaling,
-          pikselYoğunluğu: window.devicePixelRatio
-        });
 
         setScreenSize({
           width: window.innerWidth,

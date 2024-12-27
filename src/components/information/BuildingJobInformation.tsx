@@ -5,6 +5,9 @@ import { Accordion, AccordionSummary, AccordionDetails, Typography, Box, List, L
 import ConstructionIcon from '@mui/icons-material/Construction';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { JobDto } from '../../infrastructure/dtos/JobDto';
+import PersonIcon from '@mui/icons-material/Person';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import { ActionDto } from '../../infrastructure/dtos/ActionDto';
 
 const BuildingJobInformation = () => {
     const buildingJobs = useAppSelector(state => state.getAllBuildingJobs.data);
@@ -116,7 +119,22 @@ const BuildingJobInformation = () => {
                                             </Box>
                                         }
                                         secondary={
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 0.5 }}>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                    <PersonIcon sx={{ fontSize: '0.9rem', color: 'text.secondary' }} />
+                                                    <Box component="span" sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
+                                                        {(() => {
+                                                            const causeAction = job.lastBuild?.actions?.find((action: ActionDto) => action._class === "hudson.model.CauseAction");
+                                                            return causeAction?.causes?.[0]?.shortDescription || 'Bilinmiyor';
+                                                        })()}
+                                                    </Box>
+                                                </Box>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                    <AccessTimeIcon sx={{ fontSize: '0.9rem', color: 'text.secondary' }} />
+                                                    <Box component="span" sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
+                                                        {new Date(job.lastBuild?.timestamp).toLocaleTimeString('tr-TR')}
+                                                    </Box>
+                                                </Box>
                                             </Box>
                                         }
                                     />

@@ -1,6 +1,7 @@
-export interface CausesDto{
-    _class:string;
-    shortDescription:string;
-    userId:string;
-    userName:string;
+export interface CausesDto {
+    _class?: string;
+    shortDescription: string;
+    userId?: string;
+    userName?: string;
+    [key: string]: any;
 }

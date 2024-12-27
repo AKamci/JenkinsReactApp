@@ -4,6 +4,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useAppSelector } from '../../infrastructure/store/store';
 import { alpha } from '@mui/material/styles';
+import PersonIcon from '@mui/icons-material/Person';
 
 interface QueueInformationProps {
   onItemClick: (url: string) => void;
@@ -57,25 +58,32 @@ const QueueInformation: React.FC<QueueInformationProps> = ({ onItemClick }) => {
         </Typography>
       </AccordionSummary>
       <AccordionDetails sx={{ padding: 0, mt: 2 }}>
-        <Box sx={{ backgroundColor: alpha('#1a73e8', 0.04), borderRadius: 2, p: 2 }}>
+        <Box sx={{ 
+          backgroundColor: alpha('#1a73e8', 0.04), 
+          borderRadius: 2, 
+          p: 2,
+          border: theme => `1px solid ${theme.palette.divider}`
+        }}>
           <List sx={{ pt: 0 }}>
             {filteredQueueItems?.map((item, index) => (
               <Tooltip
                 key={index}
                 title={
                   <Box sx={{ p: 1.5, maxWidth: 300 }}>
-                    <Typography variant="body2" sx={{ color: '#fff', mb: 1, fontWeight: 500 }}>
+                    <Box component="div" sx={{ color: '#fff', mb: 1, fontWeight: 500, fontSize: '0.875rem' }}>
                       İş Detayları
-                    </Typography>
-                    <Typography variant="caption" sx={{ display: 'block', color: '#fff', mb: 0.5 }}>
-                      Bloklandı: {item.blocked ? 'Evet' : 'Hayır'}
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#fff' }}>
-                      Sebep: {item.why}
-                    </Typography>
-                    <Typography variant="caption" sx={{ display: 'block', color: '#fff', mb: 0.5 }}>
-                      Kuyruk Zamanı: {new Date(item.inQueueSince).toLocaleString()}
-                    </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                      <Box component="span" sx={{ color: '#fff', fontSize: '0.75rem' }}>
+                        Bloklandı: {item.blocked ? 'Evet' : 'Hayır'}
+                      </Box>
+                      <Box component="span" sx={{ color: '#fff', fontSize: '0.75rem' }}>
+                        Sebep: {item.why}
+                      </Box>
+                      <Box component="span" sx={{ color: '#fff', fontSize: '0.75rem' }}>
+                        Kuyruk Zamanı: {new Date(item?.inQueueSince).toLocaleString()}
+                      </Box>
+                    </Box>
                   </Box>
                 }
                 arrow
@@ -84,36 +92,51 @@ const QueueInformation: React.FC<QueueInformationProps> = ({ onItemClick }) => {
                 <ListItemButton
                   onClick={() => onItemClick(item.task.url)}
                   sx={{
-                    borderRadius: 1.5,
                     mb: 1,
-                    py: 1,
-                    backgroundColor: '#fff',
-                    boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-                    border: '1px solid rgba(0,0,0,0.08)',
-                    transition: 'all 0.2s ease',
-                    cursor: 'pointer',
+                    borderRadius: 1,
+                    bgcolor: theme => theme.palette.mode === 'dark'
+                        ? alpha(theme.palette.primary.main, 0.15)
+                        : 'rgba(25, 118, 210, 0.08)',
                     '&:hover': {
-                      backgroundColor: '#f8f9fa',
-                      boxShadow: '0 4px 8px rgba(0,0,0,0.08)',
+                        bgcolor: theme => theme.palette.mode === 'dark'
+                            ? alpha(theme.palette.primary.main, 0.25)
+                            : 'rgba(25, 118, 210, 0.12)',
+                        transform: 'translateY(-1px)',
+                        boxShadow: '0 4px 8px rgba(0,0,0,0.08)',
                     }
                   }}
                 >
                   <ListItemText
                     primary={
-                      <Typography variant="body1" sx={{ fontWeight: 600, color: '#2c3e50' }}>
-                        {getFormattedTaskName(item.task.url)}
-                      </Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Typography
+                          sx={{
+                            fontWeight: 'medium',
+                            color: 'primary.main',
+                            fontSize: '0.95rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1
+                          }}
+                        >
+                          {getFormattedTaskName(item.task.url)}
+                        </Typography>
+                      </Box>
                     }
                     secondary={
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                        <Badge
-                          variant="dot"
-                          color="primary"
-                          sx={{ '& .MuiBadge-dot': { backgroundColor: '#4caf50' } }}
-                        />
-                        <Typography variant="caption" sx={{ color: '#666' }}>
-                          #{item.actions[0].causes[0].shortDescription}
-                        </Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 0.5 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <PersonIcon sx={{ fontSize: '0.9rem', color: 'text.secondary' }} />
+                          <Box component="span" sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
+                            {item.actions?.[0]?.causes?.[0]?.shortDescription || 'Bilinmiyor'}
+                          </Box>
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <AccessTimeIcon sx={{ fontSize: '0.9rem', color: 'text.secondary' }} />
+                          <Box component="span" sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
+                            {new Date(item?.inQueueSince).toLocaleTimeString('tr-TR')}
+                          </Box>
+                        </Box>
                       </Box>
                     }
                   />

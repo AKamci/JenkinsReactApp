@@ -7,6 +7,7 @@ import { getAllJobForSearch } from '../../infrastructure/store/slices/Job/GetAll
 import FolderIcon from '@mui/icons-material/Folder';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import { addSelectedItem, removeSelectedItem } from '../../infrastructure/store/slices/File/SelectedSearchedItem-Slice';
+import { executeSearchCommand } from '../../infrastructure/commands/SearchCommands';
 
 const SearchWrapper = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -142,10 +143,13 @@ const Search: React.FC<SearchProps> = ({ placeholder = "Projelerde ara...", onCh
   }, [dispatch]);
 
   const handleSearchChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);
-    setAnchorEl(event.currentTarget);
-    setIsPopperOpen(true);
-    if (onChange) onChange(event);
+    const searchValue = event.target.value;
+    setSearchTerm(searchValue);
+        if (!executeSearchCommand(searchValue)) {
+        setAnchorEl(event.currentTarget);
+        setIsPopperOpen(true);
+        if (onChange) onChange(event);
+    }
   }, [onChange]);
 
   const handleSearchClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {

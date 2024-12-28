@@ -4,7 +4,7 @@ import { Typography, Box, Paper, IconButton, Popover } from '@mui/material';
 import RepositoryItem from '../RepositoryItem';
 import { useDispatch } from 'react-redux';
 import { removeSelectedProject } from '../../../infrastructure/store/slices/File/Projects-Slice';
-import { AppDispatch, useAppSelector } from '../../../infrastructure/store/store';
+import { AppDispatch, RootState, useAppSelector } from '../../../infrastructure/store/store';
 import { GetRepositoryJob } from '../../../infrastructure/store/slices/Job/GetRepositoryJob-Slice';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
@@ -13,6 +13,7 @@ import GroupCardProps from '../../../infrastructure/props/GroupCardProps';
 import { ColorPicker, ColorButton, colors } from './ColorPicker';
 import { baseUrl } from '../../../infrastructure/helpers/api-endpoints';
 import { setFolderColor } from '../../../infrastructure/store/slices/GeneralSettings/FolderColor-Slice';
+import { getScoreForColor } from '../../../infrastructure/commands/SearchCommands';
 
 const StyledCard = styled(Paper, {
   shouldForwardProp: (prop) => prop !== 'isDarkMode' && prop !== 'borderColor'
@@ -66,10 +67,11 @@ const GroupTitle = styled(Typography, {
 
 const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const folderColor = useAppSelector((state) => state.folderColor.color);
+  const folderColor = useAppSelector((state: RootState) => state.folderColor.color);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [repositoryScores, setRepositoryScores] = useState<{ [key: string]: number }>({});
-  const isDarkMode = useAppSelector((state) => state.generalTheme.isDarkMode);
+  const isDarkMode = useAppSelector((state: RootState) => state.generalTheme.isDarkMode);
+  const selectedColors = useAppSelector((state: RootState) => state.colorFilter.selectedColors);
  
   const getRepositoryJobData = useAppSelector(
     (state) => state.getRepositoryJob[groupName]?.jobs
@@ -99,12 +101,21 @@ const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
   const getSortedRepositories = useMemo(() => {
     if (!getRepositoryJobData?.jobs) return [];
     
-    return [...getRepositoryJobData.jobs].sort((a, b) => {
+    let filteredJobs = [...getRepositoryJobData.jobs];
+    
+    if (selectedColors.length > 0) {
+      filteredJobs = filteredJobs.filter(job => {
+        const score = repositoryScores[job.name] || 0;
+        return selectedColors.some(color => getScoreForColor(color, score));
+      });
+    }
+    
+    return filteredJobs.sort((a, b) => {
       const scoreA = repositoryScores[a.name] || 0;
       const scoreB = repositoryScores[b.name] || 0;
       return scoreB - scoreA;
     });
-  }, [getRepositoryJobData?.jobs, repositoryScores]);
+  }, [getRepositoryJobData?.jobs, repositoryScores, selectedColors]);
 
   useEffect(() => {
     const fetchJobData = () => {

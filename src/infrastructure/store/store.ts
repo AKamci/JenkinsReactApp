@@ -23,6 +23,7 @@ import TestOpenClose from './slices/Test/TestOpenClose-Slice';
 import GetGlobalSystemMessage from './slices/Notification/GlobalSystemMessage-Slice';
 import themeReducer from "./slices/GeneralSettings/Theme-Slice";
 import folderColorReducer from './slices/GeneralSettings/FolderColor-Slice';
+import colorFilterReducer from './slices/Search/ShowRedOnly-Slice';
 
 const store = configureStore({
 	reducer: {
@@ -46,7 +47,8 @@ const store = configureStore({
 		getTestOpenClose: TestOpenClose,
 		getGlobalSystemMessage: GetGlobalSystemMessage,
 		theme: themeReducer,
-		folderColor: folderColorReducer
+		folderColor: folderColorReducer,
+		colorFilter: colorFilterReducer
 	},
 	middleware: (getDefaultMiddleware) => getDefaultMiddleware({
 		serializableCheck: false,

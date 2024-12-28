@@ -130,7 +130,7 @@ const RepositoryItem: React.FC<{ job: JobDtoWithScore; parent: string }> = React
       display: 'flex',
       alignItems: 'center',
       color: theme.palette.text.secondary,
-      padding: `${6 * scaling}px ${12 * scaling}px`,
+      padding: `${1 * scaling}px ${12 * scaling}px`,
       gap: `${8 * scaling}px`,
       borderBottom: `${1 * scaling}px solid ${theme.palette.divider}`,
       backgroundColor: isDarkMode ? 

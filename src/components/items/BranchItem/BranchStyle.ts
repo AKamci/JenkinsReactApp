@@ -22,14 +22,14 @@ export const rotate = keyframes`
 `;
 
 export const StyledCard = styled(Card, {
-  shouldForwardProp: (prop) => prop !== 'isDarkMode'
-})<{isDarkMode?: boolean}>(({ theme, isDarkMode }) => ({
-  margin: '1px 0',
+  shouldForwardProp: (prop) => prop !== 'isDarkMode' && prop !== 'scaling'
+})<{isDarkMode?: boolean, scaling: number}>(({ theme, isDarkMode, scaling = 1 }) => ({
+  margin: `${1 * scaling}px 0`,
   position: 'relative',
   cursor: 'pointer', 
   overflow: 'hidden',
   background: theme.palette.background.default,
-  backdropFilter: 'blur(2px)',
+  backdropFilter: `blur(${2 * scaling}px)`,
   transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
 
   '&:before': {
@@ -38,7 +38,7 @@ export const StyledCard = styled(Card, {
     top: 0,
     left: 0,
     right: 0,
-    height: '1.5px',
+    height: `${1.5 * scaling}px`,
     background: `linear-gradient(90deg, 
       ${theme.palette.background.default} 0%, 
       ${theme.palette.background.paper} 50%, 
@@ -57,9 +57,11 @@ export const StyledCard = styled(Card, {
   }
 }));
 
-export const StyledCardContent = styled(CardContent)({
-  padding: '4px 10px !important',
+export const StyledCardContent = styled(CardContent, {
+  shouldForwardProp: (prop) => prop !== 'scaling'
+})<{scaling: number}>(({ scaling = 1 }) => ({
+  padding: `${4 * scaling}px ${10 * scaling}px !important`,
   '&:last-child': {
-    paddingBottom: '4px !important'
+    paddingBottom: `${4 * scaling}px !important`
   }
-});
+}));

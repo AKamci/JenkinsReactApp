@@ -188,9 +188,10 @@ const BranchItem: React.FC<{ job: JobDto }> = React.memo(({ job }) => {
       <StyledCard
         {...styles.card}
         isDarkMode={isDarkMode}
+        scaling={scaling}
         onClick={handleClick}
       >
-        <StyledCardContent sx={styles.cardContent}>
+        <StyledCardContent sx={styles.cardContent} scaling={scaling}>
           {iconElement}
         </StyledCardContent>
       </StyledCard>

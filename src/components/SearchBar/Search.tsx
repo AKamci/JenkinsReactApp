@@ -304,5 +304,5 @@ const Search: React.FC<SearchProps> = ({ placeholder = "Projelerde ara...", onCh
     </ClickAwayListener>
   );
 };
-
 export default Search;
+

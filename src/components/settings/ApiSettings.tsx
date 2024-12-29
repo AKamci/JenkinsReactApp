@@ -44,11 +44,11 @@ const ApiSettings: React.FC<{
               </Typography>
               <Chip
                 size="small"
-                icon={selectedSettings.includes('score') ? <Check fontSize="small" /> : undefined}
-                label={selectedSettings.includes('score') ? 'Aktif' : 'Pasif'}
-                onClick={() => handleSettingChange('score', !selectedSettings.includes('score'))}
-                color={selectedSettings.includes('score') ? 'primary' : 'default'}
-                variant={selectedSettings.includes('score') ? 'filled' : 'outlined'}
+                icon={selectedSettings.includes('healthReport') ? <Check fontSize="small" /> : undefined}
+                label={selectedSettings.includes('healthReport') ? 'Aktif' : 'Pasif'}
+                onClick={() => handleSettingChange('healthReport', !selectedSettings.includes('score'))}
+                color={selectedSettings.includes('healthReport') ? 'primary' : 'default'}
+                variant={selectedSettings.includes('healthReport') ? 'filled' : 'outlined'}
                 sx={{ cursor: 'pointer' }}
               />
             </Box>

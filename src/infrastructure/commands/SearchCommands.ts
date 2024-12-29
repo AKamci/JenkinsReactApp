@@ -1,5 +1,5 @@
 import store from '../store/store';
-import { setSelectedColors } from '../store/slices/Search/ShowRedOnly-Slice';
+import { setSelectedColors } from '../store/slices/Search/JobQuery-Slice';
 
 interface ColorConfig {
     name: string;

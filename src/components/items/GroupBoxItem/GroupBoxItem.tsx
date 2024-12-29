@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { styled } from '@mui/material/styles';
-import { Typography, Box, Paper, IconButton, Popover } from '@mui/material';
+import { Typography, Box, Paper, IconButton, Popover, Grid } from '@mui/material';
 import RepositoryItem from '../RepositoryItem';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { removeSelectedProject } from '../../../infrastructure/store/slices/File/Projects-Slice';
 import { AppDispatch, RootState, useAppSelector } from '../../../infrastructure/store/store';
 import { GetRepositoryJob } from '../../../infrastructure/store/slices/Job/GetRepositoryJob-Slice';
@@ -18,7 +18,6 @@ import { getScoreForColor } from '../../../infrastructure/commands/SearchCommand
 const StyledCard = styled(Paper, {
   shouldForwardProp: (prop) => prop !== 'isDarkMode' && prop !== 'borderColor'
 })<{ borderColor?: string; isDarkMode?: boolean }>(({ theme, borderColor, isDarkMode }) => ({
-  margin: '8px',
   padding: '12px',
   borderRadius: '12px',
   background: isDarkMode 
@@ -29,8 +28,7 @@ const StyledCard = styled(Paper, {
     : '0 8px 32px rgba(0, 0, 0, 0.08)',
   backdropFilter: 'blur(8px)',
   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-  maxWidth: '840px',
-  minWidth: '320px',
+  width: '100%',
   border: `1px solid ${borderColor || (isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)')}`,
   '&:hover': {
     boxShadow: isDarkMode 
@@ -72,6 +70,7 @@ const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
   const [repositoryScores, setRepositoryScores] = useState<{ [key: string]: number }>({});
   const isDarkMode = useAppSelector((state: RootState) => state.generalTheme.isDarkMode);
   const selectedColors = useAppSelector((state: RootState) => state.colorFilter.selectedColors);
+  const { itemsPerRow, spacing } = useSelector((state: RootState) => state.gridLayout);
  
   const getRepositoryJobData = useAppSelector(
     (state) => state.getRepositoryJob[groupName]?.jobs
@@ -236,16 +235,29 @@ const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
         flexDirection: 'column',
         gap: 1
       }}>
-        {getSortedRepositories.map((job) => (
-          <RepositoryItem 
-            key={job.name} 
-            job={{
-              ...job,
-              onScoreChange: (score) => handleScoreChange(job.name, score)
-            }} 
-            parent={groupName} 
-          />
-        ))}
+        {getSortedRepositories.length > 0 ? (
+          getSortedRepositories.map((job) => (
+            <RepositoryItem 
+              key={job.name} 
+              job={{
+                ...job,
+                onScoreChange: (score) => handleScoreChange(job.name, score)
+              }} 
+              parent={groupName} 
+            />
+          ))
+        ) : selectedColors.length > 0 ? (
+          <Box sx={{ 
+            p: 3, 
+            textAlign: 'center',
+            color: theme => theme.palette.text.secondary,
+            fontSize: '0.9rem',
+            fontStyle: 'italic',
+            opacity: 0.8
+          }}>
+            Seçilen filtrelerle eşleşen bir sonuç bulunamadı
+          </Box>
+        ) : null}
       </Box>
     </StyledCard>
   );

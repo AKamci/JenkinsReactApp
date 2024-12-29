@@ -1,7 +1,7 @@
 import { useAppDispatch, useAppSelector } from '../../../../infrastructure/store/store';
 import GroupBoxItem from '../../../items/GroupBoxItem/GroupBoxItem';
 import { JobDto } from '../../../../infrastructure/dtos/JobDto';
-import Grid from '@mui/material/Grid2';
+import { Box } from '@mui/material';
 import SearchedItemBox from '../../../SearchBar/SearchedItemBox';
 import { getLastBuildsForInformation } from '../../../../infrastructure/store/slices/Information/GetLastBuildsForInformation-Slice';
 import { getQueueItems } from '../../../../infrastructure/store/slices/Information/GetInQueueItem-Slice';
@@ -10,6 +10,7 @@ import { useEffect, useCallback, useMemo } from 'react';
 const HomePageMain = () => {
     const dispatch = useAppDispatch();
     const selectedProjects: JobDto[] = useAppSelector((state) => state.getProjectName.selectedProjects);
+    const { itemsPerRow, spacing } = useAppSelector((state) => state.gridLayout);
 
     const fetchData = useCallback(() => {
         dispatch(getQueueItems());
@@ -24,18 +25,34 @@ const HomePageMain = () => {
 
     const gridItems = useMemo(() => {
         return selectedProjects.map((job) => (
-            <Grid size={{ xs: 12, sm: 6, md: 3, lg: 3 }} key={job.name}>
-                <GroupBoxItem groupName={job.name}/>
-            </Grid>
+            <Box 
+                key={job.name}
+                sx={{
+                    width: `${100 / Math.min(itemsPerRow, 6)}%`,
+                    padding: spacing / 2,
+                    display: 'inline-block',
+                    verticalAlign: 'top'
+                }}
+            >
+                <GroupBoxItem groupName={job.name} />
+            </Box>
         ));
-    }, [selectedProjects]);
+    }, [selectedProjects, itemsPerRow, spacing]);
 
     return (
         <>
             <SearchedItemBox />
-            <Grid container spacing={0} justifyContent="flex-start" sx={{}}>
+            <Box 
+                sx={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    margin: 0,
+                    width: '100%',
+                    padding: 1
+                }}
+            >
                 {gridItems}
-            </Grid>
+            </Box>
         </>
     );
 };

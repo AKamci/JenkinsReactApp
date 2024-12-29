@@ -37,7 +37,7 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
   ];
 
   return (
-    <StyledAccordion defaultExpanded>
+    <StyledAccordion defaultExpanded={false}>
       <AccordionSummary 
         expandIcon={<ExpandMore sx={{ fontSize: 20 }} />}
         sx={{ '&.Mui-expanded': { backgroundColor: 'transparent' } }}

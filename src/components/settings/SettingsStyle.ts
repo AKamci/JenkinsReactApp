@@ -17,7 +17,7 @@ const StyledDrawer = styled(Drawer)(({ theme }) => ({
   }));
   
   const StyledAccordion = styled(Accordion)(({ theme }) => ({
-    background: 'transparent',
+    background: theme.palette.background.default,
     boxShadow: 'none',
     borderRadius: theme.spacing(1),
     border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
@@ -43,6 +43,7 @@ const StyledDrawer = styled(Drawer)(({ theme }) => ({
     },
     '& .MuiAccordionDetails-root': {
       padding: theme.spacing(1),
+      backgroundColor: theme.palette.background.default
     }
   }));
   
@@ -67,7 +68,7 @@ const StyledDrawer = styled(Drawer)(({ theme }) => ({
     borderRadius: theme.spacing(1),
     transition: 'all 0.2s ease',
     border: `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: theme.palette.background.default,
     '&:hover': {
       boxShadow: `0 2px 8px ${alpha(theme.palette.primary.main, 0.08)}`,
     }

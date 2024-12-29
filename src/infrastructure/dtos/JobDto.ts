@@ -1,4 +1,5 @@
 import { BuildInfo } from "./BuildInfoDto";
+import { HealthReportDto } from "./HealthReportDto";
 
 export interface JobDto {
     _class: string;
@@ -9,4 +10,5 @@ export interface JobDto {
     lastBuild?: BuildInfo;
     onScoreChange?: (score: number) => void;
     isVisible?: boolean;
+    healthReport?: HealthReportDto;
 }

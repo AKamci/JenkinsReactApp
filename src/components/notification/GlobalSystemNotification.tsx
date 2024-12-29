@@ -176,6 +176,5 @@ const GlobalSystemNotification: React.FC = () => {
             </Collapse>
         </Box>
     );
-};
+};export default GlobalSystemNotification;
 
-export default GlobalSystemNotification;

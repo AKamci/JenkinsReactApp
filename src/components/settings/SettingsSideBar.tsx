@@ -1,12 +1,15 @@
 import GeneralSettings from './GeneralSettings';
 import ApiSettings from './ApiSettings';
 import BranchSettings from './BranchSettings';
+import GridLayoutSettings from './GridLayoutSettings';
+import ScreenScaleSettings from './ScreenScaleSettings';
 import SidebarComponentProps from '../../infrastructure/props/SidebarComponentProps';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../infrastructure/store/store';
 import { useState, useEffect } from 'react';
 import { removeApiSettings, addApiSettings } from '../../infrastructure/store/slices/File/ApiSettings-Slice';
 import { removeBranchList, addBranchList } from '../../infrastructure/store/slices/File/SelectedBranchList-Slice';
+import { setItemsPerRow, setSpacing } from '../../infrastructure/store/slices/Settings/GridLayout-Slice';
 import Header from './SettingsHeader';
 import { StyledDrawer } from './SettingsStyle';
 import Cookies from 'js-cookie';
@@ -23,6 +26,7 @@ import { ThemeVariant } from '../../theme/theme';
       const dispatch = useDispatch();
       const themeState = useSelector((state: RootState) => state.theme);
       const folderColor = useSelector((state: RootState) => state.folderColor.color);
+      const gridLayout = useSelector((state: RootState) => state.gridLayout);
       const [selectedSettings, setSelectedSettings] = useState<string[]>(() => {
         const savedSettings = Cookies.get('selectedSettings');
         return savedSettings ? JSON.parse(savedSettings) : [];
@@ -44,10 +48,11 @@ import { ThemeVariant } from '../../theme/theme';
           Cookies.set('darkMode', String(themeState.isDarkMode), { expires: 30 });
           Cookies.set('themeVariant', themeState.themeVariant, { expires: 30 });
           Cookies.set('folderColor', folderColor, { expires: 30 });
+          Cookies.set('gridLayout', JSON.stringify(gridLayout), { expires: 30 });
           document.body.classList.toggle('dark-mode', themeState.isDarkMode);
         };
         updateCookies();
-      }, [selectedSettings, selectedBranches, selectedProjects, themeState, folderColor]);
+      }, [selectedSettings, selectedBranches, selectedProjects, themeState, folderColor, gridLayout]);
     
       useEffect(() => {
         const updateDispatch = () => {
@@ -70,6 +75,7 @@ import { ThemeVariant } from '../../theme/theme';
           const savedMode = Cookies.get('darkMode');
           const savedVariant = Cookies.get('themeVariant');
           const savedFolderColor = Cookies.get('folderColor');
+          const savedGridLayout = Cookies.get('gridLayout');
 
           if (savedProjects) {
             const projects = JSON.parse(savedProjects);
@@ -99,10 +105,32 @@ import { ThemeVariant } from '../../theme/theme';
           if (savedFolderColor) {
             dispatch(setFolderColor(savedFolderColor));
           }
+
+          // Grid Layout varsayılan değerleri
+          const defaultGridLayout = {
+            itemsPerRow: 3,
+            spacing: 2
+          };
+
+          if (savedGridLayout) {
+            try {
+              const gridLayoutSettings = JSON.parse(savedGridLayout);
+              dispatch(setItemsPerRow(gridLayoutSettings.itemsPerRow || defaultGridLayout.itemsPerRow));
+              dispatch(setSpacing(gridLayoutSettings.spacing || defaultGridLayout.spacing));
+            } catch (error) {
+              console.error('Grid layout ayarları yüklenirken hata oluştu:', error);
+              dispatch(setItemsPerRow(defaultGridLayout.itemsPerRow));
+              dispatch(setSpacing(defaultGridLayout.spacing));
+            }
+          } else {
+            // Cookie yoksa varsayılan değerleri kullan
+            dispatch(setItemsPerRow(defaultGridLayout.itemsPerRow));
+            dispatch(setSpacing(defaultGridLayout.spacing));
+          }
         };
 
         initializeState();
-      }, []);
+      }, [dispatch]);
     
       const handleSettingChange = (settingKey: string, checked: boolean) => {
         const newSelectedSettings = checked
@@ -134,6 +162,8 @@ import { ThemeVariant } from '../../theme/theme';
       return (
         <StyledDrawer anchor="right" open={visible} onClose={onHide}>
           <Header onHide={onHide} />
+          <GridLayoutSettings />
+          <ScreenScaleSettings />
           <GeneralSettings 
             isDarkMode={themeState.isDarkMode} 
             themeVariant={themeState.themeVariant}

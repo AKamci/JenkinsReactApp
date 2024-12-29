@@ -2,7 +2,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { useKeyboardShortcut } from '../../shortcuts/useKeyboardShortcut';
 import { HomePageLayout } from './PagesLayout/HomePageLayout';
 import BirthDayAnimation from '../animation/BirthDayAnimation';
-import GlobalSystemNotification from '../notifications/GlobalSystemNotification';
+import GlobalSystemNotification from '../notification/GlobalSystemNotification';
 
 const HomePage: React.FC = () => {
     const [layout, setLayout] = useState({

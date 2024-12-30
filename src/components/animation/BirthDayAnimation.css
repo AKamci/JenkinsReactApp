@@ -1,6 +1,6 @@
 @keyframes scaleIn {
   from {
-    transform: scale(0);
+    transform: scale(0.8);
     opacity: 0;
   }
   to {
@@ -14,7 +14,7 @@
     transform: scale(1);
   }
   50% {
-    transform: scale(1.2);
+    transform: scale(1.1);
   }
 }
 
@@ -29,17 +29,19 @@
   align-items: center;
   z-index: 1000;
   background: rgba(0, 0, 0, 0.5);
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .birthday-animation {
   position: relative;
   text-align: center;
-  animation: float 3s ease-in-out infinite;
+  animation: float 3s ease-in-out;
   background: rgba(255, 255, 255, 0.9);
   padding: 2rem;
   padding-top: 3rem;
   border-radius: 20px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(5px);
   display: flex;
   flex-wrap: wrap;
@@ -48,7 +50,8 @@
   max-width: 90vw;
   pointer-events: auto;
   transform-origin: center center;
-  transition: transform 0.3s ease;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .birthday-message {
@@ -56,21 +59,24 @@
   margin: 0;
   padding: 1.5rem;
   transform-origin: center;
-  animation: scaleIn 1s ease-out;
+  animation: scaleIn 0.5s ease-out;
   background: rgba(255, 255, 255, 0.95);
   border-radius: 15px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .birthday-message:hover {
-  transform: translateY(-5px);
+  transform: translateY(-3px);
 }
 
 .cake-emoji {
   font-size: 4rem;
   margin-bottom: 1rem;
-  animation: bounce 2s ease infinite;
+  animation: bounce 1.5s ease;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .birthday-emojis {
@@ -93,11 +99,14 @@ p {
 }
 
 @keyframes float {
-  0%, 100% {
+  0% {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-20px);
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0);
   }
 }
 

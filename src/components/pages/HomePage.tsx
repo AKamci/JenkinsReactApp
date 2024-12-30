@@ -22,8 +22,9 @@ const HomePage: React.FC = () => {
 
     const toggleHeaderVisibility = useCallback(() => {
         setLayout(prev => ({
+            ...prev,
             isHeaderHidden: !prev.isHeaderHidden,
-            isCollapsed: !prev.isHeaderHidden
+            isCollapsed: prev.isHeaderHidden ? prev.isCollapsed : true
         }));
     }, []);
 

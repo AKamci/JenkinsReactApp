@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { checkTodaysBirthdays, Birthday } from './birthdayCheck';
 import Confetti from 'react-confetti';
 import Fireworks from '@fireworks-js/react';
@@ -14,6 +14,33 @@ const BirthDayAnimation: React.FC = () => {
     height: window.innerHeight,
   });
 
+  const confettiProps = useMemo(() => ({
+    width,
+    height,
+    numberOfPieces: 250,
+    recycle: false,
+    colors: ['#ff4081', '#ffd700', '#4caf50', '#2196f3', '#9c27b0'],
+    gravity: 0.3,
+    tweenDuration: 3000,
+    run: isVisible
+  }), [width, height, isVisible]);
+
+  const fireworksOptions = useMemo(() => ({
+    rocketsPoint: {
+      min: 0,
+      max: 100
+    },
+    explosion: 5,
+    intensity: 15,
+    traceLength: 2,
+    traceSpeed: 8,
+    flickering: 30,
+    boundaries: {
+      width,
+      height,
+    }
+  }), [width, height]);
+
   useEffect(() => {
     const birthdays = checkTodaysBirthdays();
     setTodaysBirthdays(birthdays);
@@ -27,7 +54,7 @@ const BirthDayAnimation: React.FC = () => {
 
     const timer = setTimeout(() => {
       setIsVisible(false);
-    }, 20000);
+    }, 15000);
 
     window.addEventListener('resize', handleResize);
     return () => {
@@ -46,15 +73,7 @@ const BirthDayAnimation: React.FC = () => {
 
   return (
     <div className="birthday-container" onClick={handleBackgroundClick}>
-      <Confetti
-        width={width}
-        height={height}
-        numberOfPieces={500}
-        recycle={true}
-        colors={['#ff4081', '#ffd700', '#4caf50', '#2196f3', '#9c27b0', '#ff6b6b', '#48dbfb', '#1dd1a1']}
-        gravity={0.2}
-        tweenDuration={5000}
-      />
+      <Confetti {...confettiProps} />
       <Fireworks
         style={{
           position: 'fixed',
@@ -65,17 +84,7 @@ const BirthDayAnimation: React.FC = () => {
           pointerEvents: 'none',
           zIndex: 999
         }}
-        options={{
-          rocketsPoint: {
-            min: 0,
-            max: 100
-          },
-          explosion: 8,
-          intensity: 30,
-          traceLength: 3,
-          traceSpeed: 10,
-          flickering: 50
-        }}
+        options={fireworksOptions}
       />
       <div className="birthday-animation" style={{ transform: `scale(${scaling})` }}>
         {todaysBirthdays.map((birthday, index) => (

@@ -77,7 +77,16 @@ const BranchItem: React.FC<{ job: JobDto }> = React.memo(({ job }) => {
     prevTestResultRef.current = testResult;
   }, [isBuilding, testResult]);
 
-  if (!selectedBranchList.includes(branchType)) return null;
+  const isMergedAndDeleted = useMemo(() => {
+    if (job.lastBuild?.result === 'SUCCESS' && name.includes('feature/')) {
+      const isOldBuild = job.lastBuild.timestamp && 
+        (Date.now() - job.lastBuild.timestamp > 7 * 24 * 60 * 60 * 1000);
+      return isOldBuild || job.color === 'disabled';
+    }
+    return false;
+  }, [job.lastBuild, job.color, name]);
+
+  if (isMergedAndDeleted || !selectedBranchList.includes(branchType)) return null;
 
   const testMetrics = useMemo(() => {
     if (!testResult) return { successRate: null, fillHeight: '0%', fillColor: null };
@@ -158,9 +167,50 @@ const BranchItem: React.FC<{ job: JobDto }> = React.memo(({ job }) => {
     return parts.length > 1 ? parts[1].split('.')[0] : decodedName;
   }, []);
 
-  const handleClick = useCallback(() => {
-    job.lastBuild?.url && window.open(job.lastBuild.url, '_blank');
-  }, [job.lastBuild?.url]);
+  const handleClick = useCallback((event: React.MouseEvent) => {
+    if (!job.url) return;
+
+    if (event.ctrlKey) {
+      const allureUrl = `${job.url}allure/`;
+      const newWindow = window.open(allureUrl, '_blank');
+      if (newWindow) {
+        newWindow.focus();
+      }
+      return;
+    }
+
+    const targetUrl = job.lastBuild?.url || job.url;
+    if (!targetUrl) return;
+
+    const newWindow = window.open(targetUrl, '_blank');
+    if (newWindow) {
+      newWindow.focus();
+    }
+  }, [job.lastBuild?.url, job.url]);
+
+  const handleWheel = useCallback((event: React.WheelEvent) => {
+    const targetUrl = job.lastBuild?.url || job.url;
+    if (!targetUrl) return;
+    
+    event.preventDefault();
+    window.open(targetUrl, '_blank', 'noopener');
+  }, [job.lastBuild?.url, job.url]);
+
+  const handleAuxClick = useCallback((event: React.MouseEvent) => {
+    const targetUrl = job.lastBuild?.url || job.url;
+    if (!targetUrl) return;
+    
+    if (event.button === 1) {
+      event.preventDefault();
+      window.open(targetUrl, '_blank', 'noopener');
+    }
+  }, [job.lastBuild?.url, job.url]);
+
+  const handleMouseDown = useCallback((event: React.MouseEvent) => {
+    if (event.button === 1) {
+      event.preventDefault();
+    }
+  }, []);
 
   const tooltipTitle = useMemo(() => {
     if (isBuilding) return `Build Ediliyor -> ${job.name}`;
@@ -190,6 +240,9 @@ const BranchItem: React.FC<{ job: JobDto }> = React.memo(({ job }) => {
         isDarkMode={isDarkMode}
         scaling={scaling}
         onClick={handleClick}
+        onWheel={handleWheel}
+        onAuxClick={handleAuxClick}
+        onMouseDown={handleMouseDown}
       >
         <StyledCardContent sx={styles.cardContent} scaling={scaling}>
           {iconElement}

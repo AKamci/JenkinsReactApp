@@ -13,9 +13,9 @@ interface ScreenSize {
 export const SCREEN_SCALES = {
   '8k': 4,
   '4k': 3,
-  'tv': 2,
-  'desktop': 1.5,
-  'laptop': 1.2,
+  'tv': 1.7,
+  'desktop': 1.2,
+  'laptop': 1.0,
   'tablet': 1,
   'mobile': 0.8
 } as const;

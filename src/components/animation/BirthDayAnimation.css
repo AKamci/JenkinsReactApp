@@ -1,0 +1,123 @@
+@keyframes scaleIn {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+.birthday-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.birthday-animation {
+  position: relative;
+  text-align: center;
+  animation: float 3s ease-in-out infinite;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 2rem;
+  padding-top: 3rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  max-width: 90vw;
+  pointer-events: auto;
+  transform-origin: center center;
+  transition: transform 0.3s ease;
+}
+
+.birthday-message {
+  flex: 0 1 300px;
+  margin: 0;
+  padding: 1.5rem;
+  transform-origin: center;
+  animation: scaleIn 1s ease-out;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease;
+}
+
+.birthday-message:hover {
+  transform: translateY(-5px);
+}
+
+.cake-emoji {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  animation: bounce 2s ease infinite;
+}
+
+.birthday-emojis {
+  font-size: 2rem;
+  margin-top: 1rem;
+  animation: spin 4s linear infinite;
+}
+
+h3 {
+  color: #ff4081;
+  font-size: 1.8rem;
+  margin: 0.5rem 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+p {
+  color: #666;
+  font-size: 1.2rem;
+  margin: 0.5rem 0;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .birthday-animation {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .birthday-message {
+    width: 100%;
+    max-width: 300px;
+  }
+} 

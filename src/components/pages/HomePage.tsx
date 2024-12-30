@@ -11,7 +11,7 @@ const HomePage: React.FC = () => {
     });
     
     const [checkedJobs, setCheckedJobs] = useState<Record<string, boolean>>({});
-    const [showBirthday, setShowBirthday] = useState(false);
+    const [showBirthday, setShowBirthday] = useState(true);
 
     const toggleSidebar = useCallback(() => {
         setLayout(prev => ({

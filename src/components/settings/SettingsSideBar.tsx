@@ -106,7 +106,6 @@ import { ThemeVariant } from '../../theme/theme';
             dispatch(setFolderColor(savedFolderColor));
           }
 
-          // Grid Layout varsayılan değerleri
           const defaultGridLayout = {
             itemsPerRow: 3,
             spacing: 2
@@ -123,7 +122,6 @@ import { ThemeVariant } from '../../theme/theme';
               dispatch(setSpacing(defaultGridLayout.spacing));
             }
           } else {
-            // Cookie yoksa varsayılan değerleri kullan
             dispatch(setItemsPerRow(defaultGridLayout.itemsPerRow));
             dispatch(setSpacing(defaultGridLayout.spacing));
           }

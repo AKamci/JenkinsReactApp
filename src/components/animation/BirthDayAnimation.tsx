@@ -1,112 +1,94 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { checkTodaysBirthdays, Birthday } from './birthdayCheck';
 import Confetti from 'react-confetti';
+import Fireworks from '@fireworks-js/react';
+import './BirthDayAnimation.css';
+import { useScreenSize } from '../../hooks/useScreenSize';
 
-interface BirthDayAnimationProps {
-    onComplete?: () => void;
-    duration?: number;
-}
+const BirthDayAnimation: React.FC = () => {
+  const [todaysBirthdays, setTodaysBirthdays] = useState<Birthday[]>([]);
+  const [isVisible, setIsVisible] = useState(true);
+  const { width, height, scaling } = useScreenSize();
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
 
-const BirthDayAnimation: React.FC<BirthDayAnimationProps> = ({
-    onComplete,
-    duration = 10000
-}) => {
-    const [windowDimension, setWindowDimension] = useState({
+  useEffect(() => {
+    const birthdays = checkTodaysBirthdays();
+    setTodaysBirthdays(birthdays);
+
+    const handleResize = () => {
+      setWindowSize({
         width: window.innerWidth,
-        height: window.innerHeight
-    });
-
-    const detectSize = () => {
-        setWindowDimension({
-            width: window.innerWidth,
-            height: window.innerHeight
-        });
+        height: window.innerHeight,
+      });
     };
 
-    useEffect(() => {
-        window.addEventListener('resize', detectSize);
-        const timer = setTimeout(() => {
-            onComplete?.();
-        }, duration);
+    const timer = setTimeout(() => {
+      setIsVisible(false);
+    }, 20000);
 
-        return () => {
-            window.removeEventListener('resize', detectSize);
-            clearTimeout(timer);
-        };
-    }, [duration, onComplete]);
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(timer);
+    };
+  }, []);
 
-    return (
-        <>
-            <Confetti
-                width={windowDimension.width}
-                height={windowDimension.height}
-                numberOfPieces={800}
-                recycle={true}
-                colors={['#FFD700', '#FF69B4', '#00CED1', '#9370DB', '#FF6347', '#32CD32']}
-                gravity={0.3}
-                tweenDuration={5000}
-            />
-            <div style={{
-                position: 'fixed',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                zIndex: 1000,
-                backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                padding: '4rem',
-                borderRadius: '3rem',
-                boxShadow: '0 20px 50px rgba(0,0,0,0.2)',
-                animation: 'fadeInScale 1.5s ease-out',
-                backdropFilter: 'blur(15px)',
-                border: '1px solid rgba(255,255,255,0.3)'
-            }}>
-                <style>
-                    {`
-                        @keyframes fadeInScale {
-                            0% {
-                                opacity: 0;
-                                transform: translate(-50%, -50%) scale(0.8);
-                            }
-                            100% {
-                                opacity: 1;
-                                transform: translate(-50%, -50%) scale(1);
-                            }
-                        }
-                        @keyframes float {
-                            0%, 100% {
-                                transform: translateY(0);
-                            }
-                            50% {
-                                transform: translateY(-15px);
-                            }
-                        }
-                    `}
-                </style>
-                <h1 style={{
-                    fontSize: '4rem',
-                    background: 'linear-gradient(45deg, #FF69B4, #FFD700)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    textAlign: 'center',
-                    marginBottom: '2rem',
-                    fontWeight: 'bold',
-                    animation: 'float 3s ease-in-out infinite'
-                }}>
-                    🎉 Doğum Günün Kutlu Olsun! 🎉
-                    <br /> 
-                    🎂Nazif İLBEK🎂
-                </h1>
-                <p style={{
-                    fontSize: '1.8rem',
-                    color: '#333',
-                    textAlign: 'center',
-                    lineHeight: '1.8',
-                    margin: '0'
-                }}>
-                    ✨ Nice mutlu, sağlıklı ve başarılı yıllara! 🎈
-                </p>
-            </div>
-        </>
-    );
+  const handleBackgroundClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      setIsVisible(false);
+    }
+  };
+
+  if (todaysBirthdays.length === 0 || !isVisible) return null;
+
+  return (
+    <div className="birthday-container" onClick={handleBackgroundClick}>
+      <Confetti
+        width={width}
+        height={height}
+        numberOfPieces={500}
+        recycle={true}
+        colors={['#ff4081', '#ffd700', '#4caf50', '#2196f3', '#9c27b0', '#ff6b6b', '#48dbfb', '#1dd1a1']}
+        gravity={0.2}
+        tweenDuration={5000}
+      />
+      <Fireworks
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          pointerEvents: 'none',
+          zIndex: 999
+        }}
+        options={{
+          rocketsPoint: {
+            min: 0,
+            max: 100
+          },
+          explosion: 8,
+          intensity: 30,
+          traceLength: 3,
+          traceSpeed: 10,
+          flickering: 50
+        }}
+      />
+      <div className="birthday-animation" style={{ transform: `scale(${scaling})` }}>
+        {todaysBirthdays.map((birthday, index) => (
+          <div key={index} className="birthday-message">
+            <div className="cake-emoji">🎂</div>
+            <h3>Doğum Günün Kutlu Olsun 
+            <br />{birthday.name}</h3>
+            <p>Nice mutlu senelere 🎉</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 };
 
 export default BirthDayAnimation;

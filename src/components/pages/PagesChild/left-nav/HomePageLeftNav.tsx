@@ -25,7 +25,7 @@ const HomePageLeftNav: React.FC<HomePageLeftNavProps> = React.memo(({ checkedJob
             dispatch(getAllJob());
         };
         fetchJobs();
-        const intervalId = setInterval(fetchJobs, 30000); // 30 saniyede bir güncelle
+        const intervalId = setInterval(fetchJobs, 30000);
         return () => clearInterval(intervalId);
     }, [dispatch]);
 

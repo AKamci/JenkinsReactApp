@@ -1,0 +1,16 @@
+{
+  "birthdays": [
+    {
+      "name": "Ahmet",
+      "date": "12-25"
+    },
+    {
+      "name": "Ayşe", 
+      "date": "12-30"
+    },
+    {
+      "name": "Mehmet",
+      "date": "12-30"
+    }
+  ]
+}

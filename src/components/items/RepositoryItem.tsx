@@ -73,7 +73,7 @@ const RepositoryItem: React.FC<{ job: JobDtoWithScore; parent: string }> = React
       const branchType = getBranchType(branch.name);
       if (!selectedBranchList.includes(branchType)) return acc;
 
-      if (branch.name.toLowerCase().startsWith('feature') && branch.lastBuild) {
+      if (branch.name.toLowerCase().startsWith('feature') && branch.lastBuild && branch.color !== 'disabled') {
         acc.featureBranches.push(branch);
       } else {
         acc.otherBranches.push(branch);

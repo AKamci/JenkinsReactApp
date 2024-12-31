@@ -6,7 +6,7 @@ import WavingHandIcon from '@mui/icons-material/WavingHand';
 
 const WelcomeAnimation: React.FC = () => {
     const dispatch = useAppDispatch();
-    const welcomeUser = useAppSelector((state) => state.getWelcomeUser.message);
+    const userDetails = useAppSelector((state) => state.getWelcomeUser.userDetails);
     const [show, setShow] = useState(true);
 
     useEffect(() => {
@@ -95,7 +95,7 @@ const WelcomeAnimation: React.FC = () => {
                                 textShadow: '0 2px 4px rgba(0,0,0,0.2)'
                             }}
                         >
-                            {welcomeUser?.name || '...'}
+                            {userDetails?.fullName || '...'}
                         </Typography>
                     </Box>
                 </Paper>

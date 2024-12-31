@@ -40,7 +40,8 @@ export default {
   },
 
   Welcome: {
-    GetWelcomeUser: `${baseUrl}/whoAmI/api/json`
+    GetWelcomeUser: `${baseUrl}/whoAmI/api/json`,
+    GetUserDetails: (userId: string) => `${baseUrl}/user/${userId}/api/json?tree=fullName`
   }
 
 };

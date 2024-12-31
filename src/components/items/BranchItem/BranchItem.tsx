@@ -77,16 +77,7 @@ const BranchItem: React.FC<{ job: JobDto }> = React.memo(({ job }) => {
     prevTestResultRef.current = testResult;
   }, [isBuilding, testResult]);
 
-  const isMergedAndDeleted = useMemo(() => {
-    if (job.lastBuild?.result === 'SUCCESS' && name.includes('feature/')) {
-      const isOldBuild = job.lastBuild.timestamp && 
-        (Date.now() - job.lastBuild.timestamp > 7 * 24 * 60 * 60 * 1000);
-      return isOldBuild || job.color === 'disabled';
-    }
-    return false;
-  }, [job.lastBuild, job.color, name]);
-
-  if (isMergedAndDeleted || !selectedBranchList.includes(branchType)) return null;
+  if (!selectedBranchList.includes(branchType) || job.color === 'disabled') return null;
 
   const testMetrics = useMemo(() => {
     if (!testResult) return { successRate: null, fillHeight: '0%', fillColor: null };

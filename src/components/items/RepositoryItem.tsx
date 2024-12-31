@@ -70,10 +70,11 @@ const RepositoryItem: React.FC<{ job: JobDtoWithScore; parent: string }> = React
     }
 
     const { featureBranches, otherBranches } = jobs.reduce<AccumulatorType>((acc, branch) => {
-      const branchType = getBranchType(branch.name);
-      if (!selectedBranchList.includes(branchType)) return acc;
+      if (!selectedBranchList.includes(getBranchType(branch.name)) || branch.color === 'disabled') {
+        return acc;
+      }
 
-      if (branch.name.toLowerCase().startsWith('feature') && branch.lastBuild && branch.color !== 'disabled') {
+      if (branch.name.toLowerCase().startsWith('feature') && branch.lastBuild) {
         acc.featureBranches.push(branch);
       } else {
         acc.otherBranches.push(branch);

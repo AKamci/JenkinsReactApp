@@ -37,6 +37,10 @@ export default {
 
   Notification: {
     GetNotification: `${baseUrl}/api/json?tree=description`
+  },
+
+  Welcome: {
+    GetWelcomeUser: `${baseUrl}/whoAmI/api/json`
   }
 
 };

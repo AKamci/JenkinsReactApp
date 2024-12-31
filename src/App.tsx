@@ -5,6 +5,7 @@ import './assets/app.css';
 import React, { useMemo } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import WelcomeAnimation from './components/animation/WelcomeAnimation';
 
 import { HotKeys } from 'react-hotkeys';
 import KeyMap from './shortcuts/KeyMap';
@@ -28,6 +29,7 @@ const App = () => {
 			<CssBaseline />
 			<HotKeys keyMap={KeyMap} handlers={Handlers}>
 				<>
+					<WelcomeAnimation />
 					<Routers />
 					<ToastContainer theme={toastTheme} position="top-right" limit={3} />
 				</>

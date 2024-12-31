@@ -26,7 +26,7 @@ import folderColorReducer from './slices/GeneralSettings/FolderColor-Slice';
 import colorFilterReducer from './slices/Search/JobQuery-Slice';
 import gridLayoutReducer from './slices/Settings/GridLayout-Slice';
 import screenScalesReducer from './slices/Settings/ScreenScales-Slice';
-
+import WelcomeUserSlice from './slices/Notification/WelcomeUser-Slice';
 const store = configureStore({
 	reducer: {
 		getJob: GetJobSlice,
@@ -52,7 +52,8 @@ const store = configureStore({
 		folderColor: folderColorReducer,
 		colorFilter: colorFilterReducer,
 		gridLayout: gridLayoutReducer,
-		screenScales: screenScalesReducer
+		screenScales: screenScalesReducer,
+		getWelcomeUser: WelcomeUserSlice
 	},
 	middleware: (getDefaultMiddleware) => getDefaultMiddleware({
 		serializableCheck: false,

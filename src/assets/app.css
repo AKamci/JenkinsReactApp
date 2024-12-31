@@ -1,0 +1,14 @@
+
+*:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+*:active {
+  outline: none !important;
+  border: none !important;
+}
+
+*::selection {
+  background-color: transparent;
+}

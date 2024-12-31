@@ -3,10 +3,11 @@ import { useKeyboardShortcut } from '../../shortcuts/useKeyboardShortcut';
 import { HomePageLayout } from './PagesLayout/HomePageLayout';
 import BirthDayAnimation from '../animation/BirthDayAnimation';
 import GlobalSystemNotification from '../notification/GlobalSystemNotification';
+import Cookies from 'js-cookie';
 
 const HomePage: React.FC = () => {
     const [layout, setLayout] = useState({
-        isCollapsed: true,
+        isCollapsed: Cookies.get('leftNav') === undefined ? false : JSON.parse(Cookies.get('leftNav') || 'true'),
         isHeaderHidden: false
     });
     
@@ -14,10 +15,14 @@ const HomePage: React.FC = () => {
     const [showBirthday, setShowBirthday] = useState(true);
 
     const toggleSidebar = useCallback(() => {
-        setLayout(prev => ({
-            ...prev,
-            isCollapsed: !prev.isCollapsed
-        }));
+        setLayout(prev => {
+            const newCollapsed = !prev.isCollapsed;
+            Cookies.set('leftNav', JSON.stringify(newCollapsed));
+            return {
+                ...prev,
+                isCollapsed: newCollapsed
+            };
+        });
     }, []);
 
     const toggleHeaderVisibility = useCallback(() => {

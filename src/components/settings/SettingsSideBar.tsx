@@ -29,7 +29,7 @@ import { ThemeVariant } from '../../theme/theme';
       const gridLayout = useSelector((state: RootState) => state.gridLayout);
       const [selectedSettings, setSelectedSettings] = useState<string[]>(() => {
         const savedSettings = Cookies.get('selectedSettings');
-        return savedSettings ? JSON.parse(savedSettings) : [];
+        return savedSettings ? JSON.parse(savedSettings) : ['color'];
       });
       const [selectedBranches, setSelectedBranches] = useState<string[]>(() => {
         const savedBranches = Cookies.get('selectedBranches');

@@ -10,6 +10,7 @@ import { useEffect, useRef, useMemo, useCallback } from 'react';
 import { calculateSuccessRate, getFillColor } from './BranchTest';
 import { GetTestResult } from '../../../infrastructure/store/slices/Test/GetTestResult-Slice';
 import { useScreenSize } from '../../../hooks/useScreenSize';
+import { addBuildingJobForTittle, removeBuildingJobForTittle } from '../../../infrastructure/store/slices/Notification/StartedBuildNotificationForTittle-Slice';
 
 const BranchItem: React.FC<{ job: JobDto }> = React.memo(({ job }) => {
   const dispatch = useAppDispatch();
@@ -39,11 +40,17 @@ const BranchItem: React.FC<{ job: JobDto }> = React.memo(({ job }) => {
   }, [name]);
 
   useEffect(() => {
-    if (!isBuilding || prevBuildingRef.current) return;
-    const timeoutId = setTimeout(() => {
-      dispatch(addBuildingJob(job));
-    }, 0);
-    return () => clearTimeout(timeoutId);
+    if (isBuilding) {
+      if (!prevBuildingRef.current) {
+        const timeoutId = setTimeout(() => {
+          dispatch(addBuildingJobForTittle(job));
+          dispatch(addBuildingJob(job));
+        }, 0);
+        return () => clearTimeout(timeoutId);
+      }
+    } else {
+      dispatch(removeBuildingJobForTittle(job));
+    }
   }, [isBuilding, job, dispatch]);
 
   useEffect(() => {

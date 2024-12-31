@@ -1,4 +1,4 @@
-import { ExpandMore, Security, ColorLens, Check, Speed } from "@mui/icons-material";
+import { ExpandMore, Security, ColorLens, Check } from "@mui/icons-material";
 import { AccordionSummary, Box, Typography, AccordionDetails, Chip } from "@mui/material";
 import { SettingItem } from "./SettingsStyle";
 import { StyledAccordion } from "./SettingsStyle";
@@ -31,24 +31,6 @@ const ApiSettings: React.FC<{
                 onClick={() => handleSettingChange('color', !selectedSettings.includes('color'))}
                 color={selectedSettings.includes('color') ? 'primary' : 'default'}
                 variant={selectedSettings.includes('color') ? 'filled' : 'outlined'}
-                sx={{ cursor: 'pointer' }}
-              />
-            </Box>
-          </SettingItem>
-  
-          <SettingItem elevation={0}>
-            <Speed sx={{ mr: 2, color: 'primary.main', fontSize: 20 }} />
-            <Box sx={{ flex: 1 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, mb: 0.5 }}>
-                Skor Gösterimi
-              </Typography>
-              <Chip
-                size="small"
-                icon={selectedSettings.includes('healthReport') ? <Check fontSize="small" /> : undefined}
-                label={selectedSettings.includes('healthReport') ? 'Aktif' : 'Pasif'}
-                onClick={() => handleSettingChange('healthReport', !selectedSettings.includes('score'))}
-                color={selectedSettings.includes('healthReport') ? 'primary' : 'default'}
-                variant={selectedSettings.includes('healthReport') ? 'filled' : 'outlined'}
                 sx={{ cursor: 'pointer' }}
               />
             </Box>

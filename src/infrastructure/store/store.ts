@@ -28,6 +28,7 @@ import gridLayoutReducer from './slices/Settings/GridLayout-Slice';
 import screenScalesReducer from './slices/Settings/ScreenScales-Slice';
 import WelcomeUserSlice from './slices/Notification/WelcomeUser-Slice';
 import StartedBuildNotificationForTittleSlice from './slices/Notification/StartedBuildNotificationForTittle-Slice';
+import GetAllJobForControl from './slices/Job/GetAllJobForControl-Slice';
 const store = configureStore({
 	reducer: {
 		getJob: GetJobSlice,
@@ -55,7 +56,8 @@ const store = configureStore({
 		gridLayout: gridLayoutReducer,
 		screenScales: screenScalesReducer,
 		getWelcomeUser: WelcomeUserSlice,
-		getStartedBuildNotificationForTittle: StartedBuildNotificationForTittleSlice
+		getStartedBuildNotificationForTittle: StartedBuildNotificationForTittleSlice,
+		getAllJobForControl: GetAllJobForControl
 	},
 	middleware: (getDefaultMiddleware) => getDefaultMiddleware({
 		serializableCheck: false,

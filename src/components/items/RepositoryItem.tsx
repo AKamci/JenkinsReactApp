@@ -5,10 +5,11 @@ import { AccountTree } from '@mui/icons-material';
 import BranchItem from './BranchItem/BranchItem';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState, useAppSelector } from '../../infrastructure/store/store';
-import { useMemo, useEffect, useCallback } from 'react';
+import { useMemo, useEffect, useCallback, useState } from 'react';
 import { GetBranchJob } from '../../infrastructure/store/slices/Job/GetBranchJob-Slice';
 import { branchIcons } from './BranchItem/BranchIcons';
 import { useScreenSize } from '../../hooks/useScreenSize';
+import { useJsonControl } from '../../components/func/JsonControl';
 
 interface JobDtoWithScore extends JobDto {
   onScoreChange?: (score: number) => void;
@@ -23,6 +24,8 @@ const RepositoryItem: React.FC<{ job: JobDtoWithScore; parent: string }> = React
   const { scaling } = useScreenSize();
   const featureCount = useSelector((state: RootState) => state.getFeatureCount.count);
   const selectedBranchList = useAppSelector((state) => state.getSelectedBranchList.selectedBranch);
+  const hasJsonChanged = useJsonControl(10000);
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
 
   useEffect(() => {
     let isSubscribed = true;
@@ -42,15 +45,21 @@ const RepositoryItem: React.FC<{ job: JobDtoWithScore; parent: string }> = React
       }
     };
 
-    fetchJobData();
-    const intervalId = setInterval(fetchJobData, 10000);
+    if (isFirstLoad) {
+      fetchJobData();
+      setIsFirstLoad(false);
+      return;
+    }
+
+    if (hasJsonChanged) {
+      fetchJobData();
+    }
     
     return () => {
       isSubscribed = false;
       controller.abort();
-      clearInterval(intervalId);
     };
-  }, [dispatch, job.name, parent, apiSettings]);
+  }, [dispatch, job.name, parent, apiSettings, hasJsonChanged, isFirstLoad]);
 
   const getBranchType = useCallback((name: string): string => {
     const nameLower = name.toLowerCase();

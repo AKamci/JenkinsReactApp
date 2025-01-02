@@ -22,7 +22,8 @@ export default {
     },
     GetAll_Name: `${baseUrl}/api/json?tree=jobs[name]`,
     GetAll_Name_With_Repository: `${baseUrl}/api/json?tree=jobs[name,jobs[name,url]]`,
-    GetAllBuildingJobs: `${baseUrl}/api/json?tree=jobs[name,jobs[name,jobs[name,url,lastBuild[building,timestamp,actions[_class,causes[_class,shortDescription,userName]]]]]]`
+    GetAllBuildingJobs: `${baseUrl}/api/json?tree=jobs[name,jobs[name,jobs[name,url,lastBuild[building,timestamp,actions[_class,causes[_class,shortDescription,userName]]]]]]`,
+    GetAllForControl: `${baseUrl}/api/json?tree=jobs[name,url,jobs[name,url,jobs[name,color]]]`
   },
 
   Information: {

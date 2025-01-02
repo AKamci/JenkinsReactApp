@@ -14,6 +14,7 @@ import { ColorPicker, ColorButton, colors } from './ColorPicker';
 import { baseUrl } from '../../../infrastructure/helpers/api-endpoints';
 import { setFolderColor } from '../../../infrastructure/store/slices/GeneralSettings/FolderColor-Slice';
 import { getScoreForColor } from '../../../infrastructure/commands/SearchCommands';
+import { useJsonControl } from '../../../components/func/JsonControl';
 
 const StyledCard = styled(Paper, {
   shouldForwardProp: (prop) => prop !== 'isDarkMode' && prop !== 'borderColor'
@@ -70,12 +71,33 @@ const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
   const [repositoryScores, setRepositoryScores] = useState<{ [key: string]: number }>({});
   const isDarkMode = useAppSelector((state: RootState) => state.generalTheme.isDarkMode);
   const selectedColors = useAppSelector((state: RootState) => state.colorFilter.selectedColors);
-  const { itemsPerRow, spacing } = useSelector((state: RootState) => state.gridLayout);
+  const hasJsonChanged = useJsonControl(10000);
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
  
   const getRepositoryJobData = useAppSelector(
     (state) => state.getRepositoryJob[groupName]?.jobs
   );
   const apiSettings = useAppSelector((state) => state.getApiSettings.selectedApiSettings);
+
+  useEffect(() => {
+    const fetchJobData = () => {
+      console.log(hasJsonChanged,"JSON CHANGED")
+      
+      dispatch(GetRepositoryJob({ jobName: groupName, groupName, apiSettings }));
+    };
+
+    if (isFirstLoad) {
+      fetchJobData();
+      setIsFirstLoad(false);
+      return;
+    }
+
+    if (hasJsonChanged) {
+      fetchJobData();
+    }
+
+    return () => {};
+  }, [dispatch, groupName, apiSettings, hasJsonChanged, isFirstLoad]);
 
   const handleColorClick = useCallback((event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -115,17 +137,6 @@ const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
       return scoreB - scoreA;
     });
   }, [getRepositoryJobData?.jobs, repositoryScores, selectedColors]);
-
-  useEffect(() => {
-    const fetchJobData = () => {
-      dispatch(GetRepositoryJob({ jobName: groupName, groupName, apiSettings }));
-    };
-
-    fetchJobData();
-    const intervalId = setInterval(fetchJobData, 10000);
-
-    return () => clearInterval(intervalId);
-  }, [dispatch, groupName, apiSettings]);
 
   const handleRemoveGroup = useCallback(() => {
     dispatch(removeSelectedProject(groupName));

@@ -187,12 +187,8 @@ const BranchItem: React.FC<{ job: JobDto }> = React.memo(({ job }) => {
   }, [job.lastBuild?.url, job.url]);
 
   const handleWheel = useCallback((event: React.WheelEvent) => {
-    const targetUrl = job.lastBuild?.url || job.url;
-    if (!targetUrl) return;
-    
     event.preventDefault();
-    window.open(targetUrl, '_blank', 'noopener');
-  }, [job.lastBuild?.url, job.url]);
+  }, []);
 
   const handleAuxClick = useCallback((event: React.MouseEvent) => {
     const targetUrl = job.lastBuild?.url || job.url;

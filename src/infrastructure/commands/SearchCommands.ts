@@ -14,7 +14,12 @@ const colorConfigs: ColorConfig[] = [
     {
         name: 'yellow',
         scoreCondition: (score) => score === 1
+    },
+    {
+        name: 'blue',
+        scoreCondition: (score) => score === 0
     }
+
 ];
 
 export interface ISearchCommand {

@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { styled } from '@mui/material/styles';
-import { Typography, Box, Paper, IconButton, Popover, Grid } from '@mui/material';
+import { Typography, Box, Paper, IconButton, Popover } from '@mui/material';
 import RepositoryItem from '../RepositoryItem';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { removeSelectedProject } from '../../../infrastructure/store/slices/File/Projects-Slice';
 import { AppDispatch, RootState, useAppSelector } from '../../../infrastructure/store/store';
 import { GetRepositoryJob } from '../../../infrastructure/store/slices/Job/GetRepositoryJob-Slice';
@@ -81,7 +81,6 @@ const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
 
   useEffect(() => {
     const fetchJobData = () => {
-      console.log(hasJsonChanged,"JSON CHANGED")
       
       dispatch(GetRepositoryJob({ jobName: groupName, groupName, apiSettings }));
     };

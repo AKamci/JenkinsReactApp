@@ -35,6 +35,8 @@ const GridLayoutSettings: React.FC = () => {
       case 4: return 'Dört Sütun';
       case 5: return 'Beş Sütun';
       case 6: return 'Altı Sütun';
+      case 7: return 'Yedi Sütun';
+      case 8: return 'Sekiz Sütun';
       default: return `${value} Sütun`;
     }
   };
@@ -118,7 +120,7 @@ const GridLayoutSettings: React.FC = () => {
           <Slider
             value={itemsPerRow}
             min={1}
-            max={6}
+            max={8}
             step={1}
             marks
             onChange={handleItemsPerRowChange}

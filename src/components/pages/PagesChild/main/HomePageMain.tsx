@@ -28,7 +28,7 @@ const HomePageMain = () => {
             <Box 
                 key={job.name}
                 sx={{
-                    width: `${100 / Math.min(itemsPerRow, 6)}%`,
+                    width: `${100 / Math.min(itemsPerRow, 8)}%`,
                     padding: spacing / 2,
                     display: 'inline-block',
                     verticalAlign: 'top'

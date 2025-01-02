@@ -1,5 +1,5 @@
 import React from 'react';
-import { List, ListItemButton, ListItemText, Tooltip, Typography, Badge, Box, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import { List, ListItemButton, ListItemText, Tooltip, Typography, Box, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useAppSelector } from '../../infrastructure/store/store';
@@ -15,6 +15,10 @@ const QueueInformation: React.FC<QueueInformationProps> = ({ onItemClick }) => {
   const folderNames = import.meta.env.VITE_FOLDER_NAME?.split(',').map((name: string) => name.trim().toLowerCase()) || [];
 
   const getFormattedTaskName = (url: string) => {
+    if (!url.includes('/job/'))
+    {
+      return url;
+    }
     const parts = url.split('/job/').filter(Boolean);
     return parts.slice(1).join('->');
   };

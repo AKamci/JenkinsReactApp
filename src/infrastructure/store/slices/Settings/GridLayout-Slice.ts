@@ -7,7 +7,7 @@ interface GridLayoutState {
 }
 
 const defaultGridLayout = {
-  itemsPerRow: 3,
+  itemsPerRow: 4,
   spacing: 2,
 };
 
@@ -21,7 +21,7 @@ const gridLayoutSlice = createSlice({
   initialState,
   reducers: {
     setItemsPerRow: (state, action: PayloadAction<number>) => {
-      state.itemsPerRow = Math.min(Math.max(action.payload, 1), 6);
+      state.itemsPerRow = Math.min(Math.max(action.payload, 1), 8);
       Cookies.set('gridLayout', JSON.stringify({ ...state }), { expires: 30 });
     },
     setSpacing: (state, action: PayloadAction<number>) => {

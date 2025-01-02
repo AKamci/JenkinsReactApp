@@ -20,7 +20,7 @@ const App = () => {
 	useDocumentTitle();
 	
 	const themeState = useAppSelector((state) => state.theme);
-	const theme = useMemo(() => createAppTheme(themeState.isDarkMode, themeState.themeVariant, themeState.isTvMode), [themeState.isDarkMode, themeState.themeVariant, themeState.isTvMode]);
+	const theme = useMemo(() => createAppTheme(themeState.isDarkMode, themeState.themeVariant), [themeState.isDarkMode, themeState.themeVariant]);
 
 	const toastTheme = useMemo(() => themeState.isDarkMode ? 'dark' : 'light', [themeState.isDarkMode]);
 

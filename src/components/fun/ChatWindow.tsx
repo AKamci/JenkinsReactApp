@@ -137,8 +137,26 @@ export const ChatWindow: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    if (isChatOpen) {
+      messagesEndRef.current?.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'end',
+        inline: 'nearest'
+      });
+    }
+  }, [messages, isChatOpen]);
+
+  useEffect(() => {
+    if (isChatOpen) {
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ 
+          behavior: 'auto',
+          block: 'end',
+          inline: 'nearest'
+        });
+      }, 100);
+    }
+  }, [isChatOpen]);
 
   const handleClose = () => {
     dispatch(toggleChat());

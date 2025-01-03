@@ -30,10 +30,10 @@ export const RainEffect: React.FC = () => {
     const animate = () => {
       if (!isActive) return;
       
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+      ctx.fillStyle = 'rgba(0, 15, 4, 0.1)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      ctx.strokeStyle = '#00ff00';
+      ctx.strokeStyle = '#1dcst9';
       ctx.lineWidth = 2;
       
       drops.forEach(drop => {
@@ -74,11 +74,12 @@ export const RainEffect: React.FC = () => {
       style={{
         position: 'fixed',
         top: 0,
+        backgroundColor: 'transparent',
         left: 0,
         width: '100%',
         height: '100%',
         pointerEvents: 'none',
-        zIndex: 9999
+        zIndex: -3
       }}
     />
   );

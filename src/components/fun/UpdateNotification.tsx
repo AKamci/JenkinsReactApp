@@ -39,9 +39,7 @@ export const UpdateNotification: React.FC = () => {
                 );
             }
         };
-
-        const interval = setInterval(checkProbability, 900000);
-        return () => clearInterval(interval);
+        checkProbability();
     }, [dispatch]);
 
     return null;

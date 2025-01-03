@@ -25,7 +25,7 @@ export const ConfettiEffect: React.FC = () => {
       height={window.innerHeight}
       numberOfPieces={500}
       recycle={false}
-      gravity={0.3}
+      gravity={0.50}
     />
   );
 }; 

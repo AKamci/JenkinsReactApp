@@ -70,6 +70,8 @@ export const MatrixRain: React.FC = () => {
         position: 'fixed',
         top: 0,
         left: 0,
+        backgroundColor: 'transparent',
+        backdropFilter: 'blur(10px)',
         width: '100%',
         height: '100%',
         zIndex: 9998,

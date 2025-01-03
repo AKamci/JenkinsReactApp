@@ -5,11 +5,11 @@ import BirthDayAnimation from '../animation/BirthDayAnimation';
 import GlobalSystemNotification from '../notification/GlobalSystemNotification';
 import Cookies from 'js-cookie';
 
-const HomePage: React.FC = () => {
-    const [layout, setLayout] = useState({
+const HomePage: React.FC = React.memo(() => {
+    const [layout, setLayout] = useState(() => ({
         isCollapsed: Cookies.get('leftNav') === undefined ? false : JSON.parse(Cookies.get('leftNav') || 'true'),
         isHeaderHidden: false
-    });
+    }));
     
     const [checkedJobs, setCheckedJobs] = useState<Record<string, boolean>>({});
     const [showBirthday, setShowBirthday] = useState(true);
@@ -34,26 +34,30 @@ const HomePage: React.FC = () => {
     }, []);
 
     useKeyboardShortcut('shift', toggleHeaderVisibility);
+    
     const handleBirthdayComplete = useCallback(() => {
         setShowBirthday(false);
     }, []);
 
-    const layoutProps = useMemo(() => ({
-        layout,
-        onToggleSidebar: toggleSidebar,
-        checkedJobs,
-        setCheckedJobs
-    }), [layout, toggleSidebar, checkedJobs]);
+    const memoizedLayout = useMemo(() => ({
+        isCollapsed: layout.isCollapsed,
+        isHeaderHidden: layout.isHeaderHidden
+    }), [layout.isCollapsed, layout.isHeaderHidden]);
 
     return (
         <>
+            <HomePageLayout
+                layout={memoizedLayout}
+                onToggleSidebar={toggleSidebar}
+                checkedJobs={checkedJobs}
+                setCheckedJobs={setCheckedJobs}
+            />
+            {showBirthday && <BirthDayAnimation onAnimationComplete={handleBirthdayComplete} />}
             <GlobalSystemNotification />
-            {showBirthday && (
-                <BirthDayAnimation onComplete={handleBirthdayComplete} />
-            )}
-            <HomePageLayout {...layoutProps} />
         </>
     );
-};
+});
 
-export default React.memo(HomePage);
+HomePage.displayName = 'HomePage';
+
+export default HomePage;

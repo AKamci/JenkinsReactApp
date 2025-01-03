@@ -8,6 +8,7 @@ import FolderIcon from '@mui/icons-material/Folder';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import { addSelectedItem, removeSelectedItem } from '../../infrastructure/store/slices/File/SelectedSearchedItem-Slice';
 import { executeSearchCommand } from '../../infrastructure/commands/SearchCommands';
+import { toggleShortcutsModal } from '../../infrastructure/store/slices/Settings/FunFeatures-Slice';
 
 const SearchWrapper = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -145,12 +146,19 @@ const Search: React.FC<SearchProps> = ({ placeholder = "Projelerde ara...", onCh
   const handleSearchChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const searchValue = event.target.value;
     setSearchTerm(searchValue);
-        if (!executeSearchCommand(searchValue)) {
-        setAnchorEl(event.currentTarget);
-        setIsPopperOpen(true);
-        if (onChange) onChange(event);
+
+    if (searchValue.toLowerCase() === 'kısayollar') {
+      dispatch(toggleShortcutsModal());
+      setSearchTerm('');
+      return;
     }
-  }, [onChange]);
+
+    if (!executeSearchCommand(searchValue)) {
+      setAnchorEl(event.currentTarget);
+      setIsPopperOpen(true);
+      if (onChange) onChange(event);
+    }
+  }, [onChange, dispatch]);
 
   const handleSearchClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     if (searchTerm) {

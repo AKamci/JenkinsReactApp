@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { styled } from '@mui/material/styles';
-import { Typography, Box, Paper, IconButton, Popover } from '@mui/material';
+import { Typography, Box, Paper, IconButton, Popover, Tooltip } from '@mui/material';
 import RepositoryItem from '../RepositoryItem';
 import { useDispatch } from 'react-redux';
 import { removeSelectedProject } from '../../../infrastructure/store/slices/File/Projects-Slice';
@@ -56,10 +56,9 @@ const GroupTitle = styled(Typography, {
   fontWeight: 600,
   fontSize: '1.1rem',
   color: isDarkMode ? '#fff' : '#1a2027',
-  maxWidth: '220px',
+  maxWidth: '100%',
   whiteSpace: 'nowrap',
   overflow: 'hidden',
-  textOverflow: 'ellipsis',
   letterSpacing: '0.3px',
   textShadow: isDarkMode ? '0 2px 4px rgba(0,0,0,0.2)' : 'none'
 }));
@@ -81,7 +80,6 @@ const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
 
   useEffect(() => {
     const fetchJobData = () => {
-      
       dispatch(GetRepositoryJob({ jobName: groupName, groupName, apiSettings }));
     };
 
@@ -157,7 +155,13 @@ const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
         pb: 1,
         borderBottom: `1px solid ${isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)'}`
       }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: 1,
+          flex: 1, 
+          minWidth: 0 
+        }}>
           <FolderIcon
             sx={{
               color: folderColor,
@@ -171,8 +175,10 @@ const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
               }
             }}
           />
-          <Box onClick={handleColorClick} sx={{ cursor: 'pointer' }}>
-            <GroupTitle isDarkMode={isDarkMode}>{groupName}</GroupTitle>
+          <Box onClick={handleColorClick} sx={{ cursor: 'pointer', flex: 1, minWidth: 0 }}>
+            <Tooltip title={groupName} placement="top">
+              <GroupTitle isDarkMode={isDarkMode}>{groupName}</GroupTitle>
+            </Tooltip>
           </Box>
         </Box>
         
@@ -265,7 +271,7 @@ const GroupBoxItem: React.FC<GroupCardProps> = ({ groupName }) => {
             fontStyle: 'italic',
             opacity: 0.8
           }}>
-            Seçilen filtrelerle eşleşen bir sonuç bulunamadı
+            Seçilen filtrelerle eşleşen sonuç yok
           </Box>
         ) : null}
       </Box>

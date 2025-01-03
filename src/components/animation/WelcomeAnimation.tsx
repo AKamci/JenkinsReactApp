@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../infrastructure/store/store';
-import { GetGlobalSystemMessage } from '../../infrastructure/store/slices/Notification/WelcomeUser-Slice';
 import { Box, Fade, Paper, Typography } from '@mui/material';
 import WavingHandIcon from '@mui/icons-material/WavingHand';
+import { GetWelcomeUser } from '../../infrastructure/store/slices/Notification/WelcomeUser-Slice';
 
 const WelcomeAnimation: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -10,7 +10,15 @@ const WelcomeAnimation: React.FC = () => {
     const [show, setShow] = useState(true);
 
     useEffect(() => {
-        dispatch(GetGlobalSystemMessage());
+        const fetchUser = async () => {
+            try {
+                await dispatch(GetWelcomeUser()).unwrap();
+            } catch (error) {
+                console.error('Kullanıcı bilgileri alınamadı:', error);
+            }
+        };
+        
+        fetchUser();
         const timer = setTimeout(() => {
             setShow(false);
         }, 2000);

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { AsyncThunk, createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import ApiState from "../../../Enums/ApiState";
 import Endpoints from '../../../helpers/api-endpoints';
 import { BaseDto } from '../../../dtos/BaseDto';

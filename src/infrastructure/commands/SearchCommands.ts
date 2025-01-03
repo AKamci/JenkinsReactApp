@@ -1,5 +1,6 @@
 import store from '../store/store';
 import { setSelectedColors } from '../store/slices/Search/JobQuery-Slice';
+import { toggleShortcutsModal } from '../store/slices/Settings/FunFeatures-Slice';
 
 interface ColorConfig {
     name: string;
@@ -42,6 +43,12 @@ export const searchCommands: ISearchCommand[] = [
             );
             
             store.dispatch(setSelectedColors(validColors));
+        }
+    },
+    {
+        command: "shortcuts",
+        execute: () => {
+            store.dispatch(toggleShortcutsModal());
         }
     }
 ];

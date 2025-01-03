@@ -21,7 +21,7 @@ const initialState: WelcomeUserState = {
     errorMessage: null
 };
 
-export const GetGlobalSystemMessage = createAsyncThunk<
+export const GetWelcomeUser = createAsyncThunk<
     { welcomeUser: WelcomeUserDto; userDetails: UserDetailsDto },
     void,
     { state: WelcomeUserState }
@@ -68,19 +68,19 @@ const WelcomeUserSlice = createSlice({
     initialState,
     reducers: {},
     extraReducers: (builder) => {
-        builder.addCase(GetGlobalSystemMessage.pending, (state) => {
+        builder.addCase(GetWelcomeUser.pending, (state) => {
             state.state = ApiState.Pending;
             state.responseStatus = null;
             state.errorMessage = null;
         });
-        builder.addCase(GetGlobalSystemMessage.fulfilled, (state, action) => {
+        builder.addCase(GetWelcomeUser.fulfilled, (state, action) => {
             state.message = action.payload.welcomeUser;
             state.userDetails = action.payload.userDetails;
             state.state = ApiState.Fulfilled;
             state.responseStatus = 200;
             state.errorMessage = null;
         });
-        builder.addCase(GetGlobalSystemMessage.rejected, (state, action) => {
+        builder.addCase(GetWelcomeUser.rejected, (state, action) => {
             state.state = ApiState.Rejected;
             if (action.payload) {
                 state.responseStatus = (action.payload as any).status;

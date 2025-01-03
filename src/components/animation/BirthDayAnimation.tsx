@@ -15,20 +15,20 @@ const BirthDayAnimation: React.FC = () => {
   });
 
   const confettiProps = useMemo(() => ({
-    width,
-    height,
+    width: windowSize.width,
+    height: windowSize.height,
     numberOfPieces: 250,
     recycle: false,
-    colors: ['#ff4081', '#ffd700', '#4caf50', '#2196f3', '#9c27b0'],
+    colors: ['#ff4081', '#ffd700', '#4caf50', '#2196f3', '#9c27b0' , '#000000'],
     gravity: 0.3,
     tweenDuration: 3000,
     run: isVisible
-  }), [width, height, isVisible]);
+  }), [windowSize.width, windowSize.height, isVisible]);
 
   const fireworksOptions = useMemo(() => ({
     rocketsPoint: {
       min: 0,
-      max: 100
+      max: windowSize.width
     },
     explosion: 5,
     intensity: 15,
@@ -36,10 +36,10 @@ const BirthDayAnimation: React.FC = () => {
     traceSpeed: 8,
     flickering: 30,
     boundaries: {
-      width,
-      height,
+      width: windowSize.width,
+      height: windowSize.height,
     }
-  }), [width, height]);
+  }), [windowSize.width, windowSize.height]);
 
   useEffect(() => {
     const birthdays = checkTodaysBirthdays();

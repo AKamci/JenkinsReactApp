@@ -46,7 +46,7 @@ const GetBranchJobSlice = createSlice({
     name: 'getJob',
     initialState,
     extraReducers: (builder) => {
-        builder.addCase(GetBranchJob.pending, (state, action) => {
+        builder.addCase(GetBranchJob.pending, (state) => {
             state.state = ApiState.Pending;
             state.responseStatus = null; 
             state.errorMessage = null;   

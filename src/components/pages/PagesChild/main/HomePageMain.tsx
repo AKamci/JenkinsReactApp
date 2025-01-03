@@ -2,6 +2,7 @@ import { useAppDispatch, useAppSelector } from '../../../../infrastructure/store
 import GroupBoxItem from '../../../items/GroupBoxItem/GroupBoxItem';
 import { JobDto } from '../../../../infrastructure/dtos/JobDto';
 import { Box } from '@mui/material';
+import Masonry from '@mui/lab/Masonry';
 import SearchedItemBox from '../../../SearchBar/SearchedItemBox';
 import { getLastBuildsForInformation } from '../../../../infrastructure/store/slices/Information/GetLastBuildsForInformation-Slice';
 import { getQueueItems } from '../../../../infrastructure/store/slices/Information/GetInQueueItem-Slice';
@@ -28,30 +29,29 @@ const HomePageMain = () => {
             <Box 
                 key={job.name}
                 sx={{
-                    width: `${100 / Math.min(itemsPerRow, 8)}%`,
-                    padding: spacing / 2,
-                    display: 'inline-block',
-                    verticalAlign: 'top'
+                    width: '100%',
+                    padding: spacing / 2
                 }}
             >
                 <GroupBoxItem groupName={job.name} />
             </Box>
         ));
-    }, [selectedProjects, itemsPerRow, spacing]);
+    }, [selectedProjects, spacing]);
 
     return (
         <>
             <SearchedItemBox />
-            <Box 
-                sx={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    margin: 0,
-                    width: '100%',
-                    padding: 1
-                }}
-            >
-                {gridItems}
+            <Box sx={{ padding: 1 }}>
+                <Masonry
+                    columns={Math.min(itemsPerRow, 8)}
+                    spacing={spacing}
+                    sx={{
+                        width: '100%',
+                        margin: 0
+                    }}
+                >
+                    {gridItems}
+                </Masonry>
             </Box>
         </>
     );

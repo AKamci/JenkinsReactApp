@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '../../infrastructure/store/store';
 import { getAllJobForControl } from '../../infrastructure/store/slices/Job/GetAllJobForControl-Slice';
 import ApiState from '../../infrastructure/Enums/ApiState';

@@ -28,7 +28,7 @@ interface Message {
   id: string;
   user: string;
   text: string;
-  timestamp: string;
+  timestamp: number;
 }
 
 const STORAGE_KEY = 'jenkins_chat_messages';
@@ -60,6 +60,15 @@ const isBirthday = (username: string): boolean => {
   return birthdays.birthdays.some(
     birthday => birthday.name === username && birthday.date === currentDate
   );
+};
+
+const formatTimestamp = (timestamp: number): string => {
+  const date = new Date(timestamp);
+  return date.toLocaleTimeString('tr-TR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  });
 };
 
 export const ChatWindow: React.FC = () => {
@@ -168,7 +177,7 @@ export const ChatWindow: React.FC = () => {
         id: Date.now().toString(),
         user: username,
         text: newMessage.trim(),
-        timestamp: new Date().toLocaleTimeString(),
+        timestamp: new Date().getTime(),
       };
 
       socketRef.current.emit('message', message);
@@ -302,7 +311,7 @@ export const ChatWindow: React.FC = () => {
                   >
                     {message.user === username ? 'Sen' : message.user}
                     {isBirthday(message.user) && '🎂'}
-                    • {message.timestamp}
+                    • {formatTimestamp(message.timestamp)}
                   </Typography>
                 </Box>
                 <Paper 

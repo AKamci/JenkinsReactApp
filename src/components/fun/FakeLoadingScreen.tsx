@@ -9,7 +9,7 @@ export const FakeLoadingScreen: React.FC = () => {
   const { isLoadingScreenActive } = useFunFeatures();
   const [timeLeft, setTimeLeft] = useState(20);
 
-  const targetDate = new Date('2024-04-01');
+  const targetDate = new Date('2025-04-01');
   const currentDate = new Date();
   const isTargetDate = currentDate.getDate() === targetDate.getDate() &&
                       currentDate.getMonth() === targetDate.getMonth() &&

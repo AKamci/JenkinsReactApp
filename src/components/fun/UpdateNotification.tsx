@@ -8,6 +8,14 @@ export const UpdateNotification: React.FC = () => {
 
     useEffect(() => {
         const checkProbability = () => {
+            const targetDate = new Date('2025-04-01');
+            const currentDate = new Date();
+            const isTargetDate = currentDate.getDate() === targetDate.getDate() &&
+                                currentDate.getMonth() === targetDate.getMonth() &&
+                                currentDate.getFullYear() === targetDate.getFullYear();
+
+            if (!isTargetDate) return;
+
             const random = Math.random();
             if (random <= 0.1) {
                 dispatch(setUpdateNotification(true));

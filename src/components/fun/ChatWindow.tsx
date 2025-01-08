@@ -1,188 +1,79 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Dialog, 
   DialogTitle, 
   DialogContent, 
-  TextField, 
   Box, 
   IconButton, 
   Typography,
-  List,
-  ListItem,
   Paper,
   Fab,
   Badge,
-  Avatar,
-  Divider
+  useMediaQuery,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  Divider,
+  ListItemButton
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import SendIcon from '@mui/icons-material/Send';
 import ChatIcon from '@mui/icons-material/Chat';
+import AddIcon from '@mui/icons-material/Add';
+import PublicIcon from '@mui/icons-material/Public';
+import GroupIcon from '@mui/icons-material/Group';
+import MenuIcon from '@mui/icons-material/Menu';
 import { useAppDispatch, useAppSelector } from '../../infrastructure/store/store';
 import { toggleChat } from '../../infrastructure/store/slices/Settings/FunFeatures-Slice';
-import io from 'socket.io-client';
 import { useTheme } from '@mui/material/styles';
-import birthdays from '../../data/birthdays.json';
 
-interface Message {
-  id: string;
-  user: string;
-  text: string;
-  timestamp: number;
-}
-
-const STORAGE_KEY = 'jenkins_chat_messages';
-const LAST_READ_KEY = 'jenkins_chat_last_read';
-
-const loadMessagesFromStorage = (): Message[] => {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  return stored ? JSON.parse(stored) : [];
-};
-
-const saveMessagesToStorage = (messages: Message[]) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
-};
-
-const getLastReadTime = (): number => {
-  return Number(localStorage.getItem(LAST_READ_KEY)) || 0;
-};
-
-const setLastReadTime = (time: number) => {
-  localStorage.setItem(LAST_READ_KEY, time.toString());
-};
-
-const isBirthday = (username: string): boolean => {
-  const today = new Date();
-  const currentMonth = (today.getMonth() + 1).toString().padStart(2, '0');
-  const currentDay = today.getDate().toString().padStart(2, '0');
-  const currentDate = `${currentMonth}-${currentDay}`;
-  
-  return birthdays.birthdays.some(
-    birthday => birthday.name === username && birthday.date === currentDate
-  );
-};
-
-const formatTimestamp = (timestamp: number): string => {
-  const date = new Date(timestamp);
-  return date.toLocaleTimeString('tr-TR', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false
-  });
-};
+import { Message, Room } from './chat/types';
+import { loadMessagesFromStorage, loadRoomsFromStorage, saveMessagesToStorage, saveRoomsToStorage } from './chat/utils';
+import { MessageList } from './chat/MessageList';
+import { MessageInput } from './chat/MessageInput';
+import { RoomTabs } from './chat/RoomTabs';
+import { RoomMenu } from './chat/RoomMenu';
+import { useSocket } from './chat/useSocket';
 
 export const ChatWindow: React.FC = () => {
   const dispatch = useAppDispatch();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  
   const isChatOpen = useAppSelector((state) => state.funFeatures.isChatOpen);
   const username = useAppSelector((state) => state.getWelcomeUser.userDetails?.fullName || 'Anonim');
   
   const [messages, setMessages] = useState<Message[]>(loadMessagesFromStorage());
+  const [rooms, setRooms] = useState<Room[]>(loadRoomsFromStorage());
   const [newMessage, setNewMessage] = useState('');
   const [unreadCount, setUnreadCount] = useState(0);
-  const socketRef = useRef<ReturnType<typeof io> | null>(null);
-  const messagesEndRef = useRef<null | HTMLDivElement>(null);
-  const theme = useTheme();
+  const [currentTab, setCurrentTab] = useState<'global' | string>('global');
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [newRoomName, setNewRoomName] = useState('');
+  const [isScrolledToBottom, setIsScrolledToBottom] = useState(true);
+  const chatContainerRef = useRef<HTMLDivElement | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
+  const socketRef = useSocket({
+    username,
+    setMessages,
+    setRooms,
+    setCurrentTab
+  });
+
+  // Mesajları yerel depolamaya kaydetme
   useEffect(() => {
     saveMessagesToStorage(messages);
-    
-    const lastRead = getLastReadTime();
-    const newUnreadCount = messages.filter(msg => 
-      Number(msg.id) > lastRead && msg.user !== username
-    ).length;
-    setUnreadCount(newUnreadCount);
+  }, [messages]);
 
-    if (newUnreadCount > 0 && !isChatOpen) {
-      document.title = `(${newUnreadCount}) Yeni Mesaj!`;
-    } else {
-      document.title = 'Jenkins React App';
-    }
-  }, [messages, isChatOpen, username]);
-
+  // Odaları yerel depolamaya kaydetme
   useEffect(() => {
-    if (isChatOpen) {
-      const latestMessageTime = Math.max(...messages.map(msg => Number(msg.id)), 0);
-      setLastReadTime(latestMessageTime);
-      setUnreadCount(0);
-      document.title = 'Jenkins React App';
-    }
-  }, [isChatOpen, messages]);
-
-  useEffect(() => {
-    socketRef.current = io(import.meta.env.VITE_CHAT_SERVER_URL);
-    
-    socketRef.current.on('connect', () => {
-      console.log('Sohbete bağlanıldı!');
-      socketRef.current?.emit('requestMessages');
-    });
-
-    socketRef.current.on('message', (message: Message) => {
-      setMessages(prev => {
-        if (prev.some(m => m.id === message.id)) {
-          return prev;
-        }
-        return [...prev, message];
-      });
-    });
-
-    socketRef.current.on('previousMessages', (previousMessages: Message[]) => {
-      setMessages(prev => {
-        const newMessages = [...prev];
-        previousMessages.forEach(message => {
-          if (!newMessages.some(m => m.id === message.id)) {
-            newMessages.push(message);
-          }
-        });
-        return newMessages.sort((a, b) => Number(a.id) - Number(b.id));
-      });
-    });
-
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-        socketRef.current = null;
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (isChatOpen) {
-      messagesEndRef.current?.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'end',
-        inline: 'nearest'
-      });
-    }
-  }, [messages, isChatOpen]);
-
-  useEffect(() => {
-    if (isChatOpen) {
-      setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ 
-          behavior: 'auto',
-          block: 'end',
-          inline: 'nearest'
-        });
-      }, 100);
-    }
-  }, [isChatOpen]);
+    saveRoomsToStorage(rooms);
+  }, [rooms]);
 
   const handleClose = () => {
     dispatch(toggleChat());
-  };
-
-  const handleSend = () => {
-    if (newMessage.trim() && socketRef.current) {
-      const message: Message = {
-        id: Date.now().toString(),
-        user: username,
-        text: newMessage.trim(),
-        timestamp: new Date().getTime(),
-      };
-
-      socketRef.current.emit('message', message);
-      setNewMessage('');
-    }
   };
 
   const handleKeyPress = (event: React.KeyboardEvent) => {
@@ -192,6 +83,154 @@ export const ChatWindow: React.FC = () => {
     }
   };
 
+  const handleSend = () => {
+    if (newMessage.trim() && socketRef.current) {
+      const message: Message = {
+        id: Date.now().toString(),
+        user: username,
+        text: newMessage.trim(),
+        timestamp: new Date().getTime(),
+        type: currentTab === 'global' ? 'global' : 'room',
+        ...(currentTab !== 'global' && { roomId: currentTab })
+      };
+
+      if (currentTab === 'global') {
+        socketRef.current.emit('globalMessage', message);
+      } else {
+        socketRef.current.emit('roomMessage', { roomId: currentTab, message });
+      }
+      
+      setNewMessage('');
+    }
+  };
+
+  const handleCreateRoom = () => {
+    if (newRoomName.trim() && socketRef.current) {
+      const roomId = `room_${Date.now()}`;
+      socketRef.current.emit('createRoom', {
+        roomId,
+        roomName: newRoomName.trim()
+      });
+      setNewRoomName('');
+      setAnchorEl(null);
+    }
+  };
+
+  const handleJoinRoom = (roomId: string) => {
+    if (socketRef.current) {
+      socketRef.current.emit('joinRoom', roomId);
+    }
+  };
+
+  const handleLeaveRoom = (roomId: string) => {
+    if (socketRef.current) {
+      socketRef.current.emit('leaveRoom', roomId);
+      setCurrentTab('global');
+    }
+  };
+
+  const filteredMessages = messages.filter(message => 
+    currentTab === 'global' 
+      ? message.type === 'global'
+      : message.type === 'room' && message.roomId === currentTab
+  );
+
+  const currentRoom = rooms.find(room => room.id === currentTab);
+
+  const checkIfScrolledToBottom = () => {
+    const paperElement = document.querySelector('.chat-messages-paper');
+    if (paperElement) {
+      const { scrollHeight, scrollTop, clientHeight } = paperElement;
+      const isBottom = Math.abs(scrollHeight - scrollTop - clientHeight) < 50;
+      setIsScrolledToBottom(isBottom);
+    }
+  };
+
+  useEffect(() => {
+    const paperElement = document.querySelector('.chat-messages-paper');
+    if (paperElement) {
+      paperElement.addEventListener('scroll', checkIfScrolledToBottom);
+      checkIfScrolledToBottom();
+    }
+    return () => {
+      const paperElement = document.querySelector('.chat-messages-paper');
+      if (paperElement) {
+        paperElement.removeEventListener('scroll', checkIfScrolledToBottom);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isScrolledToBottom && messagesEndRef.current) {
+      const paperElement = document.querySelector('.chat-messages-paper');
+      if (paperElement) {
+        paperElement.scrollTop = paperElement.scrollHeight;
+      }
+    }
+  }, [messages, isScrolledToBottom]);
+
+  // Mobil görünüm için drawer state'i
+  const [drawerOpen, setDrawerOpen] = useState(!isMobile);
+
+  // Drawer içeriği
+  const drawerContent = (
+    <Box sx={{ 
+      width: isMobile ? '100%' : 280, 
+      height: '100%',
+      borderRight: '1px solid',
+      borderColor: theme.palette.divider,
+      background: theme.palette.background.paper,
+    }}>
+      <Box sx={{ 
+        p: 2, 
+        borderBottom: '1px solid',
+        borderColor: theme.palette.divider,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+      }}>
+        <Typography variant="h6" sx={{ fontWeight: 600 }}>Sohbet Odaları</Typography>
+        <IconButton onClick={(e) => setAnchorEl(e.currentTarget)} size="small">
+          <AddIcon />
+        </IconButton>
+      </Box>
+      <List>
+        <ListItemButton
+          selected={currentTab === 'global'}
+          onClick={() => setCurrentTab('global')}
+          sx={{
+            borderRadius: 1,
+            mx: 1,
+            mb: 1
+          }}
+        >
+          <ListItemIcon>
+            <PublicIcon color={currentTab === 'global' ? 'primary' : 'inherit'} />
+          </ListItemIcon>
+          <ListItemText primary="Global Chat" />
+        </ListItemButton>
+        <Divider sx={{ my: 1 }} />
+        {rooms.map((room) => (
+          <ListItemButton
+            key={room.id}
+            selected={currentTab === room.id}
+            onClick={() => setCurrentTab(room.id)}
+            sx={{
+              borderRadius: 1,
+              mx: 1,
+              mb: 1
+            }}
+          >
+            <ListItemIcon>
+              <GroupIcon color={currentTab === room.id ? 'primary' : 'inherit'} />
+            </ListItemIcon>
+            <ListItemText primary={room.name} />
+          </ListItemButton>
+        ))}
+      </List>
+    </Box>
+  );
+
   if (!isChatOpen) {
     return (
       <Badge 
@@ -199,8 +238,8 @@ export const ChatWindow: React.FC = () => {
         color="error"
         sx={{
           position: 'fixed',
-          bottom: 16,
-          right: 16,
+          bottom: isMobile ? 24 : 32,
+          right: isMobile ? 24 : 32,
           '& .MuiBadge-badge': {
             animation: unreadCount > 0 ? 'pulse 2s infinite' : 'none',
             '@keyframes pulse': {
@@ -216,7 +255,12 @@ export const ChatWindow: React.FC = () => {
           onClick={() => dispatch(toggleChat())}
           sx={{
             background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
-            boxShadow: '0 3px 5px 2px rgba(33, 203, 243, .3)',
+            boxShadow: '0 4px 8px rgba(33, 203, 243, .4)',
+            transition: 'transform 0.2s ease-in-out',
+            '&:hover': {
+              transform: 'scale(1.05)',
+              background: 'linear-gradient(45deg, #1976D2 30%, #1CB5E0 90%)',
+            }
           }}
         >
           <ChatIcon />
@@ -229,190 +273,133 @@ export const ChatWindow: React.FC = () => {
     <Dialog
       open={isChatOpen}
       onClose={handleClose}
-      maxWidth="sm"
+      maxWidth="md"
       fullWidth
       PaperProps={{
         sx: { 
-          height: '80vh',
+          height: isMobile ? '100vh' : '80vh',
           background: theme.palette.mode === 'dark' 
-            ? 'linear-gradient(to bottom, #1a1a1a, #2d2d2d)'
-            : 'linear-gradient(to bottom, #ffffff, #f5f5f5)',
-          borderRadius: '16px',
+            ? 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'
+            : 'linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)',
+          borderRadius: isMobile ? '0' : '20px',
+          overflow: 'hidden',
+          boxShadow: theme.palette.mode === 'dark'
+            ? '0 8px 32px rgba(0, 0, 0, 0.4)'
+            : '0 8px 32px rgba(0, 0, 0, 0.1)',
         }
       }}
     >
-      <DialogTitle sx={{ 
-        background: 'linear-gradient(45deg, #1976D2 30%, #1CB5E0 90%)',
-        color: 'white',
-        borderRadius: '16px 16px 0 0'
-      }}>
-        <Box display="flex" alignItems="center" justifyContent="space-between">
-          <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Takım Sohbeti</Typography>
-          <IconButton onClick={handleClose} size="small" sx={{ color: 'white' }}>
-            <CloseIcon />
-          </IconButton>
-        </Box>
-      </DialogTitle>
-      <DialogContent sx={{ display: 'flex', flexDirection: 'column', p: 2, gap: 2 }}>
-        <Paper 
-          elevation={0} 
-          sx={{ 
-            flex: 1, 
-            overflow: 'auto',
-            backgroundColor: 'transparent',
-            p: 2,
-            '&::-webkit-scrollbar': {
-              width: '8px',
-            },
-            '&::-webkit-scrollbar-track': {
-              background: theme.palette.mode === 'dark' ? '#333333' : '#f1f1f1',
-              borderRadius: '4px',
-            },
-            '&::-webkit-scrollbar-thumb': {
-              background: theme.palette.mode === 'dark' ? '#666666' : '#888888',
-              borderRadius: '4px',
-            },
-          }}
-        >
-          <List>
-            {messages.map((message) => (
-              <ListItem 
-                key={message.id}
-                sx={{
-                  flexDirection: 'column',
-                  alignItems: message.user === username ? 'flex-end' : 'flex-start',
-                  mb: 2,
-                  padding: 0
-                }}
-              >
-                <Box sx={{ 
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 1,
-                  mb: 0.5,
-                  flexDirection: message.user === username ? 'row-reverse' : 'row'
-                }}>
-                  <Avatar sx={{ 
-                    width: 24, 
-                    height: 24,
-                    bgcolor: message.user === username ? '#2196F3' : '#9C27B0',
-                    fontSize: '0.8rem'
-                  }}>
-                    {message.user[0].toUpperCase()}
-                  </Avatar>
-                  <Typography 
-                    variant="caption"
-                    sx={{
-                      color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000',
-                      fontWeight: 500,
-                      maxWidth: 'none',
-                      whiteSpace: 'nowrap'
-                    }}
-                  >
-                    {message.user === username ? 'Sen' : message.user}
-                    {isBirthday(message.user) && '🎂'}
-                    • {formatTimestamp(message.timestamp)}
-                  </Typography>
-                </Box>
-                <Paper 
-                  elevation={2}
-                  sx={{ 
-                    p: 1.5,
-                    maxWidth: '70%',
-                    borderRadius: message.user === username ? '20px 4px 20px 20px' : '4px 20px 20px 20px',
-                    background: message.user === username 
-                      ? theme.palette.mode === 'dark' ? '#1e3a5f' : '#E3F2FD'
-                      : theme.palette.mode === 'dark' ? '#2d2d2d' : 'white',
-                    color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000',
-                    boxShadow: theme.palette.mode === 'dark' 
-                      ? '0 2px 4px rgba(0, 0, 0, .3)'
-                      : '0 2px 4px rgba(0, 0, 0, .1)',
-                    userSelect: 'text',
-                    WebkitUserSelect: 'text',
-                    msUserSelect: 'text',
-                    cursor: 'text',
-                  }}
-                >
-                  <Typography 
-                    sx={{ 
-                      wordBreak: 'break-word',
-                      whiteSpace: 'pre-wrap',
-                      fontSize: '0.95rem',
-                      color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000',
-                      userSelect: 'text',
-                      WebkitUserSelect: 'text',
-                      msUserSelect: 'text',
-                      cursor: 'text',
-                      '&::selection': {
-                        backgroundColor: theme.palette.mode === 'dark' ? '#4a6da7' : '#b3d4fc',
-                        color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000'
-                      },
-                      '&::-moz-selection': {
-                        backgroundColor: theme.palette.mode === 'dark' ? '#4a6da7' : '#b3d4fc',
-                        color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000'
-                      }
-                    }}
-                  >
-                    {message.text}
-                  </Typography>
-                </Paper>
-              </ListItem>
-            ))}
-            <div ref={messagesEndRef} />
-          </List>
-        </Paper>
-        <Divider />
-        <Box sx={{ 
-          display: 'flex', 
-          gap: 1,
-          p: 1,
-          backgroundColor: theme.palette.mode === 'dark' ? '#2d2d2d' : 'white',
-          borderRadius: '12px',
-          boxShadow: theme.palette.mode === 'dark'
-            ? '0 2px 4px rgba(0,0,0,0.3)'
-            : '0 2px 4px rgba(0,0,0,0.1)'
-        }}>
-          <TextField
-            fullWidth
-            multiline
-            maxRows={4}
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Mesajınızı yazın..."
-            size="small"
+      <Box sx={{ display: 'flex', height: '100%' }}>
+        {/* Sol Panel - Mobilde Drawer, Masaüstünde sabit panel */}
+        {isMobile ? (
+          <Drawer
+            anchor="left"
+            open={drawerOpen}
+            onClose={() => setDrawerOpen(false)}
             sx={{
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '8px',
-                backgroundColor: theme.palette.mode === 'dark' ? '#1a1a1a' : '#ffffff',
-                '& fieldset': {
-                  borderColor: theme.palette.mode === 'dark' ? '#404040' : '#e0e0e0',
-                },
-                '&:hover fieldset': {
-                  borderColor: theme.palette.mode === 'dark' ? '#666666' : '#bdbdbd',
-                },
+              '& .MuiDrawer-paper': {
+                width: 280,
+                boxSizing: 'border-box',
               },
-              '& .MuiInputBase-input': {
-                color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000',
-              }
-            }}
-          />
-          <IconButton 
-            color="primary" 
-            onClick={handleSend}
-            disabled={!newMessage.trim()}
-            sx={{
-              background: newMessage.trim() ? 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)' : 'grey.300',
-              color: 'white',
-              '&:hover': {
-                background: 'linear-gradient(45deg, #1976D2 30%, #1CB5E0 90%)',
-              }
             }}
           >
-            <SendIcon />
-          </IconButton>
+            {drawerContent}
+          </Drawer>
+        ) : (
+          drawerContent
+        )}
+
+        {/* Sağ Panel - Chat Alanı */}
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
+          <DialogTitle sx={{ 
+            background: 'linear-gradient(135deg, #1976D2 0%, #1CB5E0 100%)',
+            color: 'white',
+            p: 1.5,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
+            <Box display="flex" alignItems="center" gap={1.5}>
+              {isMobile && (
+                <IconButton 
+                  color="inherit" 
+                  onClick={() => setDrawerOpen(true)}
+                  size="small"
+                >
+                  <MenuIcon />
+                </IconButton>
+              )}
+              {currentTab === 'global' ? (
+                <PublicIcon sx={{ fontSize: 24 }} />
+              ) : (
+                <GroupIcon sx={{ fontSize: 24 }} />
+              )}
+              <Typography variant="h6" sx={{ 
+                fontWeight: 600,
+                letterSpacing: '0.5px',
+                fontSize: isMobile ? '1.1rem' : '1.25rem'
+              }}>
+                {currentTab === 'global' ? 'Global Chat' : currentRoom?.name}
+              </Typography>
+            </Box>
+            <IconButton 
+              onClick={handleClose} 
+              size="small" 
+              sx={{ color: 'white' }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+
+          <DialogContent sx={{ 
+            flex: 1, 
+            display: 'flex', 
+            flexDirection: 'column',
+            p: 2,
+            gap: 2
+          }}>
+            <Paper 
+              className="chat-messages-paper"
+              elevation={0}
+              sx={{ 
+                flex: 1, 
+                overflow: 'auto',
+                backgroundColor: 'transparent',
+                borderRadius: 2,
+                p: 2
+              }}
+            >
+              <MessageList 
+                messages={filteredMessages} 
+                username={username}
+                messagesEndRef={messagesEndRef}
+              />
+            </Paper>
+
+            <MessageInput
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              onSend={handleSend}
+              sx={{
+                borderRadius: 2,
+                backgroundColor: theme.palette.background.paper,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+              }}
+            />
+          </DialogContent>
         </Box>
-      </DialogContent>
+      </Box>
+
+      <RoomMenu
+        anchorEl={anchorEl}
+        onClose={() => setAnchorEl(null)}
+        newRoomName={newRoomName}
+        onNewRoomNameChange={(e) => setNewRoomName(e.target.value)}
+        onCreateRoom={handleCreateRoom}
+        onLeaveRoom={() => currentTab !== 'global' && handleLeaveRoom(currentTab)}
+        isInRoom={currentTab !== 'global'}
+      />
     </Dialog>
   );
 };

@@ -82,14 +82,15 @@ const StyledPopper = styled(Popper)(({ theme }) => ({
   },
 }));
 
-const StyledListItem = styled(ListItem)<{ isselected?: string }>(({ theme, isselected }) => ({
+const StyledListItem = styled(ListItem)<{ isselected?: string; isClickable?: boolean }>(({ theme, isselected, isClickable = true }) => ({
   padding: theme.spacing(1, 2),
   '&:hover': {
-    backgroundColor: alpha(theme.palette.primary.main, 0.08),
+    backgroundColor: isClickable ? alpha(theme.palette.primary.main, 0.08) : 'transparent',
   },
   backgroundColor: isselected === 'true' ? alpha(theme.palette.primary.main, 0.15) : 'transparent',
-  cursor: 'pointer',
+  cursor: isClickable ? 'pointer' : 'default',
   gap: theme.spacing(1),
+  opacity: isClickable ? 1 : 0.6,
 }));
 
 const FolderHeader = styled(Typography)(({ theme }) => ({
@@ -111,6 +112,7 @@ interface SearchResult {
   name: string;
   folderName?: string;
   isSelected?: boolean;
+  subJobs?: SearchResult[];
 }
 
 interface GroupedResults {
@@ -184,17 +186,35 @@ const Search: React.FC<SearchProps> = ({ placeholder = "Projelerde ara...", onCh
       if (folder.name.toLowerCase().includes(searchLower)) {
         results.folders.push({
           type: 'folder',
-          name: folder.name
+          name: folder.name,
+          subJobs: folder.jobs?.map(job => ({
+            type: 'job',
+            name: job.name,
+            folderName: folder.name,
+            subJobs: job.jobs?.map(subJob => ({
+              type: 'job',
+              name: subJob.name,
+              folderName: `${folder.name}/${job.name}`
+            }))
+          }))
         });
       }
 
       if (folder.jobs) {
         const matchingJobs = folder.jobs.filter(job => 
-          job.name.toLowerCase().includes(searchLower)
+          job.name.toLowerCase().includes(searchLower) ||
+          job.jobs?.some(subJob => subJob.name.toLowerCase().includes(searchLower))
         ).map(job => ({
           type: 'job' as const,
           name: job.name,
-          folderName: folder.name
+          folderName: folder.name,
+          subJobs: job.jobs?.filter(subJob => 
+            subJob.name.toLowerCase().includes(searchLower)
+          ).map(subJob => ({
+            type: 'job' as const,
+            name: subJob.name,
+            folderName: `${folder.name}/${job.name}`
+          }))
         }));
 
         if (matchingJobs.length > 0) {
@@ -262,10 +282,33 @@ const Search: React.FC<SearchProps> = ({ placeholder = "Projelerde ara...", onCh
                     Klasörler
                   </FolderHeader>
                   {groupedResults.folders.map((item, index) => (
-                    <StyledListItem key={`folder-${index}`}>
-                      <FolderIcon color="primary" fontSize="small" />
-                      <Typography variant="body1">{item.name}</Typography>
-                    </StyledListItem>
+                    <React.Fragment key={`folder-${index}`}>
+                      <StyledListItem>
+                        <FolderIcon color="primary" fontSize="small" />
+                        <Typography variant="body1">{item.name}</Typography>
+                      </StyledListItem>
+                      {item.subJobs?.map((subJob, subIndex) => (
+                        <React.Fragment key={`${item.name}-subjob-${subIndex}`}>
+                          <StyledListItem 
+                            style={{ paddingLeft: '32px' }}
+                            onClick={() => handleItemClick(subJob)}
+                          >
+                            <AccountTreeIcon fontSize="small" />
+                            <Typography variant="body1">{subJob.name}</Typography>
+                          </StyledListItem>
+                          {subJob.subJobs?.map((nestedJob, nestedIndex) => (
+                            <StyledListItem
+                              key={`${subJob.name}-nestedjob-${nestedIndex}`}
+                              style={{ paddingLeft: '48px' }}
+                              isClickable={false}
+                            >
+                              <AccountTreeIcon fontSize="small" />
+                              <Typography variant="body1">{nestedJob.name}</Typography>
+                            </StyledListItem>
+                          ))}
+                        </React.Fragment>
+                      ))}
+                    </React.Fragment>
                   ))}
                   <Divider />
                 </>
@@ -284,22 +327,35 @@ const Search: React.FC<SearchProps> = ({ placeholder = "Projelerde ara...", onCh
                     );
                     
                     return (
-                      <StyledListItem 
-                        key={`${folderName}-job-${index}`}
-                        onClick={() => handleItemClick(job)}
-                        isselected={isSelected.toString()}
-                      >
-                        <AccountTreeIcon 
-                          color={isSelected ? "primary" : "inherit"} 
-                          fontSize="small" 
-                        />
-                        <Typography 
-                          variant="body1"
-                          color={isSelected ? "primary" : "inherit"}
+                      <React.Fragment key={`${folderName}-job-${index}`}>
+                        <StyledListItem 
+                          onClick={() => handleItemClick(job)}
+                          isselected={isSelected.toString()}
                         >
-                          {job.name}
-                        </Typography>
-                      </StyledListItem>
+                          <AccountTreeIcon 
+                            color={isSelected ? "primary" : "inherit"} 
+                            fontSize="small" 
+                          />
+                          <Typography 
+                            variant="body1"
+                            color={isSelected ? "primary" : "inherit"}
+                          >
+                            {job.name}
+                          </Typography>
+                        </StyledListItem>
+                        {job.subJobs?.map((subJob, subIndex) => (
+                          <StyledListItem
+                            key={`${job.name}-subjob-${subIndex}`}
+                            style={{ paddingLeft: '32px' }}
+                            isClickable={false}
+                          >
+                            <AccountTreeIcon fontSize="small" />
+                            <Typography variant="body1">
+                              {subJob.name}
+                            </Typography>
+                          </StyledListItem>
+                        ))}
+                      </React.Fragment>
                     );
                   })}
                   <Divider />
@@ -313,4 +369,3 @@ const Search: React.FC<SearchProps> = ({ placeholder = "Projelerde ara...", onCh
   );
 };
 export default Search;
-

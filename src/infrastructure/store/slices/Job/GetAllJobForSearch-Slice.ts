@@ -27,7 +27,7 @@ export const getAllJobForSearch = createAsyncThunk<JobDto, void, { state: JobFor
     'getAllJobForSearch',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await axios.get<JobDto>(ApiEndpoints.Job.GetAll_Name_With_Repository, {
+            const response = await axios.get<JobDto>(ApiEndpoints.Job.GetAllForSearch, {
                 auth: {
                     username: import.meta.env.VITE_JENKINS_USERNAME,
                     password: import.meta.env.VITE_JENKINS_TOKEN,

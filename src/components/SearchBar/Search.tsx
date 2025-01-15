@@ -194,7 +194,7 @@ const Search: React.FC<SearchProps> = ({ placeholder = "Projelerde ara...", onCh
             subJobs: job.jobs?.map(subJob => ({
               type: 'job',
               name: subJob.name,
-              folderName: `${folder.name}/${job.name}`
+              folderName: encodeURIComponent(`${folder.name}/${job.name}`)
             }))
           }))
         });
@@ -213,7 +213,7 @@ const Search: React.FC<SearchProps> = ({ placeholder = "Projelerde ara...", onCh
           ).map(subJob => ({
             type: 'job' as const,
             name: subJob.name,
-            folderName: `${folder.name}/${job.name}`
+            folderName: encodeURIComponent(`${folder.name}/${job.name}`)
           }))
         }));
 

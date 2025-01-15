@@ -191,7 +191,7 @@ const Search: React.FC<SearchProps> = ({ placeholder = "Projelerde ara...", onCh
             type: 'job',
             name: job.name,
             folderName: folder.name,
-            subJobs: job.jobs?.map(subJob => ({
+            subJobs: job.jobs?.filter(subJob => subJob.color !== 'disabled').map(subJob => ({
               type: 'job',
               name: subJob.name,
               folderName: encodeURIComponent(`${folder.name}/${job.name}`)
@@ -203,13 +203,13 @@ const Search: React.FC<SearchProps> = ({ placeholder = "Projelerde ara...", onCh
       if (folder.jobs) {
         const matchingJobs = folder.jobs.filter(job => 
           job.name.toLowerCase().includes(searchLower) ||
-          job.jobs?.some(subJob => subJob.name.toLowerCase().includes(searchLower))
+          job.jobs?.some(subJob => subJob.name.toLowerCase().includes(searchLower) && subJob.color !== 'disabled')
         ).map(job => ({
           type: 'job' as const,
           name: job.name,
           folderName: folder.name,
           subJobs: job.jobs?.filter(subJob => 
-            subJob.name.toLowerCase().includes(searchLower)
+            subJob.name.toLowerCase().includes(searchLower) && subJob.color !== 'disabled'
           ).map(subJob => ({
             type: 'job' as const,
             name: subJob.name,
